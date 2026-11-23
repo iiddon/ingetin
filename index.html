@@ -249,6 +249,39 @@ textarea.inp{resize:vertical;line-height:1.45}
 .custom-color label{font-size:14px;font-weight:600;color:var(--mu2)}
 .custom-color input{width:56px;height:40px;border:none;border-radius:10px;background:none;padding:0;cursor:pointer}
 .pp-prev{margin-top:10px}
+.pchips{display:flex;flex-wrap:wrap;gap:8px}
+.pchip{position:relative}
+.pchip input{position:absolute;opacity:0;inset:0;margin:0;cursor:pointer}
+.pchip>span{display:inline-flex;align-items:center;gap:8px;min-height:44px;padding:0 14px 0 6px;border-radius:999px;border:1.5px solid var(--bd);background:var(--card);font-weight:700;font-size:14px;color:var(--mu2);transition:background .15s,border-color .15s,transform .12s}
+.pchip>span i{width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-style:normal;font-weight:800;font-size:13px}
+.pchip.add>span{padding:0 14px;border-style:dashed;color:var(--p)}
+.pchip input:checked+span{border-color:var(--p);background:var(--p-l);color:var(--p-d)}
+.pchip input:focus-visible+span{outline:3px solid #93B4FF}
+.pchip:active>span{transform:scale(.96)}
+.pnew{margin-top:10px}
+.pnew[hidden]{display:none}
+.pickbtn{display:flex;align-items:center;justify-content:space-between;gap:8px;text-align:left;font-weight:600;cursor:pointer}
+.pickbtn.empty{color:#6B7280;font-weight:500}
+.pickbtn svg{color:var(--mu);flex-shrink:0}
+#pick .backdrop{z-index:64}
+.picker{position:fixed;z-index:65;left:50%;top:50%;transform:translate(-50%,-50%);width:min(380px,94vw);max-height:92dvh;overflow-y:auto;background:var(--card);border-radius:22px;padding:18px;display:flex;flex-direction:column;gap:12px;box-shadow:0 20px 50px rgba(0,0,0,.22);animation:pop .2s cubic-bezier(.2,.8,.2,1)}
+.pk-h{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.pk-h b{font-size:18px;font-weight:800}
+.pk-dows,.pk-grid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:4px}
+.pk-dows span{font-size:11px;font-weight:700;color:var(--mu);text-align:center}
+.pk-grid button{aspect-ratio:1;min-height:40px;border:none;border-radius:12px;background:none;font-weight:700;font-size:15px;color:var(--tx);transition:background .12s,transform .12s}
+.pk-grid button:active{transform:scale(.9)}
+.pk-grid button.out{color:#9AA1AD}
+.pk-grid button.today{box-shadow:inset 0 0 0 2px var(--p);color:var(--p-d)}
+.pk-grid button.cur{background:var(--p);color:#fff;box-shadow:none}
+.pk-big{text-align:center;font-size:40px;font-weight:800;letter-spacing:1px;font-variant-numeric:tabular-nums}
+.pk-lbl{font-size:13px;font-weight:700;color:var(--mu)}
+.pk-tgrid{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:6px}
+.pk-tgrid button{min-height:42px;border-radius:10px;border:1px solid var(--bd);background:var(--card);font-weight:700;font-size:15px;font-variant-numeric:tabular-nums;transition:background .12s,transform .12s}
+.pk-tgrid button:active{transform:scale(.93)}
+.pk-tgrid button.cur{background:var(--p);border-color:var(--p);color:#fff}
+.pk-quick{display:flex;gap:8px;flex-wrap:wrap}
+.pk-quick .btn{flex:1;min-height:42px;font-size:14px}
 .inp.bad{border-color:var(--danger);box-shadow:0 0 0 3px #FEE2E2}
 .chipbtn{min-height:34px;padding:0 12px;border-radius:999px;border:1px solid var(--bd);background:var(--bg);font-size:13px;color:var(--mu2)}
 .preview{border-radius:16px;background:var(--bg);padding:14px;display:flex;flex-direction:column;gap:12px}
@@ -276,6 +309,7 @@ textarea.inp{resize:vertical;line-height:1.45}
 <body>
 <div class="app" id="app"></div>
 <div id="sh"></div>
+<div id="pick"></div>
 <div id="dlg"></div>
 <div id="toast" aria-live="polite"></div>
 
@@ -870,6 +904,26 @@ function render() {
 }
 
 /* ============ sheets ============ */
+const fmtDMY = (s) => { if (!s) return ''; const [y, m, d] = s.split('-'); return d + '/' + m + '/' + y; };
+function personPicker(id, sel, opt = {}) {
+  const people = [...S.data.people].sort((a, b) => a.name.localeCompare(b.name));
+  const chip = (val, label, color, extraCls = '') => `<label class="pchip ${extraCls}"><input type="radio" name="person" value="${h(val)}" data-chg="personPick" ${sel === val ? 'checked' : ''} ${opt.required ? 'required' : ''}><span>${color ? `<i style="${cs(color)}">${h((label || '?')[0].toUpperCase())}</i>` : ''}${h(label)}</span></label>`;
+  let html = `<div class="pchips" role="radiogroup" aria-labelledby="${id}-l">`;
+  if (!opt.required) html += chip('', 'Kamu', 'blue');
+  for (const p of people) html += chip(p.id, p.name, p.color);
+  if (opt.newName) html += chip('__new', opt.newName + ' · baru', FRIEND_COLORS[people.length % FRIEND_COLORS.length]);
+  html += chip('__other', '+ Teman baru', null, 'add');
+  html += `</div><div class="pnew field" ${sel === '__other' ? '' : 'hidden'}><label for="${id}-new">Nama teman baru</label><input class="inp" id="${id}-new" name="personNew" autocomplete="off" placeholder="mis. Nisya"></div>`;
+  return `<div class="field"><span class="flabel" id="${id}-l">${opt.label || 'Teman'}</span>${html}</div>`;
+}
+function dateField(id, label, val, required) {
+  return `<div class="field"><span class="flabel" id="${id}-l">${label}</span><input type="hidden" id="${id}" name="date" value="${h(val || '')}">
+    <button type="button" class="inp pickbtn ${val ? '' : 'empty'}" data-act="pickDate" data-for="${id}" aria-labelledby="${id}-l ${id}-v"><span id="${id}-v">${val ? fmtDMY(val) : 'DD/MM/YYYY'}</span>${ic('cal', 18)}</button></div>`;
+}
+function timeField(id, label, val) {
+  return `<div class="field"><span class="flabel" id="${id}-l">${label}</span><input type="hidden" id="${id}" name="time" value="${h(val || '')}">
+    <button type="button" class="inp pickbtn ${val ? '' : 'empty'}" data-act="pickTime" data-for="${id}" aria-labelledby="${id}-l ${id}-v"><span id="${id}-v">${val ? fmtTime(val) : '--.--'}</span>${ic('clock', 18)}</button></div>`;
+}
 const personOptions = (sel, extra = '') => `<option value="">Kamu (tanpa teman)</option>${[...S.data.people].sort((a, b) => a.name.localeCompare(b.name)).map((p) => `<option value="${h(p.id)}" ${p.id === sel ? 'selected' : ''}>${h(p.name)}</option>`).join('')}${extra}`;
 const remChecks = (list) => REM.map((r) => `<label class="sw"><span><b>${r.label}</b><small>${r.days === 0 ? 'Pukul 07.00 di hari acara' : r.days + ' hari sebelum, pukul 19.00'}</small></span><input type="checkbox" name="rem" value="${r.k}" ${list.includes(r.k) ? 'checked' : ''}></label>`).join('');
 const shareBox = (on, label) => S.mode === 'cloud'
@@ -880,7 +934,7 @@ const SHEETS = {
   quick(s) {
     const r = s.parsed || { type: 'event', title: '', date: s.date || '', time: '', personId: s.person || '', newName: '', noteText: '' };
     const newOpt = r.newName ? `<option value="__new" ${!r.personId ? 'selected' : ''}>+ Teman baru: ${h(r.newName)}</option>` : '';
-    const pSel = r.personId || (r.newName ? '__new' : '');
+    const pSel = r.sel !== undefined ? r.sel : (r.personId || (r.newName ? '__new' : ''));
     const isNote = r.type === 'note';
     return `<div class="sh-body">
       <div class="sh-top"><h2>Tambah cepat</h2><button type="button" class="icon-btn round" data-act="closeSheet" aria-label="Tutup">${ic('x', 18, 2.4)}</button></div>
@@ -897,7 +951,7 @@ const SHEETS = {
             <label><input type="radio" name="type" value="event" data-chg="qaType" ${!isNote ? 'checked' : ''}><span>${ic('cal', 16)}&nbsp;Acara</span></label>
             <label><input type="radio" name="type" value="note" data-chg="qaType" ${isNote ? 'checked' : ''}><span>${ic('note', 16)}&nbsp;Catatan</span></label>
           </div>
-          <div class="field"><label for="qa-person">Teman</label><select id="qa-person" class="inp" name="person">${personOptions(pSel, newOpt)}</select></div>
+          ${personPicker('qa-person', pSel, { newName: r.newName, required: isNote, label: isNote ? 'Tentang' : 'Teman' })}
           ${isNote ? `
             <div class="field"><label for="qa-note">Catatan</label><input id="qa-note" class="inp" name="noteText" value="${h(r.noteText)}"></div>
             <div class="seg" role="radiogroup" aria-label="Jenis catatan">
@@ -905,8 +959,7 @@ const SHEETS = {
               <label><input type="radio" name="kind" value="cerita"><span>Pernah cerita</span></label>
             </div>` : `
             <div class="field"><label for="qa-title">Judul</label><input id="qa-title" class="inp" name="title" value="${h(r.title)}"></div>
-            <div class="row2"><div class="field"><label for="qa-date">Tanggal</label><input id="qa-date" class="inp" type="date" name="date" value="${h(r.date)}"></div>
-            <div class="field"><label for="qa-time">Jam (opsional)</label><input id="qa-time" class="inp" type="time" name="time" value="${h(r.time)}"></div></div>
+            <div class="row2">${dateField('qa-date', 'Tanggal', r.date)}${timeField('qa-time', 'Jam (opsional)', r.time)}</div>
             <p class="muted" style="margin:0;font-size:13px" id="qa-when">${r.date ? h(fmtLong(r.date)) + ' · ' + rel(r.date) : 'Tanggal belum terbaca — pilih tanggalnya.'}</p>
             <div class="flabel">Pengingat</div>
             <div style="display:flex;flex-wrap:wrap;gap:8px">${REM.map((x) => `<label class="pill" style="${cs('gray')};min-height:36px;padding:0 12px;cursor:pointer"><input type="checkbox" name="rem" value="${x.k}" ${['h-1', 'hari-h'].includes(x.k) ? 'checked' : ''} style="accent-color:var(--p)">${x.label}</label>`).join('')}</div>
@@ -951,9 +1004,8 @@ const SHEETS = {
     return `<div class="sh-body"><div class="sh-top"><h2>${s.id ? 'Ubah acara' : 'Acara baru'}</h2><button type="button" class="icon-btn round" data-act="closeSheet" aria-label="Tutup">${ic('x', 18, 2.4)}</button></div>
       <form class="stack" data-form="editEvent" style="gap:14px">
         <div class="field"><label for="ee-title">Judul</label><input id="ee-title" class="inp" name="title" required value="${h(e.title)}"></div>
-        <div class="row2"><div class="field"><label for="ee-date">Tanggal</label><input id="ee-date" class="inp" type="date" name="date" required value="${h(e.date)}"></div>
-        <div class="field"><label for="ee-time">Jam (opsional)</label><input id="ee-time" class="inp" type="time" name="time" value="${h(e.time || '')}"></div></div>
-        <div class="field"><label for="ee-person">Teman</label><select id="ee-person" class="inp" name="person">${personOptions(e.person_id || '')}</select></div>
+        <div class="row2">${dateField('ee-date', 'Tanggal', e.date)}${timeField('ee-time', 'Jam (opsional)', e.time)}</div>
+        ${personPicker('ee-person', e.person_id || '')}
         <div class="field"><label for="ee-loc">Lokasi (opsional)</label><input id="ee-loc" class="inp" name="location" value="${h(e.location || '')}"></div>
         <div class="field"><label for="ee-notes">Catatan (opsional)</label><textarea id="ee-notes" class="inp" name="notes" rows="2" placeholder="mis. Dress code batik">${h(e.notes || '')}</textarea></div>
         <div><div class="flabel">Pengingat</div>${remChecks(e.reminders || [])}</div>
@@ -966,7 +1018,7 @@ const SHEETS = {
     if (!n) return null;
     return `<div class="sh-body"><div class="sh-top"><h2>${s.id ? 'Ubah catatan' : 'Catat sesuatu'}</h2><button type="button" class="icon-btn round" data-act="closeSheet" aria-label="Tutup">${ic('x', 18, 2.4)}</button></div>
       <form class="stack" data-form="note" style="gap:14px">
-        <div class="field"><label for="nt-person">Tentang</label><select id="nt-person" class="inp" name="person" required>${[...S.data.people].sort((a, b) => a.name.localeCompare(b.name)).map((p) => `<option value="${h(p.id)}" ${p.id === n.person_id ? 'selected' : ''}>${h(p.name)}</option>`).join('')}</select></div>
+        ${personPicker('nt-person', n.person_id || (S.data.people[0] || {}).id || '__other', { required: true, label: 'Tentang' })}
         <div class="seg" role="radiogroup" aria-label="Jenis catatan">
           <label><input type="radio" name="kind" value="ingat" ${n.kind !== 'cerita' ? 'checked' : ''}><span>Harus diingat</span></label>
           <label><input type="radio" name="kind" value="cerita" ${n.kind === 'cerita' ? 'checked' : ''}><span>Pernah cerita</span></label>
@@ -1049,16 +1101,66 @@ function quickInput() {
   renderSheet();
   const t2 = $('#qa-text'); if (hadFocus) { t2.focus(); t2.setSelectionRange(pos, pos); }
 }
-async function ensurePerson(sel, newName) {
-  if (sel !== '__new') return sel || null;
+async function ensurePerson(sel, newName, typed) {
+  if (sel === '__other') newName = (typed || '').trim();
+  else if (sel !== '__new') return sel || null;
+  if (!newName) return null;
   const ex = S.data.people.find((p) => p.name.toLowerCase() === newName.toLowerCase());
   if (ex) return ex.id;
   const p = await save('people', { id: uid(), name: newName, color: FRIEND_COLORS[S.data.people.length % FRIEND_COLORS.length], linked_user_id: null });
   return p.id;
 }
 
+/* ============ date / time picker ============ */
+let PK = null;
+function openPicker(kind, forId) {
+  const v = ($('#' + forId) || {}).value || '';
+  PK = { kind, forId };
+  if (kind === 'date') { const d = v ? pd(v) : todayD(); PK.val = v; PK.month = new Date(d.getFullYear(), d.getMonth(), 1); }
+  else { const [hh, mm] = v ? v.split(':') : ['', '']; PK.h = hh; PK.m = mm || ''; }
+  renderPicker();
+  const b = $('.picker'); b && b.focus({ preventScroll: true });
+}
+function closePicker() { PK = null; $('#pick').innerHTML = ''; }
+function setPicked(v) { const inp = $('#' + PK.forId); if (inp) { inp.value = v; fieldSet(PK.forId); } closePicker(); }
+function renderPicker() {
+  if (!PK) { $('#pick').innerHTML = ''; return; }
+  let body = '';
+  if (PK.kind === 'date') {
+    const m = PK.month, y = m.getFullYear(), mo = m.getMonth(), first = new Date(y, mo, 1), off = (first.getDay() + 6) % 7;
+    const rows = Math.ceil((off + new Date(y, mo + 1, 0).getDate()) / 7), start = addDays(first, -off), t = todayS();
+    let cells = '';
+    for (let i = 0; i < rows * 7; i++) {
+      const d = addDays(start, i), k = ymd(d);
+      cells += `<button type="button" class="${d.getMonth() !== mo ? 'out' : ''} ${k === t ? 'today' : ''} ${k === PK.val ? 'cur' : ''}" data-act="pkDay" data-d="${k}" aria-label="${h(fmtLong(k))}">${d.getDate()}</button>`;
+    }
+    body = `<div class="pk-h"><button type="button" class="icon-btn" data-act="pkMonth" data-n="-1" aria-label="Bulan sebelumnya">${ic('left', 18, 2.2)}</button><b>${BULAN[mo]} ${y}</b><button type="button" class="icon-btn" data-act="pkMonth" data-n="1" aria-label="Bulan berikutnya">${ic('right', 18, 2.2)}</button></div>
+      <div class="pk-dows" aria-hidden="true">${['Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab', 'Min'].map((x) => `<span>${x}</span>`).join('')}</div>
+      <div class="pk-grid">${cells}</div>
+      <div class="pk-quick"><button type="button" class="btn" data-act="pkDay" data-d="${t}">Hari ini</button><button type="button" class="btn" data-act="pkDay" data-d="${ymd(addDays(todayD(), 1))}">Besok</button><button type="button" class="btn" data-act="pkClose">Batal</button></div>`;
+  } else {
+    const H = [], M = []; for (let i = 0; i < 24; i++) H.push(pad(i)); for (let i = 0; i < 60; i += 5) M.push(pad(i));
+    if (PK.m && !M.includes(PK.m)) M.push(PK.m), M.sort();
+    body = `<div class="pk-h" style="justify-content:center"><b>Pilih jam</b></div>
+      <div class="pk-big" aria-live="polite">${PK.h || '--'}.${PK.h ? (PK.m || '00') : '--'}</div>
+      <div class="pk-lbl">Jam</div><div class="pk-tgrid" role="group" aria-label="Jam">${H.map((x) => `<button type="button" class="${x === PK.h ? 'cur' : ''}" data-act="pkHour" data-v="${x}" aria-pressed="${x === PK.h}">${x}</button>`).join('')}</div>
+      <div class="pk-lbl">Menit</div><div class="pk-tgrid" role="group" aria-label="Menit">${M.map((x) => `<button type="button" class="${x === (PK.m || (PK.h ? '00' : '')) ? 'cur' : ''}" data-act="pkMin" data-v="${x}" aria-pressed="${x === PK.m}">${x}</button>`).join('')}</div>
+      <div class="pk-quick"><button type="button" class="btn" data-act="pkNoTime">Tanpa jam</button><button type="button" class="btn" data-act="pkClose">Batal</button><button type="button" class="btn pri" data-act="pkTimeOk" ${PK.h ? '' : 'disabled'}>Pilih</button></div>`;
+  }
+  $('#pick').innerHTML = `<div class="backdrop" data-act="pkClose"></div><div class="picker" role="dialog" aria-modal="true" aria-label="${PK.kind === 'date' ? 'Pilih tanggal' : 'Pilih jam'}" tabindex="-1">${body}</div>`;
+}
+
 /* ============ actions ============ */
 const A = {
+  pickDate(d) { openPicker('date', d.for); },
+  pickTime(d) { openPicker('time', d.for); },
+  pkClose() { closePicker(); },
+  pkMonth(d) { PK.month = new Date(PK.month.getFullYear(), PK.month.getMonth() + +d.n, 1); renderPicker(); },
+  pkDay(d) { setPicked(d.d); },
+  pkHour(d) { PK.h = d.v; if (!PK.m) PK.m = '00'; renderPicker(); },
+  pkMin(d) { PK.m = d.v; if (!PK.h) PK.h = '09'; renderPicker(); },
+  pkNoTime() { setPicked(''); },
+  pkTimeOk() { if (PK.h) setPicked(PK.h + ':' + (PK.m || '00')); },
   go(d) { S.view = d.v; closeSheet(); render(); $('#main') && ($('#main').scrollTop = 0); },
   month(d) { const m = new Date(S.month); m.setMonth(m.getMonth() + +d.n); S.month = m; render(); },
   today() { const t = todayD(); t.setDate(1); S.month = t; S.sel = todayS(); if (S.sheet) closeSheet(); render(); },
@@ -1148,7 +1250,23 @@ const A = {
     const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'ingetin-cadangan-' + todayS() + '.json'; document.body.appendChild(a); a.click(); a.remove();
   }
 };
+function fieldSet(id) {
+  const inp = $('#' + id); if (!inp) return; const v = inp.value;
+  const btn = $(`[data-for="${id}"]`), lab = $('#' + id + '-v');
+  if (lab) lab.textContent = v ? (inp.name === 'date' ? fmtDMY(v) : fmtTime(v)) : (inp.name === 'date' ? 'DD/MM/YYYY' : '--.--');
+  if (btn) { btn.classList.toggle('empty', !v); btn.classList.remove('bad'); }
+  const p = S.sheet && S.sheet.kind === 'quick' && S.sheet.parsed;
+  if (p && (id === 'qa-date' || id === 'qa-time')) {
+    p[inp.name] = v;
+    const w = $('#qa-when'); if (w && id === 'qa-date') w.textContent = v ? fmtLong(v) + ' · ' + rel(v) : 'Tanggal belum terbaca — pilih tanggalnya.';
+  }
+}
 const CHG = {
+  personPick(el) {
+    const f = el.form; const box = f && f.querySelector('.pnew'); if (box) box.hidden = el.value !== '__other';
+    const p = S.sheet && S.sheet.kind === 'quick' && S.sheet.parsed; if (p) p.sel = el.value;
+    if (S.sheet && S.sheet.kind === 'quick' && !S.sheet.parsed) S.sheet.parsed = { type: 'event', title: '', date: '', time: '', personId: '', newName: '', noteText: '', sel: el.value };
+  },
   authTab(el) { S.authTab = el.value; render(); },
   qaType(el) { S.sheet.forceType = el.value; if (!S.sheet.parsed) S.sheet.parsed = { type: el.value, title: '', date: '', time: '', personId: S.sheet.person || '', newName: '', noteText: S.sheet.text || '' }; S.sheet.parsed.type = el.value; const q = $('#qa-text'); S.sheet.text = q ? q.value : S.sheet.text; renderSheet(); },
   async check(el) {
@@ -1183,15 +1301,16 @@ const FORMS = {
     if (type === 'note') {
       const text = (fd.get('noteText') || '').trim();
       if (!text) { err.textContent = 'Isi catatannya dulu.'; return; }
-      const pid = await ensurePerson(fd.get('person'), r.newName || '');
-      if (!pid) { err.textContent = 'Pilih teman yang dicatat.'; return; }
+      const pid = await ensurePerson(fd.get('person'), r.newName || '', fd.get('personNew'));
+      if (!pid) { err.textContent = fd.get('person') === '__other' ? 'Tulis nama teman barunya.' : 'Pilih teman yang dicatat.'; return; }
       await save('notes', { id: uid(), person_id: pid, text, kind: fd.get('kind') || 'ingat' });
       closeSheet(); toast('Catatan tersimpan'); return;
     }
     const title = (fd.get('title') || '').trim(), date = fd.get('date');
     if (!title) { err.textContent = 'Judulnya belum ada.'; flagField('#qa-title'); return; }
-    if (!date) { err.textContent = 'Pilih tanggalnya dulu.'; flagField('#qa-date'); return; }
-    const pid = await ensurePerson(fd.get('person'), r.newName || '');
+    if (!date) { err.textContent = 'Pilih tanggalnya dulu.'; flagField('[data-for=qa-date]'); return; }
+    if (fd.get('person') === '__other' && !(fd.get('personNew') || '').trim()) { err.textContent = 'Tulis nama teman barunya.'; flagField('#qa-person-new'); return; }
+    const pid = await ensurePerson(fd.get('person'), r.newName || '', fd.get('personNew'));
     const ev = await save('events', { id: uid(), title, date, time: fd.get('time') || null, person_id: pid, location: null, notes: null, shared: fd.get('shared') === 'on', checklist: [], reminders: fd.getAll('rem') });
     closeSheet();
     S.sel = date; const m = pd(date); m.setDate(1); S.month = m; S.view = 'kalender'; render();
@@ -1200,7 +1319,10 @@ const FORMS = {
   async editEvent(f) {
     const fd = new FormData(f), s = S.sheet;
     const base = s.id ? S.data.events.find((x) => x.id === s.id) : { id: uid(), checklist: [] };
-    const row = { ...base, title: fd.get('title').trim(), date: fd.get('date'), time: fd.get('time') || null, person_id: fd.get('person') || null, location: fd.get('location').trim() || null, notes: fd.get('notes').trim() || null, reminders: fd.getAll('rem'), shared: fd.get('shared') === 'on' };
+    if (!fd.get('date')) { toast('Pilih tanggalnya dulu.'); flagField('[data-for=ee-date]'); return; }
+    if (fd.get('person') === '__other' && !(fd.get('personNew') || '').trim()) { toast('Tulis nama teman barunya.'); flagField('#ee-person-new'); return; }
+    const pid = await ensurePerson(fd.get('person'), '', fd.get('personNew'));
+    const row = { ...base, title: fd.get('title').trim(), date: fd.get('date'), time: fd.get('time') || null, person_id: pid, location: fd.get('location').trim() || null, notes: fd.get('notes').trim() || null, reminders: fd.getAll('rem'), shared: fd.get('shared') === 'on' };
     await save('events', row); toast('Acara tersimpan'); openSheet('event', { id: row.id });
   },
   async addCheck(f) {
@@ -1213,8 +1335,10 @@ const FORMS = {
   async note(f) {
     const fd = new FormData(f), s = S.sheet;
     const base = s.id ? S.data.notes.find((x) => x.id === s.id) : { id: uid() };
-    await save('notes', { ...base, person_id: fd.get('person'), kind: fd.get('kind'), text: fd.get('text').trim() });
-    S.personId = fd.get('person'); closeSheet(); toast('Catatan tersimpan');
+    const pid = await ensurePerson(fd.get('person'), '', fd.get('personNew'));
+    if (!pid) { toast('Pilih teman atau tulis nama teman barunya.'); flagField('#nt-person-new'); return; }
+    await save('notes', { ...base, person_id: pid, kind: fd.get('kind'), text: fd.get('text').trim() });
+    S.personId = pid; closeSheet(); toast('Catatan tersimpan');
   },
   async person(f) {
     const fd = new FormData(f), s = S.sheet;
@@ -1273,15 +1397,13 @@ document.addEventListener('input', (ev) => {
   }
   if (ev.target.classList && ev.target.classList.contains('bad')) ev.target.classList.remove('bad');
   if (ev.target.id === 'qa-text') { clearTimeout(qaTimer); qaTimer = setTimeout(quickInput, 250); }
-  if (ev.target.id === 'qa-date' || ev.target.id === 'qa-time' || ev.target.id === 'qa-title' || ev.target.id === 'qa-note' || ev.target.id === 'qa-person') {
+  if (ev.target.id === 'qa-title' || ev.target.id === 'qa-note') {
     const p = S.sheet && S.sheet.parsed; if (!p) return;
-    const m = { 'qa-date': 'date', 'qa-time': 'time', 'qa-title': 'title', 'qa-note': 'noteText', 'qa-person': 'personId' }[ev.target.id];
-    p[m] = ev.target.value === '__new' ? '' : ev.target.value;
-    if (m === 'date') { const w = $('#qa-when'); if (w) w.textContent = p.date ? fmtLong(p.date) + ' · ' + rel(p.date) : 'Tanggal belum terbaca — pilih tanggalnya.'; }
+    p[ev.target.id === 'qa-title' ? 'title' : 'noteText'] = ev.target.value;
   }
 });
 document.addEventListener('keydown', (ev) => {
-  if (ev.key === 'Escape') { if ($('#dlg').innerHTML) { const n = $('#dlg [data-no]'); n && n.click(); } else if (S.sheet) closeSheet(); }
+  if (ev.key === 'Escape') { if (PK) closePicker(); else if ($('#dlg').innerHTML) { const n = $('#dlg [data-no]'); n && n.click(); } else if (S.sheet) closeSheet(); }
   if (ev.key === 'Enter' && (ev.metaKey || ev.ctrlKey) && ev.target.id === 'qa-text') { const f = ev.target.form; f && f.requestSubmit(); }
 });
 let sx = null, sy = 0;
@@ -1358,6 +1480,27 @@ async function boot() {
   if (inv && S.mode !== 'cloud') { S.view = 'pengaturan'; S.authTab = 'daftar'; render(); toast('Kamu diundang! Daftar atau masuk untuk terhubung.'); }
   notifyDue();
 }
+/* ============ tombol kembali (Android) ============ */
+let exitAsked = false;
+const guard = () => history.pushState({ ingetin: 1 }, '');
+if (!(history.state && history.state.ingetin)) { history.replaceState({ ingetin: 0 }, ''); guard(); }
+addEventListener('popstate', async () => {
+  if (exitAsked) return;
+  if (PK) { closePicker(); guard(); return; }
+  if ($('#dlg').innerHTML) { const n = $('#dlg [data-no]'); n && n.click(); guard(); return; }
+  if (S.sheet) { closeSheet(); guard(); return; }
+  if (S.view === 'teman' && S.personId && !matchMedia('(min-width:760px)').matches) { S.personId = null; render(); guard(); return; }
+  if (S.view !== 'kalender') { S.view = 'kalender'; render(); guard(); return; }
+  exitAsked = true;
+  const yes = await confirmBox('Apakah ingin keluar dari Ingetin?', 'Keluar', true);
+  exitAsked = false;
+  if (!yes) { guard(); return; }
+  exitAsked = true;
+  history.back();
+  try { window.close(); } catch {}
+  setTimeout(() => { exitAsked = false; toast('Tekan tombol kembali sekali lagi untuk keluar'); }, 400);
+});
+
 if ('serviceWorker' in navigator && location.protocol === 'https:') navigator.serviceWorker.register('sw.js').catch(() => {});
 boot();
 </script>
