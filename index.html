@@ -282,6 +282,25 @@ textarea.inp{resize:vertical;line-height:1.45}
 .pk-tgrid button.cur{background:var(--p);border-color:var(--p);color:#fff}
 .pk-quick{display:flex;gap:8px;flex-wrap:wrap}
 .pk-quick .btn{flex:1;min-height:42px;font-size:14px}
+.nf-hero{display:flex;flex-direction:column;align-items:center;text-align:center;gap:10px;padding:4px 8px 6px}
+.nf-hero h2{font-size:22px;font-weight:800}
+.nf-hero p{margin:0;font-size:15px;line-height:1.5;color:var(--mu);max-width:420px}
+.nf-icon{width:88px;height:88px;border-radius:28px;display:flex;align-items:center;justify-content:center;animation:wiggle 1.6s ease-in-out .3s 2}
+.nf-list{display:flex;flex-direction:column;gap:10px;background:var(--bg);border-radius:14px;padding:14px}
+.nf-list div{display:flex;align-items:center;gap:10px;font-size:14px;font-weight:600;color:var(--mu2)}
+.nf-list svg{color:var(--p)}
+.nf-btn{min-height:54px;font-size:16px}
+.nf-steps{gap:6px}.nf-steps h3{font-size:15px;font-weight:800}
+.steps{margin:0;padding-left:20px;font-size:14px;line-height:1.6}
+.spin{width:36px;height:36px;border-radius:50%;border:4px solid #C9D7FF;border-top-color:var(--p);animation:rot .8s linear infinite}
+@keyframes rot{to{transform:rotate(360deg)}}
+@keyframes wiggle{0%,100%{transform:rotate(0)}20%{transform:rotate(-10deg)}40%{transform:rotate(9deg)}60%{transform:rotate(-6deg)}80%{transform:rotate(3deg)}}
+.nf-cta{display:flex;align-items:center;gap:14px;width:100%;padding:14px;border-radius:16px;border:1.5px solid #C9D7FF;background:linear-gradient(0deg,#F5F8FF,#F5F8FF);text-align:left;color:var(--p-d);transition:transform .15s,background .15s}
+.nf-cta:active{transform:scale(.98)}
+.nf-cta-i{width:48px;height:48px;border-radius:14px;background:var(--p);color:#fff;display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:var(--sh)}
+.nf-cta-t{flex:1;display:flex;flex-direction:column;gap:2px}
+.nf-cta-t b{font-size:16px;color:var(--tx)}
+.nf-cta-t small{font-size:13px;color:var(--mu)}
 .inp.bad{border-color:var(--danger);box-shadow:0 0 0 3px #FEE2E2}
 .chipbtn{min-height:34px;padding:0 12px;border-radius:999px;border:1px solid var(--bd);background:var(--bg);font-size:13px;color:var(--mu2)}
 .preview{border-radius:16px;background:var(--bg);padding:14px;display:flex;flex-direction:column;gap:12px}
@@ -663,19 +682,19 @@ function confirmBox(msg, ok = 'Ya', danger) {
 }
 let lastFocus = null;
 function openSheet(kind, args = {}) {
-  if (!S.sheet) lastFocus = document.activeElement;
+  if (!S.sheet) { lastFocus = document.activeElement; pushEntry(); }
   S.sheet = { kind, ...args }; renderSheet();
   const sh = $('#sh .sheet'); sh && sh.focus({ preventScroll: true });
 }
 const isField = (el) => el && el.matches && el.matches('input:not([type=checkbox]):not([type=radio]):not([type=file]):not([type=color]),textarea,select');
-function closeSheet() { S.sheet = null; $('#sh').innerHTML = ''; if (lastFocus && lastFocus.focus && !isField(lastFocus) && document.contains(lastFocus)) lastFocus.focus({ preventScroll: true }); }
+function closeSheet(fromBack) { S.sheet = null; $('#sh').innerHTML = ''; if (lastFocus && lastFocus.focus && !isField(lastFocus) && document.contains(lastFocus)) lastFocus.focus({ preventScroll: true }); }
 function renderSheet() {
   if (!S.sheet) { $('#sh').innerHTML = ''; return; }
   const fn = SHEETS[S.sheet.kind]; const body = fn ? fn(S.sheet) : '';
   if (body === null) { closeSheet(); return; }
   const cur = $('#sh .sheet');
   if (cur && cur.dataset.kind === S.sheet.kind) { const st = cur.scrollTop; cur.innerHTML = body; cur.scrollTop = st; return; }
-  $('#sh').innerHTML = `<div class="backdrop" data-act="closeSheet"></div><div class="sheet" role="dialog" aria-modal="true" aria-label="${h({ quick: 'Tambah cepat', event: 'Detail acara', editEvent: 'Ubah acara', note: 'Catatan', person: 'Teman', invite: 'Undang teman', monthPick: 'Pilih bulan', notifHelp: 'Notifikasi' }[S.sheet.kind] || '')}" tabindex="-1" data-kind="${S.sheet.kind}">${body}</div>`;
+  $('#sh').innerHTML = `<div class="backdrop" data-act="closeSheet"></div><div class="sheet" role="dialog" aria-modal="true" aria-label="${h({ quick: 'Tambah cepat', event: 'Detail acara', editEvent: 'Ubah acara', note: 'Catatan', person: 'Teman', invite: 'Undang teman', monthPick: 'Pilih bulan', notif: 'Notifikasi' }[S.sheet.kind] || '')}" tabindex="-1" data-kind="${S.sheet.kind}">${body}</div>`;
 }
 
 const avatar = (p, size = 44) => `<span class="av" style="width:${size}px;height:${size}px;font-size:${Math.round(size * 0.38)}px;${cs(p.color)}">${h((p.name || '?')[0].toUpperCase())}</span>`;
@@ -875,10 +894,8 @@ function vPengaturan() {
     <section class="card"><div class="sec-h"><h2>Akun &amp; sinkronisasi</h2></div>${acct}</section>
     <section class="card"><div class="sec-h"><h2>Pengingat</h2></div>
       <p>Pengingat muncul di bagian atas aplikasi saat waktunya tiba (H-7, H-3, H-1 pukul 19.00, dan hari H pukul 07.00).</p>
-      ${perm === 'granted' ? `<div class="item"><span>${ic('check', 16, 2.4)} Notifikasi aktif.</span><button type="button" class="btn ghost" data-act="testNotif">Kirim uji</button></div>`
-        : perm === 'unsupported' ? `<p>Perangkat ini belum mendukung notifikasi web. Di iPad/iPhone, tambahkan Ingetin ke Layar Utama dulu (Bagikan › Tambah ke Layar Utama), lalu buka dari ikonnya.</p>`
-        : perm === 'denied' ? `<div class="item" style="background:#FEF2F2"><span>Notifikasi sedang <b>diblokir</b> untuk Ingetin.</span><button type="button" class="btn ghost" data-act="askNotif">Cara membuka</button></div>`
-        : `<button type="button" class="btn out" data-act="askNotif">${ic('bell', 18)}Izinkan notifikasi</button>`}
+      ${perm === 'granted' ? `<div class="item" style="background:#F0FDF4"><span style="color:#166534;font-weight:700">${ic('check', 16, 2.4)} Notifikasi aktif</span><button type="button" class="btn ghost" data-act="testNotif">Kirim uji</button></div>`
+        : `<button type="button" class="nf-cta" data-act="askNotif"><span class="nf-cta-i">${ic('bell', 24, 2)}</span><span class="nf-cta-t"><b>${perm === 'denied' ? 'Notifikasi diblokir' : 'Aktifkan notifikasi'}</b><small>${perm === 'denied' ? 'Ketuk untuk lihat cara membukanya' : 'Supaya pengingat muncul di HP'}</small></span>${ic('right', 20, 2.2)}</button>`}
       <p>Supaya pengingat pasti berbunyi walau aplikasi tertutup, buka event lalu ketuk <b>Tambah ke Kalender HP</b>.</p>
     </section>
     <section class="card"><div class="sec-h"><h2>Data</h2></div>
@@ -1054,16 +1071,29 @@ const SHEETS = {
       <div class="mp-grid">${BULAN.map((b, i) => `<button type="button" class="${i === mo && y === cy ? 'cur' : (i === t.getMonth() && y === t.getFullYear() ? 'now' : '')}" data-act="mpGo" data-m="${i}">${b}</button>`).join('')}</div>
       <button type="button" class="btn" data-act="today">Kembali ke hari ini</button></div>`;
   },
-  notifHelp() {
-    return `<div class="sh-body"><div class="sh-top"><h2>Notifikasi diblokir</h2><button type="button" class="icon-btn round" data-act="closeSheet" aria-label="Tutup">${ic('x', 18, 2.4)}</button></div>
-      <p style="margin:0;line-height:1.5" class="muted">Browser sudah menyimpan pilihan “Blokir”, jadi Ingetin tidak bisa bertanya lagi. Buka blokirnya sekali saja:</p>
-      <section class="card" style="gap:6px"><h3 style="font-size:15px;font-weight:800">Android · Chrome</h3>
-        <p style="margin:0;font-size:14px;line-height:1.55">1. Ketuk ikon di kiri alamat situs (gembok / pengaturan).<br>2. Pilih <b>Izin</b> › <b>Notifikasi</b> › <b>Izinkan</b>.<br>3. Kembali ke sini lalu ketuk <b>Izinkan notifikasi</b> lagi.</p></section>
-      <section class="card" style="gap:6px"><h3 style="font-size:15px;font-weight:800">Kalau dibuka dari ikon Layar Utama</h3>
-        <p style="margin:0;font-size:14px;line-height:1.55">Tekan lama ikon Ingetin › <b>Info aplikasi</b> › <b>Notifikasi</b> › nyalakan.</p></section>
-      <section class="card" style="gap:6px"><h3 style="font-size:15px;font-weight:800">iPad / iPhone</h3>
-        <p style="margin:0;font-size:14px;line-height:1.55">Pengaturan › <b>Notifikasi</b> › <b>Ingetin</b> › Izinkan Notifikasi (harus sudah ditambahkan ke Layar Utama).</p></section>
-      <button type="button" class="btn pri" data-act="closeSheet">Mengerti</button></div>`;
+  notif(sh) {
+    const st = sh.st;
+    const hero = (icon, bg, fg, title, text) => `<div class="nf-hero"><span class="nf-icon" style="background:${bg};color:${fg}">${icon}</span><h2>${title}</h2><p>${text}</p></div>`;
+    let body = '';
+    if (st === 'ask') body = hero(ic('bell', 40, 1.8), '#EAF0FF', '#2F5BEA', 'Jangan sampai lupa lagi', 'Izinkan notifikasi supaya Ingetin bisa mengingatkan acara temanmu tepat waktu.') +
+      `<div class="nf-list"><div>${ic('cal', 18)}<span>H-7, H-3, dan H-1 pukul 19.00</span></div><div>${ic('clock', 18)}<span>Hari H pukul 07.00</span></div><div>${ic('lock', 18)}<span>Hanya pengingat, tanpa iklan</span></div></div>
+       <button type="button" class="btn pri block nf-btn" data-act="notifRequest">${ic('bell', 20)}Izinkan notifikasi</button>
+       <button type="button" class="btn ghost" data-act="closeSheet">Nanti saja</button>`;
+    else if (st === 'wait') body = hero(`<span class="spin" aria-hidden="true"></span>`, '#EAF0FF', '#2F5BEA', 'Menunggu jawabanmu…', 'Pilih <b>Izinkan</b> pada jendela yang muncul dari HP.') +
+      `<p class="muted" style="margin:0;text-align:center;font-size:13px">Tidak muncul apa-apa? Tunggu sebentar, panduannya akan tampil.</p>`;
+    else if (st === 'ok') body = hero(ic('check', 40, 2.4), '#DCFCE7', '#166534', 'Notifikasi aktif!', 'Notifikasi uji baru saja dikirim. Pengingat acara akan muncul seperti itu.') +
+      `<button type="button" class="btn block" data-act="testNotif">${ic('bell', 18)}Kirim notifikasi uji lagi</button><button type="button" class="btn pri block" data-act="closeSheet">Selesai</button>`;
+    else if (st === 'unsupported') body = hero(ic('bell', 40, 1.8), '#F1F3F7', '#3D4452', 'Belum didukung', 'Browser ini belum mendukung notifikasi web. Di iPad/iPhone: buka di Safari › Bagikan › <b>Tambah ke Layar Utama</b>, lalu buka Ingetin dari ikonnya.') +
+      `<button type="button" class="btn pri block" data-act="closeSheet">Mengerti</button>`;
+    else {
+      const blocked = st === 'blocked';
+      body = hero(ic('bell', 40, 1.8), '#FEF3C7', '#92400E', blocked ? 'Notifikasi diblokir' : 'Izin tidak muncul', blocked ? 'HP atau Chrome sedang memblokir notifikasi untuk Ingetin. Nyalakan sekali saja:' : 'Biasanya karena notifikasi untuk Chrome/Ingetin dimatikan di pengaturan HP. Nyalakan sekali saja:') +
+        `<section class="card nf-steps"><h3>Android</h3><ol class="steps"><li>Buka <b>Pengaturan HP</b> › <b>Aplikasi</b>.</li><li>Pilih <b>Ingetin</b> (kalau dipasang di Layar Utama) atau <b>Chrome</b>.</li><li>Ketuk <b>Notifikasi</b>, lalu nyalakan.</li><li>Di Chrome: buka situs Ingetin › ikon di kiri alamat › <b>Izin</b> › <b>Notifikasi</b> › <b>Izinkan</b>.</li></ol></section>
+         <section class="card nf-steps"><h3>iPad / iPhone</h3><ol class="steps"><li>Pastikan Ingetin dibuka dari ikon Layar Utama.</li><li><b>Pengaturan</b> › <b>Notifikasi</b> › <b>Ingetin</b> › Izinkan.</li></ol></section>
+         <div class="row2"><button type="button" class="btn" data-act="closeSheet">Tutup</button><button type="button" class="btn pri" data-act="${blocked ? 'notifRecheck' : 'notifRequest'}">${blocked ? 'Sudah, cek lagi' : 'Coba lagi'}</button></div>
+         <p class="muted" style="margin:0;font-size:13px;line-height:1.5">Alternatif yang pasti berbunyi: buka acara › <b>Tambah ke Kalender HP</b>.</p>`;
+    }
+    return `<div class="sh-body"><div class="sh-top"><span style="flex:1"></span><button type="button" class="icon-btn round" data-act="closeSheet" aria-label="Tutup">${ic('x', 18, 2.4)}</button></div>${body}</div>`;
   },
   invite() {
     let body;
@@ -1114,6 +1144,7 @@ async function ensurePerson(sel, newName, typed) {
 /* ============ date / time picker ============ */
 let PK = null;
 function openPicker(kind, forId) {
+  pushEntry();
   const v = ($('#' + forId) || {}).value || '';
   PK = { kind, forId };
   if (kind === 'date') { const d = v ? pd(v) : todayD(); PK.val = v; PK.month = new Date(d.getFullYear(), d.getMonth(), 1); }
@@ -1121,7 +1152,7 @@ function openPicker(kind, forId) {
   renderPicker();
   const b = $('.picker'); b && b.focus({ preventScroll: true });
 }
-function closePicker() { PK = null; $('#pick').innerHTML = ''; }
+function closePicker(fromBack) { PK = null; $('#pick').innerHTML = ''; }
 function setPicked(v) { const inp = $('#' + PK.forId); if (inp) { inp.value = v; fieldSet(PK.forId); } closePicker(); }
 function renderPicker() {
   if (!PK) { $('#pick').innerHTML = ''; return; }
@@ -1161,7 +1192,7 @@ const A = {
   pkMin(d) { PK.m = d.v; if (!PK.h) PK.h = '09'; renderPicker(); },
   pkNoTime() { setPicked(''); },
   pkTimeOk() { if (PK.h) setPicked(PK.h + ':' + (PK.m || '00')); },
-  go(d) { S.view = d.v; closeSheet(); render(); $('#main') && ($('#main').scrollTop = 0); },
+  go(d) { if (S.view === 'kalender' && d.v !== 'kalender') pushEntry(); S.view = d.v; closeSheet(); render(); $('#main') && ($('#main').scrollTop = 0); },
   month(d) { const m = new Date(S.month); m.setMonth(m.getMonth() + +d.n); S.month = m; render(); },
   today() { const t = todayD(); t.setDate(1); S.month = t; S.sel = todayS(); if (S.sheet) closeSheet(); render(); },
   pickMonth() { openSheet('monthPick', { year: S.month.getFullYear() }); const c = $('.mp-years .cur'); c && c.scrollIntoView({ inline: 'center', block: 'nearest' }); },
@@ -1199,7 +1230,7 @@ const A = {
     await save('events', { ...e, checklist: list });
     toast('Item dihapus', { label: 'Batalkan', fn: () => { const cur = S.data.events.find((x) => x.id === e.id); const l2 = [...(cur.checklist || [])]; l2.splice(+d.i, 0, old); save('events', { ...cur, checklist: l2 }); } });
   },
-  openPerson(d) { if (!d.id) return; S.personId = d.id; S.view = 'teman'; closeSheet(); render(); $('#main').scrollTop = 0; },
+  openPerson(d) { if (!d.id) return; if (!matchMedia('(min-width:760px)').matches || S.view === 'kalender') pushEntry(); S.personId = d.id; S.view = 'teman'; closeSheet(); render(); $('#main').scrollTop = 0; },
   backList() { S.personId = null; render(); },
   newPerson() { openSheet('person', {}); },
   editPerson(d) { openSheet('person', { id: d.id }); },
@@ -1222,23 +1253,24 @@ const A = {
   async copyLink() { try { await navigator.clipboard.writeText(inviteLink()); toast('Link disalin'); } catch { toast('Tidak bisa menyalin. Tekan lama link untuk menyalin.'); } },
   async shareLink() { try { await navigator.share({ title: 'Ingetin', text: inviteMsg(), url: inviteLink() }); } catch {} },
   dismiss(d) { const l = lsGet(DKEY, []); l.push(d.key); lsSet(DKEY, l.slice(-500)); render(); },
-  async askNotif(d, el) {
-    if (!('Notification' in window)) { toast('Perangkat ini belum mendukung notifikasi web.'); return; }
-    if (Notification.permission === 'denied') { openSheet('notifHelp'); return; }
-    el.dataset.busy = '1'; el.textContent = 'Menunggu izin…';
+  askNotif() { openSheet('notif', { st: 'Notification' in window ? (Notification.permission === 'granted' ? 'ok' : Notification.permission === 'denied' ? 'blocked' : 'ask') : 'unsupported' }); },
+  async notifRequest(d, el) {
+    S.sheet.st = 'wait'; renderSheet();
     let res;
     try {
       res = await new Promise((resolve) => {
-        const t = setTimeout(() => resolve('timeout'), 15000);
+        const t = setTimeout(() => resolve('timeout'), 8000);
         const p = Notification.requestPermission((r) => { clearTimeout(t); resolve(r); });
         if (p && p.then) p.then((r) => { clearTimeout(t); resolve(r); }, () => { clearTimeout(t); resolve('error'); });
       });
     } catch { res = 'error'; }
+    if (Notification.permission === 'granted') res = 'granted';
+    if (!S.sheet || S.sheet.kind !== 'notif') { render(); return; }
+    S.sheet.st = res === 'granted' ? 'ok' : res === 'denied' ? 'blocked' : 'stuck';
     render();
-    if (res === 'granted') { toast('Notifikasi aktif'); testNotif(); notifyDue(); }
-    else if (res === 'denied') openSheet('notifHelp');
-    else toast('Izin belum diberikan. Kalau muncul ikon lonceng kecil di bar alamat Chrome, ketuk lalu pilih Izinkan.');
+    if (res === 'granted') { testNotif(); notifyDue(); }
   },
+  notifRecheck() { if (Notification.permission === 'granted') { S.sheet.st = 'ok'; render(); testNotif(); } else toast('Notifikasi masih belum diizinkan'); },
   testNotif() { testNotif(); },
   closeSheet() { closeSheet(); },
   async logout() { if (!(await confirmBox('Keluar dari akun di perangkat ini?', 'Keluar'))) return; await S.sb.auth.signOut(); },
@@ -1481,24 +1513,31 @@ async function boot() {
   notifyDue();
 }
 /* ============ tombol kembali (Android) ============ */
-let exitAsked = false;
-const guard = () => history.pushState({ ingetin: 1 }, '');
-if (!(history.state && history.state.ingetin)) { history.replaceState({ ingetin: 0 }, ''); guard(); }
+// Chrome Android melewati entri riwayat yang dibuat tanpa ketukan pengguna,
+// jadi entri selalu dibuat di dalam handler ketukan (click).
+const hDepth = () => (history.state && history.state.ingetin) || 0;
+function pushEntry() { try { history.pushState({ ingetin: hDepth() + 1 }, ''); } catch {} }
+document.addEventListener('click', () => { if (hDepth() === 0 && !leaving) pushEntry(); }, true);
+let leaving = false, exitOpen = false;
 addEventListener('popstate', async () => {
-  if (exitAsked) return;
-  if (PK) { closePicker(); guard(); return; }
-  if ($('#dlg').innerHTML) { const n = $('#dlg [data-no]'); n && n.click(); guard(); return; }
-  if (S.sheet) { closeSheet(); guard(); return; }
-  if (S.view === 'teman' && S.personId && !matchMedia('(min-width:760px)').matches) { S.personId = null; render(); guard(); return; }
-  if (S.view !== 'kalender') { S.view = 'kalender'; render(); guard(); return; }
-  exitAsked = true;
+  if (leaving) return;
+  if (PK) { closePicker(true); return; }
+  if ($('#dlg').innerHTML) { const n = $('#dlg [data-no]'); n && n.click(); return; }
+  if (S.sheet) { closeSheet(true); return; }
+  if (S.view === 'teman' && S.personId && !matchMedia('(min-width:760px)').matches) { S.personId = null; render(); return; }
+  if (S.view !== 'kalender') { S.view = 'kalender'; render(); return; }
+  if (exitOpen) return;
+  exitOpen = true;
   const yes = await confirmBox('Apakah ingin keluar dari Ingetin?', 'Keluar', true);
-  exitAsked = false;
-  if (!yes) { guard(); return; }
-  exitAsked = true;
-  history.back();
-  try { window.close(); } catch {}
-  setTimeout(() => { exitAsked = false; toast('Tekan tombol kembali sekali lagi untuk keluar'); }, 400);
+  exitOpen = false;
+  if (!yes) { if (hDepth() === 0) pushEntry(); return; }
+  leaving = true;
+  const d = hDepth();
+  if (d > 0) history.go(-d);
+  setTimeout(() => {
+    try { window.close(); } catch {}
+    setTimeout(() => { leaving = false; toast('Tekan tombol kembali sekali lagi untuk keluar'); }, 300);
+  }, 250);
 });
 
 if ('serviceWorker' in navigator && location.protocol === 'https:') navigator.serviceWorker.register('sw.js').catch(() => {});
