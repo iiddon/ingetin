@@ -1,4 +1,4 @@
-const CACHE = 'ingetin-v6';
+const CACHE = 'ingetin-v7';
 const SHELL = ['./', './index.html', './config.js', './manifest.json', './icon.svg', './icon-192.png', './apple-touch-icon.png'];
 
 self.addEventListener('install', (e) => {
@@ -16,7 +16,7 @@ self.addEventListener('fetch', (e) => {
   const isFont = url.host.includes('fonts.g') || url.host.includes('cdn.jsdelivr.net');
   if (!sameOrigin && !isFont) return;
   e.respondWith(
-    fetch(req).then((res) => {
+    fetch(sameOrigin ? new Request(req, { cache: 'no-cache' }) : req).then((res) => {
       if (res.ok) { const copy = res.clone(); caches.open(CACHE).then((c) => c.put(req, copy)); }
       return res;
     }).catch(() => caches.match(req).then((r) => r || caches.match('./index.html')))

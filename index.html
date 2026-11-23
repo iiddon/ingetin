@@ -352,6 +352,7 @@ textarea.inp{resize:vertical;line-height:1.45}
 
 <script type="module">
 /* ============ helpers ============ */
+const APP_VERSION = '1.7 (24 Nov 2026)';
 const $ = (s, r = document) => r.querySelector(s);
 const h = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const pad = (n) => String(n).padStart(2, '0');
@@ -967,7 +968,7 @@ function vPengaturan() {
       </div>
       ${hasCfg() && lsGet(CKEY, {}).supabaseUrl ? `<button type="button" class="btn ghost" style="align-self:flex-start" data-act="clearCfg">Putuskan sambungan Supabase di perangkat ini</button>` : ''}
     </section>
-    <p style="text-align:center">Ingetin · ${S.mode === 'cloud' ? 'Mode online' : 'Mode perangkat ini'}</p>
+    <p style="text-align:center">Ingetin versi ${APP_VERSION} · ${S.mode === 'cloud' ? 'Mode online' : 'Mode perangkat ini'}</p>
   </div>`;
 }
 const VIEWS = { kalender: vKalender, minggu: vMinggu, teman: vTeman, pengaturan: vPengaturan };
@@ -1624,7 +1625,14 @@ addEventListener('popstate', async () => {
   }, 250);
 });
 
-if ('serviceWorker' in navigator && location.protocol === 'https:') navigator.serviceWorker.register('sw.js').catch(() => {});
+if ('serviceWorker' in navigator && location.protocol === 'https:') {
+  const hadCtrl = !!navigator.serviceWorker.controller; let reloaded = false;
+  navigator.serviceWorker.register('sw.js', { updateViaCache: 'none' }).then((reg) => {
+    reg.update().catch(() => {});
+    document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') reg.update().catch(() => {}); });
+  }).catch(() => {});
+  navigator.serviceWorker.addEventListener('controllerchange', () => { if (hadCtrl && !reloaded && !S.sheet) { reloaded = true; location.reload(); } });
+}
 boot();
 </script>
 </body>
