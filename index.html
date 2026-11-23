@@ -147,7 +147,16 @@ main{overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;padding:
 .ag-month{display:flex;align-items:center;gap:8px;margin-bottom:12px}
 .stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin-bottom:12px}
 @media (max-width:599px){.stats{grid-template-columns:repeat(2,minmax(0,1fr))}}
-.stat{background:var(--card);border:1px solid var(--bd);border-radius:14px;padding:12px;display:flex;flex-direction:column;gap:2px}
+.stat{background:var(--card);border:1.5px solid var(--bd);border-radius:14px;padding:12px;display:flex;flex-direction:column;gap:2px;text-align:left;min-height:72px;position:relative;transition:transform .12s,border-color .15s,background .15s}
+.stat:active{transform:scale(.97)}
+.stat::after{content:'›';position:absolute;right:12px;top:10px;font-size:20px;color:#9AA1AD;font-weight:700}
+.stat.on{border-color:var(--p);background:var(--p-l);box-shadow:0 0 0 3px #DCE6FF}
+.stat.on::after{color:var(--p)}
+.flt{display:flex;align-items:center;justify-content:space-between;gap:8px;background:var(--p-l);color:var(--p-d);border-radius:12px;padding:4px 4px 4px 14px;margin-bottom:12px;font-size:14px}
+.flt .mini{color:var(--p-d)}
+.prep{gap:8px;margin-bottom:12px}
+.prep-h{display:flex;align-items:center;gap:12px;border:none;background:none;padding:0;text-align:left;width:100%;color:inherit}
+.prep-h svg{color:var(--mu);flex-shrink:0}
 .stat b{font-size:24px;font-weight:800;color:var(--p-d)}
 .stat span{font-size:12px;font-weight:600;color:var(--mu)}
 .day-group.past .ev{opacity:.6}
@@ -819,26 +828,35 @@ function vMinggu() {
     const m = S.agMonth, y = m.getFullYear(), mo = m.getMonth();
     const a = ymd(new Date(y, mo, 1)), z = ymd(new Date(y, mo + 1, 0)), today = todayS();
     const evs = eventsBetween(a, z), past = evs.filter((e) => e.date < today), next = evs.filter((e) => e.date >= today);
-    const open = evs.reduce((n, e) => n + (e.checklist || []).filter((c) => !c.done).length, 0);
-    const people = new Set(evs.map((e) => evInfo(e).who).filter((w) => w !== 'Kamu'));
+    const prepEvs = evs.filter((e) => (e.checklist || []).some((c) => !c.done));
+    const open = prepEvs.reduce((n, e) => n + e.checklist.filter((c) => !c.done).length, 0);
+    const pmap = new Map();
+    for (const e of evs) { const i = evInfo(e); if (i.who === 'Kamu') continue; const k = i.person ? i.person.id : 'f:' + e.owner_id; const cur = pmap.get(k) || { name: i.who, color: i.color, id: i.person ? i.person.id : '', n: 0, next: null }; cur.n++; if (e.date >= today && (!cur.next || e.date < cur.next.date)) cur.next = e; pmap.set(k, cur); }
     const busiest = (() => { const c = {}; for (const e of evs) c[e.date] = (c[e.date] || 0) + 1; const top = Object.entries(c).sort((p, q) => q[1] - p[1])[0]; return top && top[1] > 1 ? top : null; })();
-    let list = '', lastDay = '';
-    for (const e of evs) {
-      if (e.date !== lastDay) { if (lastDay) list += '</div>'; lastDay = e.date; const d = pd(e.date); list += `<div class="day-group ${e.date < today ? 'past' : ''}"><h2>${e.date === today ? 'Hari ini' : HARI[d.getDay()] + ', ' + d.getDate()}<small>${e.date < today ? 'Sudah lewat' : rel(e.date)}</small></h2>`; }
-      list += evRow(e);
-    }
-    if (lastDay) list += '</div>';
+    const f = S.agFilter || 'all';
+    const groupList = (arr) => { let out = '', lastDay = ''; for (const e of arr) { if (e.date !== lastDay) { if (lastDay) out += '</div>'; lastDay = e.date; const d = pd(e.date); out += `<div class="day-group ${e.date < today ? 'past' : ''}"><h2>${e.date === today ? 'Hari ini' : HARI[d.getDay()] + ', ' + d.getDate()}<small>${e.date < today ? 'Sudah lewat' : rel(e.date)}</small></h2>`; } out += evRow(e); } return lastDay ? out + '</div>' : ''; };
+    const emptyBox = (title, text) => `<div class="card"><div class="empty">${ic('cal', 32, 1.6)}<b>${title}</b>${text}</div></div>`;
+    let list = '';
+    if (f === 'next') list = groupList(next) || emptyBox('Tidak ada acara yang akan datang', `Semua acara di ${BULAN[mo]} sudah lewat.`);
+    else if (f === 'prep') {
+      list = prepEvs.map((e) => { const i = evInfo(e), mine = isMine(e); return `<section class="card prep">
+        <button type="button" class="prep-h" data-act="openEvent" data-id="${h(e.id)}"><span class="dblock" style="${cs(i.color)}"><small>${HARI3[pd(e.date).getDay()]}</small><b>${pd(e.date).getDate()}</b></span><span class="ev-t"><b>${h(e.title)}</b><span>${h(rel(e.date))} · ${e.checklist.filter((c) => !c.done).length} belum beres</span></span>${ic('right', 18, 2.2)}</button>
+        ${e.checklist.map((c, k) => c.done ? '' : `<div class="chk"><input type="checkbox" id="pc-${h(e.id)}-${k}" data-chg="prepCheck" data-id="${h(e.id)}" data-i="${k}" ${mine ? '' : 'disabled'}><label for="pc-${h(e.id)}-${k}">${h(c.text)}</label></div>`).join('')}
+      </section>`; }).join('') || emptyBox('Semua persiapan sudah beres 🎉', `Tidak ada checklist yang tertunda di ${BULAN[mo]}.`);
+    } else if (f === 'people') {
+      const arr = [...pmap.values()].sort((p, q) => q.n - p.n || p.name.localeCompare(q.name));
+      list = arr.length ? `<div class="stack">${arr.map((p) => `<button type="button" class="fr" style="border-color:var(--bd)" ${p.id ? `data-act="openPerson" data-id="${h(p.id)}"` : 'disabled'}>${avatar({ name: p.name, color: p.color })}<span class="fr-t" style="flex:1"><b>${h(p.name)}</b><span>${p.n} acara${p.next ? ' · berikutnya ' + h(p.next.title) + ' (' + rel(p.next.date) + ')' : ''}</span></span>${p.id ? ic('right', 18, 2.2) : ''}</button>`).join('')}</div>`
+        : emptyBox('Belum ada teman yang terlibat', `Acara di ${BULAN[mo]} belum dikaitkan dengan teman.`);
+    } else list = groupList(evs) || emptyBox(`Belum ada acara di ${BULAN[mo]}`, 'Ketuk tombol <b style="font-size:inherit">+</b> untuk menambah.');
+    const FL = { next: 'Akan datang', prep: 'Persiapan belum beres', people: 'Teman terlibat' };
+    const stat = (k, n, label) => `<button type="button" class="stat ${f === k ? 'on' : ''}" data-act="agFilter" data-f="${k}" aria-pressed="${f === k}"><b>${n}</b><span>${label}</span></button>`;
     main = `<div class="ag-month"><button type="button" class="icon-btn" data-act="agMonth" data-n="-1" aria-label="Bulan sebelumnya">${ic('left', 18, 2.2)}</button>
         <button type="button" class="month-btn" data-act="agPick" style="font-size:20px;font-weight:800;flex:1;justify-content:center"><span>${BULAN[mo]} ${y}</span>${ic('down', 18, 2.4)}</button>
         <button type="button" class="icon-btn" data-act="agMonth" data-n="1" aria-label="Bulan berikutnya">${ic('right', 18, 2.2)}</button></div>
-      <div class="stats">
-        <div class="stat"><b>${evs.length}</b><span>Acara</span></div>
-        <div class="stat"><b>${next.length}</b><span>Akan datang</span></div>
-        <div class="stat"><b>${open}</b><span>Persiapan belum beres</span></div>
-        <div class="stat"><b>${people.size}</b><span>Teman terlibat</span></div>
-      </div>
-      ${busiest ? `<div class="note-row" style="background:#FFF7ED;color:#9A3412;font-weight:600">${ic('zap', 16)}<span>Hari tersibuk: ${h(fmtLong(busiest[0]))} (${busiest[1]} acara)</span></div>` : ''}
-      ${list || `<div class="card"><div class="empty">${ic('cal', 32, 1.6)}<b>Belum ada acara di ${BULAN[mo]}</b>Ketuk tombol <b style="font-size:inherit">+</b> untuk menambah.</div></div>`}`;
+      <div class="stats">${stat('all', evs.length, 'Acara')}${stat('next', next.length, 'Akan datang')}${stat('prep', open, 'Persiapan belum beres')}${stat('people', pmap.size, 'Teman terlibat')}</div>
+      ${f !== 'all' ? `<div class="flt"><span>Menampilkan: <b>${FL[f]}</b></span><button type="button" class="mini" data-act="agFilter" data-f="all" aria-label="Hapus filter, tampilkan semua acara">${ic('x', 16, 2.4)}</button></div>` : ''}
+      ${busiest && f === 'all' ? `<div class="note-row" style="background:#FFF7ED;color:#9A3412;font-weight:600">${ic('zap', 16)}<span>Hari tersibuk: ${h(fmtLong(busiest[0]))} (${busiest[1]} acara)</span></div>` : ''}
+      ${list}`;
   }
   const notes = S.data.notes.filter((n) => n.kind !== 'cerita');
   return `<div class="page-h"><h1>Agenda</h1><button type="button" class="btn pri quick-top" data-act="quick">${ic('plus', 18, 2.4)}Tambah cepat</button></div>
@@ -1241,6 +1259,7 @@ const A = {
   go(d) { if (d.v === S.view && !(d.v === 'teman' && S.personId && !matchMedia('(min-width:760px)').matches)) { closeSheet(); return; } navPush(); if (d.v === 'teman' && !matchMedia('(min-width:760px)').matches) S.personId = null; S.view = d.v; closeSheet(); render(); $('#main') && ($('#main').scrollTop = 0); },
   month(d) { const m = new Date(S.month); m.setMonth(m.getMonth() + +d.n); S.month = m; render(); },
   today() { const t = todayD(); t.setDate(1); if (S.sheet && S.sheet.target === 'agenda') { S.agMonth = t; } else { S.month = t; S.sel = todayS(); } if (S.sheet) closeSheet(); render(); },
+  agFilter(d) { S.agFilter = d.f === S.agFilter ? 'all' : d.f; render(); const l = $('.stats'); if (l && d.f !== 'all') { const m = $('#main'); const tgt = $('.flt') || l; m && tgt && m.scrollTo({ top: Math.max(0, tgt.offsetTop - 80), behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' }); } },
   agMonth(d) { S.agMonth = new Date(S.agMonth.getFullYear(), S.agMonth.getMonth() + +d.n, 1); S.agMonthTouched = true; render(); },
   agPick() { openSheet('monthPick', { year: S.agMonth.getFullYear(), target: 'agenda' }); },
   pickMonth() { openSheet('monthPick', { year: S.month.getFullYear() }); const c = $('.mp-years .cur'); c && c.scrollIntoView({ inline: 'center', block: 'nearest' }); },
@@ -1342,6 +1361,14 @@ function fieldSet(id) {
   }
 }
 const CHG = {
+  async prepCheck(el) {
+    const e = S.data.events.find((x) => x.id === el.dataset.id); if (!e) return;
+    const k = +el.dataset.i, list = (e.checklist || []).map((x, i) => (i === k ? { ...x, done: true } : x));
+    const row = el.closest('.chk'); if (row) row.classList.add('done');
+    await new Promise((r) => setTimeout(r, 350));
+    await save('events', { ...e, checklist: list });
+    toast(list.every((x) => x.done) ? 'Persiapan “' + e.title + '” beres semua!' : 'Dicentang', { label: 'Batalkan', fn: () => { const cur = S.data.events.find((x) => x.id === e.id); save('events', { ...cur, checklist: (cur.checklist || []).map((x, i) => (i === k ? { ...x, done: false } : x)) }); } });
+  },
   agTab(el) { S.agTab = el.value; if (el.value === 'bulan') { const d = todayD(); d.setDate(1); if (!S.agMonthTouched) S.agMonth = d; } render(); },
   personPick(el) {
     const f = el.form; const box = f && f.querySelector('.pnew'); if (box) box.hidden = el.value !== '__other';
