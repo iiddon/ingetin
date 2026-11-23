@@ -1,4 +1,4 @@
-const CACHE = 'ingetin-v1';
+const CACHE = 'ingetin-v2';
 const SHELL = ['./', './index.html', './config.js', './manifest.json', './icon.svg', './icon-192.png', './apple-touch-icon.png'];
 
 self.addEventListener('install', (e) => {

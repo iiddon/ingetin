@@ -98,8 +98,25 @@ main{overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;padding:
 /* ---------- calendar ---------- */
 .cal-layout{display:grid;gap:16px}
 .cal-main{display:flex;flex-direction:column;gap:12px;min-width:0}
-.cal-h{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
-.cal-h h1{font-size:26px;font-weight:800;letter-spacing:-.4px;margin-right:6px}
+.cal-h{display:flex;align-items:center;gap:8px}
+.cal-h h1{flex:1;min-width:0;font-size:26px;font-weight:800;letter-spacing:-.4px}
+.month-btn{display:inline-flex;align-items:center;gap:6px;max-width:100%;border:none;background:none;padding:4px 8px 4px 0;border-radius:10px;font:inherit;color:inherit;letter-spacing:inherit;text-align:left;transition:background .15s,transform .15s}
+.month-btn span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.month-btn svg{flex-shrink:0;color:var(--mu)}
+.month-btn:active{transform:scale(.97)}
+.cal-nav{display:flex;align-items:center;gap:6px;flex-shrink:0;margin-left:auto}
+.cal-nav .btn{min-height:44px}
+.mp-year{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.mp-year b{font-size:24px;font-weight:800}
+.mp-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.mp-grid button{min-height:52px;border-radius:12px;border:1px solid var(--bd);background:var(--card);font-weight:700;font-size:15px;transition:transform .12s,background .15s}
+.mp-grid button:active{transform:scale(.95)}
+.mp-grid button.cur{background:var(--p);border-color:var(--p);color:#fff}
+.mp-grid button.now{border:2px solid var(--p);color:var(--p-d)}
+.mp-years{display:flex;gap:8px;overflow-x:auto;padding-bottom:4px;scrollbar-width:none}
+.mp-years button{flex-shrink:0;min-height:40px;padding:0 14px;border-radius:999px;border:1px solid var(--bd);background:var(--bg);font-weight:700;font-size:14px}
+.mp-years button.cur{background:var(--p-l);border-color:var(--p);color:var(--p-d)}
+@media (max-width:999px){.aside .quick-top,.page-h .quick-top{display:none}}
 .legend{display:flex;flex-wrap:wrap;gap:6px}
 .legend .pill{font-size:12px}
 .dot{width:8px;height:8px;border-radius:50%;background:currentColor;flex-shrink:0}
@@ -129,14 +146,15 @@ main{overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;padding:
 @media (min-width:900px){.wk-layout{grid-template-columns:minmax(0,1fr) 320px}}
 @media (max-width:1099px){.aside .note-row{background:var(--card);border:1px solid var(--bd)}}
 @media (max-width:599px){
-  .cal-h .btn{min-height:40px;padding:0 12px;font-size:14px}
-  .cal-h .icon-btn{width:40px;height:40px}
+  .cal-nav{gap:4px}
+  .cal-nav .btn{min-height:40px;padding:0 10px;font-size:13px}
+  .cal-nav .icon-btn{width:40px;height:40px}
   .grid{grid-auto-rows:minmax(58px,auto);gap:4px}
   .dows{gap:4px}
   .cell{padding:4px;border-radius:8px}
   .chip{font-size:0;padding:0;height:5px;border-radius:3px;-webkit-line-clamp:unset}
   .more{font-size:10px;padding-left:0}
-  .cal-h h1{font-size:22px}
+  .cal-h h1{font-size:21px}
 }
 
 /* ---------- agenda rows ---------- */
@@ -227,6 +245,11 @@ textarea.inp{resize:vertical;line-height:1.45}
 .swatches span{display:block;width:40px;height:40px;border-radius:50%;border:3px solid transparent;transition:transform .15s}
 .swatches input:checked+span{border-color:var(--tx);transform:scale(1.08)}
 .swatches input:focus-visible+span{outline:3px solid #93B4FF}
+.custom-color{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:12px;padding:8px 8px 8px 14px;border:1px solid var(--bd);border-radius:12px}
+.custom-color label{font-size:14px;font-weight:600;color:var(--mu2)}
+.custom-color input{width:56px;height:40px;border:none;border-radius:10px;background:none;padding:0;cursor:pointer}
+.pp-prev{margin-top:10px}
+.inp.bad{border-color:var(--danger);box-shadow:0 0 0 3px #FEE2E2}
 .chipbtn{min-height:34px;padding:0 12px;border-radius:999px;border:1px solid var(--bd);background:var(--bg);font-size:13px;color:var(--mu2)}
 .preview{border-radius:16px;background:var(--bg);padding:14px;display:flex;flex-direction:column;gap:12px}
 .preview-h{display:flex;align-items:center;gap:8px;font-weight:800;font-size:15px}
@@ -282,8 +305,27 @@ const COLORS = {
   purple: ['#EDE9FE', '#5B21B6'], orange: ['#FFEDD5', '#9A3412'], teal: ['#CCFBF1', '#115E59'],
   amber: ['#FEF3C7', '#92400E'], gray: ['#F1F3F7', '#3D4452']
 };
-const FRIEND_COLORS = ['pink', 'green', 'purple', 'orange', 'teal', 'amber'];
-const cs = (c) => { const x = COLORS[c] || COLORS.gray; return `background:${x[0]};color:${x[1]}`; };
+// Pastel palette (stored as hex). Old named colors stay supported.
+const PASTEL = ['#FFD6E0', '#FFDCD1', '#FFE5C7', '#FFF1B8', '#E2F5C8', '#CFF2DC', '#CDEFF0', '#D3E9FF', '#DCE0FF', '#E7DAFF', '#F6D8F2', '#EDE3D6'];
+const FRIEND_COLORS = PASTEL;
+const hex2hsl = (hx) => {
+  let r = parseInt(hx.slice(1, 3), 16) / 255, g = parseInt(hx.slice(3, 5), 16) / 255, b = parseInt(hx.slice(5, 7), 16) / 255;
+  const mx = Math.max(r, g, b), mn = Math.min(r, g, b); let hh = 0, ss = 0; const l = (mx + mn) / 2;
+  if (mx !== mn) { const d = mx - mn; ss = l > 0.5 ? d / (2 - mx - mn) : d / (mx + mn); hh = mx === r ? (g - b) / d + (g < b ? 6 : 0) : mx === g ? (b - r) / d + 2 : (r - g) / d + 4; hh *= 60; }
+  return [hh, ss * 100, l * 100];
+};
+const pairCache = {};
+function pair(c) {
+  if (COLORS[c]) return COLORS[c];
+  if (typeof c !== 'string' || !/^#[0-9a-f]{6}$/i.test(c)) return COLORS.gray;
+  if (pairCache[c]) return pairCache[c];
+  const [hh, ss, l] = hex2hsl(c);
+  const sat = Math.round(Math.min(Math.max(ss, 30), 85));
+  const bg = l >= 80 ? c : `hsl(${Math.round(hh)} ${sat}% 88%)`;
+  const fg = `hsl(${Math.round(hh)} ${Math.min(sat, 65)}% ${ss < 8 ? 30 : 27}%)`;
+  return (pairCache[c] = [bg, fg]);
+}
+const cs = (c) => { const x = pair(c); return `background:${x[0]};color:${x[1]}`; };
 const REM = [
   { k: 'h-7', label: 'H-7', days: 7 }, { k: 'h-3', label: 'H-3', days: 3 },
   { k: 'h-1', label: 'H-1', days: 1 }, { k: 'hari-h', label: 'Hari H', days: 0 }
@@ -296,7 +338,7 @@ const P = {
   gear: '<circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/>',
   plus: '<path d="M12 5v14M5 12h14"/>',
   bell: '<path d="M6 16V11a6 6 0 0 1 12 0v5l2 2H4z"/><path d="M10 21h4"/>',
-  left: '<path d="M15 6l-6 6 6 6"/>', right: '<path d="M9 6l6 6-6 6"/>',
+  left: '<path d="M15 6l-6 6 6 6"/>', down: '<path d="M6 9l6 6 6-6"/>', right: '<path d="M9 6l6 6-6 6"/>',
   x: '<path d="M6 6l12 12M18 6L6 18"/>', check: '<path d="M5 12.5l4.5 4.5L19 7.5"/>',
   addUser: '<circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c.8-3.6 3.4-5.5 6.5-5.5s5.7 1.9 6.5 5.5"/><path d="M19 8v6M16 11h6"/>',
   link: '<path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1"/><path d="M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/>',
@@ -437,6 +479,19 @@ function dueReminders() {
   const seen = new Set();
   return out.sort((a, b) => sortEv(a.e, b.e)).filter((x) => (seen.has(x.e.id) ? false : seen.add(x.e.id)));
 }
+async function showNote(title, opts) {
+  try {
+    if ('serviceWorker' in navigator) {
+      const reg = await Promise.race([navigator.serviceWorker.ready, new Promise((r) => setTimeout(() => r(null), 3000))]);
+      if (reg && reg.showNotification) { await reg.showNotification(title, opts); return true; }
+    }
+    new Notification(title, opts); return true;
+  } catch (err) { return false; }
+}
+async function testNotif() {
+  const ok = await showNote('Ingetin', { body: 'Notifikasi sudah aktif. Pengingat acara akan muncul seperti ini.', icon: 'icon-192.png', badge: 'icon-192.png', tag: 'ingetin-test' });
+  if (!ok) toast('Notifikasi diizinkan, tetapi browser menolak menampilkannya.');
+}
 async function notifyDue() {
   if (!('Notification' in window) || Notification.permission !== 'granted') return;
   const sent = lsGet(NKEY, []);
@@ -444,11 +499,7 @@ async function notifyDue() {
     if (sent.includes(key)) continue;
     sent.push(key);
     const body = rel(e.date) + ' · ' + fmtLong(e.date) + (e.time ? ' ' + fmtTime(e.time) : '');
-    try {
-      const reg = navigator.serviceWorker && (await navigator.serviceWorker.getRegistration());
-      if (reg) reg.showNotification('Ingetin: ' + e.title, { body, icon: 'icon-192.png', tag: key });
-      else new Notification('Ingetin: ' + e.title, { body, icon: 'icon-192.png' });
-    } catch {}
+    await showNote('Ingetin: ' + e.title, { body, icon: 'icon-192.png', badge: 'icon-192.png', tag: key });
   }
   lsSet(NKEY, sent.slice(-300));
 }
@@ -557,6 +608,7 @@ function downloadIcs(e) {
 }
 
 /* ============ UI bits ============ */
+function flagField(sel) { const el = $(sel); if (!el) return; el.classList.add('bad'); el.scrollIntoView({ block: 'center', behavior: 'smooth' }); }
 let toastTimer;
 function toast(msg, action) {
   const el = $('#toast'); clearTimeout(toastTimer);
@@ -579,17 +631,17 @@ let lastFocus = null;
 function openSheet(kind, args = {}) {
   if (!S.sheet) lastFocus = document.activeElement;
   S.sheet = { kind, ...args }; renderSheet();
-  const first = $('#sh .sheet [autofocus]') || $('#sh .sheet');
-  first && first.focus({ preventScroll: true });
+  const sh = $('#sh .sheet'); sh && sh.focus({ preventScroll: true });
 }
-function closeSheet() { S.sheet = null; $('#sh').innerHTML = ''; lastFocus && lastFocus.focus && lastFocus.focus({ preventScroll: true }); }
+const isField = (el) => el && el.matches && el.matches('input:not([type=checkbox]):not([type=radio]):not([type=file]):not([type=color]),textarea,select');
+function closeSheet() { S.sheet = null; $('#sh').innerHTML = ''; if (lastFocus && lastFocus.focus && !isField(lastFocus) && document.contains(lastFocus)) lastFocus.focus({ preventScroll: true }); }
 function renderSheet() {
   if (!S.sheet) { $('#sh').innerHTML = ''; return; }
   const fn = SHEETS[S.sheet.kind]; const body = fn ? fn(S.sheet) : '';
   if (body === null) { closeSheet(); return; }
   const cur = $('#sh .sheet');
   if (cur && cur.dataset.kind === S.sheet.kind) { const st = cur.scrollTop; cur.innerHTML = body; cur.scrollTop = st; return; }
-  $('#sh').innerHTML = `<div class="backdrop" data-act="closeSheet"></div><div class="sheet" role="dialog" aria-modal="true" aria-label="${h({ quick: 'Tambah cepat', event: 'Detail acara', editEvent: 'Ubah acara', note: 'Catatan', person: 'Teman', invite: 'Undang teman' }[S.sheet.kind] || '')}" tabindex="-1" data-kind="${S.sheet.kind}">${body}</div>`;
+  $('#sh').innerHTML = `<div class="backdrop" data-act="closeSheet"></div><div class="sheet" role="dialog" aria-modal="true" aria-label="${h({ quick: 'Tambah cepat', event: 'Detail acara', editEvent: 'Ubah acara', note: 'Catatan', person: 'Teman', invite: 'Undang teman', monthPick: 'Pilih bulan', notifHelp: 'Notifikasi' }[S.sheet.kind] || '')}" tabindex="-1" data-kind="${S.sheet.kind}">${body}</div>`;
 }
 
 const avatar = (p, size = 44) => `<span class="av" style="width:${size}px;height:${size}px;font-size:${Math.round(size * 0.38)}px;${cs(p.color)}">${h((p.name || '?')[0].toUpperCase())}</span>`;
@@ -597,7 +649,7 @@ function evRow(e, showDate = true) {
   const i = evInfo(e), d = pd(e.date), prog = checkProg(e);
   const sub = [e.time ? fmtTime(e.time) : '', i.from ? 'Dari ' + i.from : (i.person ? i.person.name : ''), e.location || ''].filter(Boolean).join(' · ') || rel(e.date);
   return `<button type="button" class="ev" data-act="openEvent" data-id="${h(e.id)}">
-    ${showDate ? `<span class="dblock" style="${cs(i.color)}"><small>${HARI3[d.getDay()]}</small><b>${d.getDate()}</b></span>` : `<span class="dot" style="color:${COLORS[i.color][1]};width:10px;height:10px"></span>`}
+    ${showDate ? `<span class="dblock" style="${cs(i.color)}"><small>${HARI3[d.getDay()]}</small><b>${d.getDate()}</b></span>` : `<span class="dot" style="color:${pair(i.color)[1]};width:10px;height:10px"></span>`}
     <span class="ev-t"><b>${h(e.title)}</b><span>${h(sub)}</span></span>
     ${prog ? `<span class="tag">${prog}</span>` : (e.shared && isMine(e) ? `<span class="tag">Dibagikan</span>` : '')}
   </button>`;
@@ -657,19 +709,21 @@ function vKalender() {
   return `<div class="cal-layout">
     <section class="cal-main" aria-label="Kalender">
       <div class="cal-h">
-        <h1>${BULAN[mo]} ${y}</h1>
-        <button type="button" class="icon-btn" data-act="month" data-n="-1" aria-label="Bulan sebelumnya">${ic('left', 18, 2.2)}</button>
-        <button type="button" class="icon-btn" data-act="month" data-n="1" aria-label="Bulan berikutnya">${ic('right', 18, 2.2)}</button>
-        <button type="button" class="btn" data-act="today" style="min-height:44px">Hari ini</button>
+        <h1><button type="button" class="month-btn" data-act="pickMonth" aria-label="Pilih bulan dan tahun, sekarang ${BULAN[mo]} ${y}"><span>${BULAN[mo]} ${y}</span>${ic('down', 18, 2.4)}</button></h1>
+        <div class="cal-nav">
+          <button type="button" class="icon-btn" data-act="month" data-n="-1" aria-label="Bulan sebelumnya">${ic('left', 18, 2.2)}</button>
+          <button type="button" class="icon-btn" data-act="month" data-n="1" aria-label="Bulan berikutnya">${ic('right', 18, 2.2)}</button>
+          <button type="button" class="btn" data-act="today">Hari ini</button>
+        </div>
       </div>
       <div class="legend">${legend}</div>
       <div class="dows" aria-hidden="true">${['Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab', 'Min'].map((d) => `<span>${d}</span>`).join('')}</div>
       <div class="grid">${cells}</div>
     </section>
     <aside class="aside" aria-label="Ringkasan">
-      <button type="button" class="btn pri block" data-act="quick">${ic('plus', 18, 2.4)}Tambah cepat</button>
+      <button type="button" class="btn pri block quick-top" data-act="quick">${ic('plus', 18, 2.4)}Tambah cepat</button>
       <div class="sec-h"><h2>${S.sel === today ? 'Hari ini' : h(HARI[pd(S.sel).getDay()] + ', ' + fmtShort(S.sel))}</h2><small>${selEv.length ? selEv.length + ' acara' : ''}</small></div>
-      <div class="stack">${selEv.length ? selEv.map((e) => evRow(e, false)).join('') : `<div class="note-row" style="justify-content:space-between;align-items:center"><span class="muted">Tidak ada acara.</span><button type="button" class="btn ghost" data-act="newEvent" data-date="${S.sel}">+ Tambah</button></div>`}</div>
+      <div class="stack">${selEv.length ? selEv.map((e) => evRow(e, false)).join('') : `<div class="note-row" style="justify-content:space-between;align-items:center"><span class="muted">Tidak ada acara.</span><button type="button" class="btn ghost" data-act="newEvent" data-date="${S.sel}">+ Acara di tanggal ini</button></div>`}</div>
       <div class="sec-h" style="margin-top:4px"><h2>Minggu ini</h2><small>${wk0.getDate()} ${BUL3[wk0.getMonth()]} – ${wk1.getDate()} ${BUL3[wk1.getMonth()]}</small></div>
       <div class="stack">${week.length ? week.map((e) => evRow(e)).join('') : `<div class="note-row"><span class="muted">Belum ada acara 7 hari ke depan.</span></div>`}</div>
       ${soon.length ? `<div class="sec-h" style="margin-top:4px"><h2>Segera</h2></div><div class="stack">${soon.map((e) => evRow(e)).join('')}</div>` : ''}
@@ -691,9 +745,9 @@ function vMinggu() {
   }
   const later = eventsBetween(ymd(addDays(t, 14)), ymd(addDays(t, 90)));
   const notes = S.data.notes.filter((n) => n.kind !== 'cerita');
-  return `<div class="page-h"><h1>Minggu ini</h1><button type="button" class="btn pri" data-act="quick">${ic('plus', 18, 2.4)}Tambah cepat</button></div>
+  return `<div class="page-h"><h1>Minggu ini</h1><button type="button" class="btn pri quick-top" data-act="quick">${ic('plus', 18, 2.4)}Tambah cepat</button></div>
   <div class="wk-layout">
-    <section aria-label="Agenda 14 hari">${out || `<div class="card"><div class="empty">${ic('cal', 32, 1.6)}<b>Belum ada acara dua minggu ke depan</b>Tulis saja seperti chat, misalnya “Budi ultah 14 Januari”.<button type="button" class="btn pri" data-act="quick">Tambah acara</button></div></div>`}
+    <section aria-label="Agenda 14 hari">${out || `<div class="card"><div class="empty">${ic('cal', 32, 1.6)}<b>Belum ada acara dua minggu ke depan</b>Ketuk tombol <b style="font-size:inherit">+</b> lalu tulis seperti chat, misalnya “Budi ultah 14 Januari”.</div></div>`}
     ${later.length ? `<div class="day-group"><h2>Setelahnya</h2>${later.slice(0, 8).map((e) => evRow(e)).join('')}</div>` : ''}</section>
     <section class="card" aria-label="Hal yang harus diingat"><div class="sec-h"><h2>Ingat juga</h2><small>${notes.length} catatan</small></div>
       ${notes.length ? notes.map(noteRow).join('') : '<p class="muted" style="margin:0;font-size:14px">Belum ada catatan.</p>'}
@@ -735,7 +789,7 @@ function personDetail(p, wide) {
   const ingat = notes.filter((n) => n.kind !== 'cerita').sort((a, b) => (a.created_at || '').localeCompare(b.created_at || ''));
   const cerita = notes.filter((n) => n.kind === 'cerita').sort((a, b) => (b.created_at || '').localeCompare(a.created_at || ''));
   const evs = personEvents(p);
-  const c = COLORS[p.color] || COLORS.gray;
+  const c = pair(p.color);
   return `${wide ? '' : `<button type="button" class="btn ghost" style="align-self:flex-start" data-act="backList">${ic('left', 18, 2.2)}Semua teman</button>`}
   <div class="fr-head">${avatar(p, 72)}<div style="display:flex;flex-direction:column;gap:6px;flex:1;min-width:0"><h2>${h(p.name)}</h2>
     ${p.linked_user_id ? `<span class="pill" style="${cs('green')};align-self:flex-start">${ic('check', 14, 2.4)}Terhubung · saling berbagi kalender</span>` : `<span class="pill" style="${cs('gray')};align-self:flex-start">${ic('lock', 13, 2.2)}Catatan pribadi</span>`}
@@ -787,7 +841,10 @@ function vPengaturan() {
     <section class="card"><div class="sec-h"><h2>Akun &amp; sinkronisasi</h2></div>${acct}</section>
     <section class="card"><div class="sec-h"><h2>Pengingat</h2></div>
       <p>Pengingat muncul di bagian atas aplikasi saat waktunya tiba (H-7, H-3, H-1 pukul 19.00, dan hari H pukul 07.00).</p>
-      ${perm === 'granted' ? `<div class="item"><span>Notifikasi aktif. Notifikasi muncul selama aplikasi terbuka atau berjalan di latar.</span></div>` : perm === 'unsupported' ? `<p>Perangkat ini belum mendukung notifikasi web. Di iPad/iPhone, tambahkan Ingetin ke Layar Utama dulu (Bagikan › Tambah ke Layar Utama).</p>` : `<button type="button" class="btn out" data-act="askNotif">${ic('bell', 18)}Izinkan notifikasi</button>`}
+      ${perm === 'granted' ? `<div class="item"><span>${ic('check', 16, 2.4)} Notifikasi aktif.</span><button type="button" class="btn ghost" data-act="testNotif">Kirim uji</button></div>`
+        : perm === 'unsupported' ? `<p>Perangkat ini belum mendukung notifikasi web. Di iPad/iPhone, tambahkan Ingetin ke Layar Utama dulu (Bagikan › Tambah ke Layar Utama), lalu buka dari ikonnya.</p>`
+        : perm === 'denied' ? `<div class="item" style="background:#FEF2F2"><span>Notifikasi sedang <b>diblokir</b> untuk Ingetin.</span><button type="button" class="btn ghost" data-act="askNotif">Cara membuka</button></div>`
+        : `<button type="button" class="btn out" data-act="askNotif">${ic('bell', 18)}Izinkan notifikasi</button>`}
       <p>Supaya pengingat pasti berbunyi walau aplikasi tertutup, buka event lalu ketuk <b>Tambah ke Kalender HP</b>.</p>
     </section>
     <section class="card"><div class="sec-h"><h2>Data</h2></div>
@@ -808,7 +865,7 @@ function render() {
   const active = document.activeElement && document.activeElement.id;
   $('#app').innerHTML = renderShell();
   const m2 = $('#main'); if (m2) m2.scrollTop = st;
-  if (active === 'cari') { const el = $('#cari'); if (el) { el.focus(); el.setSelectionRange(el.value.length, el.value.length); } }
+  if (active === 'cari' && S.view === 'teman') { const el = $('#cari'); if (el) { el.focus(); el.setSelectionRange(el.value.length, el.value.length); } }
   if (S.sheet) renderSheet();
 }
 
@@ -829,7 +886,7 @@ const SHEETS = {
       <div class="sh-top"><h2>Tambah cepat</h2><button type="button" class="icon-btn round" data-act="closeSheet" aria-label="Tutup">${ic('x', 18, 2.4)}</button></div>
       <form class="stack" data-form="quick" style="gap:14px">
         <div class="field"><label for="qa-text">Tulis seperti chat biasa</label>
-          <textarea id="qa-text" class="inp" rows="3" autofocus placeholder="mis. Dina sidang skripsi 3 Desember jam 9" style="font-size:17px">${h(s.text || '')}</textarea></div>
+          <textarea id="qa-text" class="inp" rows="3" placeholder="mis. Dina sidang skripsi 3 Desember jam 9" style="font-size:17px">${h(s.text || '')}</textarea></div>
         <div style="display:flex;flex-wrap:wrap;gap:6px;align-items:center"><span class="muted" style="font-size:12px;font-weight:600">Contoh:</span>
           <button type="button" class="chipbtn" data-act="qaEx" data-t="Budi ultah 14 Januari">Budi ultah 14 Januari</button>
           <button type="button" class="chipbtn" data-act="qaEx" data-t="Rina alergi udang">Rina alergi udang</button>
@@ -861,7 +918,7 @@ const SHEETS = {
   },
   event(s) {
     const e = S.data.events.find((x) => x.id === s.id); if (!e) return null;
-    const i = evInfo(e), mine = isMine(e), c = COLORS[i.color] || COLORS.gray;
+    const i = evInfo(e), mine = isMine(e), c = pair(i.color);
     const list = e.checklist || [], done = list.filter((x) => x.done).length;
     const badge = mine ? (e.shared ? `<span class="pill" style="${cs(i.color)}">${ic('people', 14)}Dibagikan ke teman</span>` : `<span class="pill" style="${cs(i.color)}">${h(i.who)}</span>`) : `<span class="pill" style="${cs(i.color)}">Dibagikan ${h(i.from)}</span>`;
     return `<div class="sh-band" style="background:${c[1]}"></div><div class="sh-body">
@@ -893,7 +950,7 @@ const SHEETS = {
     if (!e) return null;
     return `<div class="sh-body"><div class="sh-top"><h2>${s.id ? 'Ubah acara' : 'Acara baru'}</h2><button type="button" class="icon-btn round" data-act="closeSheet" aria-label="Tutup">${ic('x', 18, 2.4)}</button></div>
       <form class="stack" data-form="editEvent" style="gap:14px">
-        <div class="field"><label for="ee-title">Judul</label><input id="ee-title" class="inp" name="title" required value="${h(e.title)}" ${s.id ? '' : 'autofocus'}></div>
+        <div class="field"><label for="ee-title">Judul</label><input id="ee-title" class="inp" name="title" required value="${h(e.title)}"></div>
         <div class="row2"><div class="field"><label for="ee-date">Tanggal</label><input id="ee-date" class="inp" type="date" name="date" required value="${h(e.date)}"></div>
         <div class="field"><label for="ee-time">Jam (opsional)</label><input id="ee-time" class="inp" type="time" name="time" value="${h(e.time || '')}"></div></div>
         <div class="field"><label for="ee-person">Teman</label><select id="ee-person" class="inp" name="person">${personOptions(e.person_id || '')}</select></div>
@@ -914,7 +971,7 @@ const SHEETS = {
           <label><input type="radio" name="kind" value="ingat" ${n.kind !== 'cerita' ? 'checked' : ''}><span>Harus diingat</span></label>
           <label><input type="radio" name="kind" value="cerita" ${n.kind === 'cerita' ? 'checked' : ''}><span>Pernah cerita</span></label>
         </div>
-        <div class="field"><label for="nt-text">Isi</label><textarea id="nt-text" class="inp" name="text" rows="3" required autofocus placeholder="mis. Suka kopi susu tanpa gula">${h(n.text)}</textarea></div>
+        <div class="field"><label for="nt-text">Isi</label><textarea id="nt-text" class="inp" name="text" rows="3" required placeholder="mis. Suka kopi susu tanpa gula">${h(n.text)}</textarea></div>
         <div class="row2"><button type="button" class="btn" data-act="closeSheet">Batal</button><button type="submit" class="btn pri">Simpan</button></div>
       </form></div>`;
   },
@@ -923,13 +980,38 @@ const SHEETS = {
     if (!p) return null;
     return `<div class="sh-body"><div class="sh-top"><h2>${s.id ? 'Ubah teman' : 'Tambah teman'}</h2><button type="button" class="icon-btn round" data-act="closeSheet" aria-label="Tutup">${ic('x', 18, 2.4)}</button></div>
       <form class="stack" data-form="person" style="gap:14px">
-        <div class="field"><label for="pp-name">Nama</label><input id="pp-name" class="inp" name="name" required value="${h(p.name)}" autofocus autocomplete="off"></div>
+        <div class="field"><label for="pp-name">Nama</label><input id="pp-name" class="inp" name="name" required value="${h(p.name)}" autocomplete="off"></div>
         <fieldset style="border:none;padding:0;margin:0" class="field"><legend class="flabel" style="margin-bottom:8px">Warna di kalender</legend>
-          <div class="swatches">${Object.keys(COLORS).filter((k) => k !== 'gray').map((k) => `<label><input type="radio" name="color" value="${k}" ${p.color === k ? 'checked' : ''} aria-label="${k}"><span style="background:${COLORS[k][1]}"></span></label>`).join('')}</div>
+          <div class="swatches">${PASTEL.map((k, n) => `<label><input type="radio" name="color" value="${k}" ${p.color === k ? 'checked' : ''} aria-label="Warna pastel ${n + 1}"><span style="background:${k};box-shadow:inset 0 0 0 1px rgba(0,0,0,.08)"></span></label>`).join('')}
+            <label title="Warna sendiri"><input type="radio" name="color" value="custom" id="pp-custom-r" ${PASTEL.includes(p.color) ? '' : 'checked'} aria-label="Warna sendiri"><span id="pp-custom-sw" style="background:${PASTEL.includes(p.color) ? 'conic-gradient(#FFD6E0,#FFF1B8,#CFF2DC,#D3E9FF,#E7DAFF,#FFD6E0)' : pair(p.color)[0]}"></span></label>
+          </div>
+          <div class="custom-color"><label for="pp-custom">Atau pilih warna sendiri</label><input type="color" id="pp-custom" name="customColor" value="${/^#[0-9a-f]{6}$/i.test(p.color || '') ? p.color : '#B8D4FF'}" data-chg="customColor"></div>
+          <div class="pp-prev"><span class="pill" id="pp-prev" style="${cs(p.color)}"><span class="dot"></span>Contoh tampilan</span></div>
         </fieldset>
         <div class="row2"><button type="button" class="btn" data-act="closeSheet">Batal</button><button type="submit" class="btn pri">Simpan</button></div>
         ${s.id ? `<button type="button" class="btn danger" data-act="delPerson" data-id="${h(p.id)}">${ic('trash', 18)}Hapus ${h(p.name)}${p.linked_user_id ? ' & putuskan hubungan' : ''}</button>` : ''}
       </form></div>`;
+  },
+  monthPick(s) {
+    const y = s.year, mo = S.month.getMonth(), cy = S.month.getFullYear(), t = todayD();
+    const years = []; for (let k = t.getFullYear() - 3; k <= t.getFullYear() + 6; k++) years.push(k);
+    if (!years.includes(y)) years.push(y), years.sort((a, b) => a - b);
+    return `<div class="sh-body"><div class="sh-top"><h2>Pilih bulan</h2><button type="button" class="icon-btn round" data-act="closeSheet" aria-label="Tutup">${ic('x', 18, 2.4)}</button></div>
+      <div class="mp-year"><button type="button" class="icon-btn" data-act="mpYear" data-n="-1" aria-label="Tahun sebelumnya">${ic('left', 18, 2.2)}</button><b aria-live="polite">${y}</b><button type="button" class="icon-btn" data-act="mpYear" data-n="1" aria-label="Tahun berikutnya">${ic('right', 18, 2.2)}</button></div>
+      <div class="mp-years" role="group" aria-label="Lompat ke tahun">${years.map((k) => `<button type="button" class="${k === y ? 'cur' : ''}" data-act="mpSetYear" data-y="${k}" ${k === y ? 'aria-current="true"' : ''}>${k}</button>`).join('')}</div>
+      <div class="mp-grid">${BULAN.map((b, i) => `<button type="button" class="${i === mo && y === cy ? 'cur' : (i === t.getMonth() && y === t.getFullYear() ? 'now' : '')}" data-act="mpGo" data-m="${i}">${b}</button>`).join('')}</div>
+      <button type="button" class="btn" data-act="today">Kembali ke hari ini</button></div>`;
+  },
+  notifHelp() {
+    return `<div class="sh-body"><div class="sh-top"><h2>Notifikasi diblokir</h2><button type="button" class="icon-btn round" data-act="closeSheet" aria-label="Tutup">${ic('x', 18, 2.4)}</button></div>
+      <p style="margin:0;line-height:1.5" class="muted">Browser sudah menyimpan pilihan “Blokir”, jadi Ingetin tidak bisa bertanya lagi. Buka blokirnya sekali saja:</p>
+      <section class="card" style="gap:6px"><h3 style="font-size:15px;font-weight:800">Android · Chrome</h3>
+        <p style="margin:0;font-size:14px;line-height:1.55">1. Ketuk ikon di kiri alamat situs (gembok / pengaturan).<br>2. Pilih <b>Izin</b> › <b>Notifikasi</b> › <b>Izinkan</b>.<br>3. Kembali ke sini lalu ketuk <b>Izinkan notifikasi</b> lagi.</p></section>
+      <section class="card" style="gap:6px"><h3 style="font-size:15px;font-weight:800">Kalau dibuka dari ikon Layar Utama</h3>
+        <p style="margin:0;font-size:14px;line-height:1.55">Tekan lama ikon Ingetin › <b>Info aplikasi</b> › <b>Notifikasi</b> › nyalakan.</p></section>
+      <section class="card" style="gap:6px"><h3 style="font-size:15px;font-weight:800">iPad / iPhone</h3>
+        <p style="margin:0;font-size:14px;line-height:1.55">Pengaturan › <b>Notifikasi</b> › <b>Ingetin</b> › Izinkan Notifikasi (harus sudah ditambahkan ke Layar Utama).</p></section>
+      <button type="button" class="btn pri" data-act="closeSheet">Mengerti</button></div>`;
   },
   invite() {
     let body;
@@ -963,9 +1045,9 @@ function quickInput() {
   S.sheet.text = text;
   if (r) { if (S.sheet.forceType) r.type = S.sheet.forceType; if (!r.personId && S.sheet.person && !r.newName) r.personId = S.sheet.person; }
   S.sheet.parsed = r;
-  const pos = ta.selectionStart;
+  const pos = ta.selectionStart, hadFocus = document.activeElement === ta;
   renderSheet();
-  const t2 = $('#qa-text'); t2.focus(); t2.setSelectionRange(pos, pos);
+  const t2 = $('#qa-text'); if (hadFocus) { t2.focus(); t2.setSelectionRange(pos, pos); }
 }
 async function ensurePerson(sel, newName) {
   if (sel !== '__new') return sel || null;
@@ -979,7 +1061,11 @@ async function ensurePerson(sel, newName) {
 const A = {
   go(d) { S.view = d.v; closeSheet(); render(); $('#main') && ($('#main').scrollTop = 0); },
   month(d) { const m = new Date(S.month); m.setMonth(m.getMonth() + +d.n); S.month = m; render(); },
-  today() { const t = todayD(); t.setDate(1); S.month = t; S.sel = todayS(); render(); },
+  today() { const t = todayD(); t.setDate(1); S.month = t; S.sel = todayS(); if (S.sheet) closeSheet(); render(); },
+  pickMonth() { openSheet('monthPick', { year: S.month.getFullYear() }); const c = $('.mp-years .cur'); c && c.scrollIntoView({ inline: 'center', block: 'nearest' }); },
+  mpYear(d) { S.sheet.year += +d.n; renderSheet(); },
+  mpSetYear(d) { S.sheet.year = +d.y; renderSheet(); const c = $('.mp-years .cur'); c && c.scrollIntoView({ inline: 'center', block: 'nearest' }); },
+  mpGo(d) { S.month = new Date(S.sheet.year, +d.m, 1); closeSheet(); render(); },
   pickDay(d) {
     S.sel = d.date; const dd = pd(d.date);
     if (dd.getMonth() !== S.month.getMonth()) { dd.setDate(1); S.month = dd; }
@@ -1034,7 +1120,24 @@ const A = {
   async copyLink() { try { await navigator.clipboard.writeText(inviteLink()); toast('Link disalin'); } catch { toast('Tidak bisa menyalin. Tekan lama link untuk menyalin.'); } },
   async shareLink() { try { await navigator.share({ title: 'Ingetin', text: inviteMsg(), url: inviteLink() }); } catch {} },
   dismiss(d) { const l = lsGet(DKEY, []); l.push(d.key); lsSet(DKEY, l.slice(-500)); render(); },
-  async askNotif() { try { await Notification.requestPermission(); } catch {} render(); notifyDue(); },
+  async askNotif(d, el) {
+    if (!('Notification' in window)) { toast('Perangkat ini belum mendukung notifikasi web.'); return; }
+    if (Notification.permission === 'denied') { openSheet('notifHelp'); return; }
+    el.dataset.busy = '1'; el.textContent = 'Menunggu izin…';
+    let res;
+    try {
+      res = await new Promise((resolve) => {
+        const t = setTimeout(() => resolve('timeout'), 15000);
+        const p = Notification.requestPermission((r) => { clearTimeout(t); resolve(r); });
+        if (p && p.then) p.then((r) => { clearTimeout(t); resolve(r); }, () => { clearTimeout(t); resolve('error'); });
+      });
+    } catch { res = 'error'; }
+    render();
+    if (res === 'granted') { toast('Notifikasi aktif'); testNotif(); notifyDue(); }
+    else if (res === 'denied') openSheet('notifHelp');
+    else toast('Izin belum diberikan. Kalau muncul ikon lonceng kecil di bar alamat Chrome, ketuk lalu pilih Izinkan.');
+  },
+  testNotif() { testNotif(); },
   closeSheet() { closeSheet(); },
   async logout() { if (!(await confirmBox('Keluar dari akun di perangkat ini?', 'Keluar'))) return; await S.sb.auth.signOut(); },
   async sync() { await loadData(); toast('Data diperbarui'); },
@@ -1086,8 +1189,8 @@ const FORMS = {
       closeSheet(); toast('Catatan tersimpan'); return;
     }
     const title = (fd.get('title') || '').trim(), date = fd.get('date');
-    if (!title) { err.textContent = 'Judulnya belum ada.'; $('#qa-title').focus(); return; }
-    if (!date) { err.textContent = 'Pilih tanggalnya dulu.'; $('#qa-date').focus(); return; }
+    if (!title) { err.textContent = 'Judulnya belum ada.'; flagField('#qa-title'); return; }
+    if (!date) { err.textContent = 'Pilih tanggalnya dulu.'; flagField('#qa-date'); return; }
     const pid = await ensurePerson(fd.get('person'), r.newName || '');
     const ev = await save('events', { id: uid(), title, date, time: fd.get('time') || null, person_id: pid, location: null, notes: null, shared: fd.get('shared') === 'on', checklist: [], reminders: fd.getAll('rem') });
     closeSheet();
@@ -1101,10 +1204,11 @@ const FORMS = {
     await save('events', row); toast('Acara tersimpan'); openSheet('event', { id: row.id });
   },
   async addCheck(f) {
+    const typed = document.activeElement && document.activeElement.id === 'ck-new';
     const t = new FormData(f).get('t').trim(); if (!t) return;
     const e = S.data.events.find((x) => x.id === S.sheet.id); if (!e) return;
     await save('events', { ...e, checklist: [...(e.checklist || []), { text: t, done: false }] });
-    const inp = $('#ck-new'); inp && inp.focus();
+    const inp = $('#ck-new'); if (inp && typed) inp.focus();
   },
   async note(f) {
     const fd = new FormData(f), s = S.sheet;
@@ -1115,7 +1219,8 @@ const FORMS = {
   async person(f) {
     const fd = new FormData(f), s = S.sheet;
     const base = s.id ? personById(s.id) : { id: uid(), linked_user_id: null };
-    const row = await save('people', { ...base, name: fd.get('name').trim(), color: fd.get('color') || 'pink' });
+    const col = fd.get('color') === 'custom' ? fd.get('customColor') : (fd.get('color') || PASTEL[0]);
+    const row = await save('people', { ...base, name: fd.get('name').trim(), color: col });
     S.personId = row.id; S.view = 'teman'; closeSheet(); render();
   },
   cfg(f) {
@@ -1160,6 +1265,13 @@ document.addEventListener('submit', async (ev) => {
 let qaTimer;
 document.addEventListener('input', (ev) => {
   if (ev.target.id === 'cari') { S.q = ev.target.value; const l = $('#frlist'); if (l) l.innerHTML = friendList(); }
+  if (ev.target.id === 'pp-custom' || (ev.target.name === 'color' && ev.target.closest('[data-form=person]'))) {
+    const f = ev.target.form; if (ev.target.id === 'pp-custom') { const r = $('#pp-custom-r'); if (r) r.checked = true; }
+    const sel = f.querySelector('input[name=color]:checked'); const v = !sel || sel.value === 'custom' ? $('#pp-custom').value : sel.value;
+    const pv = $('#pp-prev'); if (pv) pv.setAttribute('style', cs(v));
+    if (ev.target.id === 'pp-custom') { const sw = $('#pp-custom-sw'); if (sw) sw.style.background = pair(v)[0]; }
+  }
+  if (ev.target.classList && ev.target.classList.contains('bad')) ev.target.classList.remove('bad');
   if (ev.target.id === 'qa-text') { clearTimeout(qaTimer); qaTimer = setTimeout(quickInput, 250); }
   if (ev.target.id === 'qa-date' || ev.target.id === 'qa-time' || ev.target.id === 'qa-title' || ev.target.id === 'qa-note' || ev.target.id === 'qa-person') {
     const p = S.sheet && S.sheet.parsed; if (!p) return;
@@ -1172,6 +1284,12 @@ document.addEventListener('keydown', (ev) => {
   if (ev.key === 'Escape') { if ($('#dlg').innerHTML) { const n = $('#dlg [data-no]'); n && n.click(); } else if (S.sheet) closeSheet(); }
   if (ev.key === 'Enter' && (ev.metaKey || ev.ctrlKey) && ev.target.id === 'qa-text') { const f = ev.target.form; f && f.requestSubmit(); }
 });
+let sx = null, sy = 0;
+document.addEventListener('touchstart', (ev) => { const g = ev.target.closest && ev.target.closest('.grid'); if (g && ev.touches.length === 1) { sx = ev.touches[0].clientX; sy = ev.touches[0].clientY; } else sx = null; }, { passive: true });
+document.addEventListener('touchend', (ev) => {
+  if (sx === null) return; const t = ev.changedTouches[0], dx = t.clientX - sx, dy = t.clientY - sy; sx = null;
+  if (Math.abs(dx) > 60 && Math.abs(dx) > Math.abs(dy) * 1.5) { A.month({ n: dx < 0 ? 1 : -1 }); }
+}, { passive: true });
 let lastW = innerWidth;
 addEventListener('resize', () => { if ((lastW < 760) !== (innerWidth < 760) || (lastW < 1100) !== (innerWidth < 1100)) render(); lastW = innerWidth; });
 document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') { if (S.mode === 'cloud') loadData(); else render(); notifyDue(); } });
