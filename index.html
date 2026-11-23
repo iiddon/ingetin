@@ -143,6 +143,15 @@ main{overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;padding:
   .aside{background:var(--card);border:1px solid var(--bd);border-radius:18px;padding:20px 18px;overflow-y:auto;min-height:0}
 }
 .wk-layout{display:grid;gap:16px;align-items:start}
+.ag-seg{margin-bottom:14px;max-width:420px}
+.ag-month{display:flex;align-items:center;gap:8px;margin-bottom:12px}
+.stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin-bottom:12px}
+@media (max-width:599px){.stats{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.stat{background:var(--card);border:1px solid var(--bd);border-radius:14px;padding:12px;display:flex;flex-direction:column;gap:2px}
+.stat b{font-size:24px;font-weight:800;color:var(--p-d)}
+.stat span{font-size:12px;font-weight:600;color:var(--mu)}
+.day-group.past .ev{opacity:.6}
+.day-group.past h2 small{color:#6B7280}
 @media (min-width:900px){.wk-layout{grid-template-columns:minmax(0,1fr) 320px}}
 @media (max-width:1099px){.aside .note-row{background:var(--card);border:1px solid var(--bd)}}
 @media (max-width:599px){
@@ -417,6 +426,7 @@ const S = {
   view: 'kalender', month: (() => { const d = todayD(); d.setDate(1); return d; })(), sel: todayS(),
   personId: null, q: '', authTab: 'masuk',
   data: { people: [], events: [], notes: [], friends: [] },
+  agTab: 'minggu', agMonth: (() => { const d = todayD(); d.setDate(1); return d; })(),
   mode: 'local', sb: null, session: null, me: null, sheet: null, busy: false
 };
 const lsGet = (k, def) => { try { const v = localStorage.getItem(k); return v ? JSON.parse(v) : def; } catch { return def; } };
@@ -710,7 +720,7 @@ function evRow(e, showDate = true) {
 
 /* ============ views ============ */
 function navItems() {
-  return [['kalender', 'Kalender', 'cal'], ['minggu', 'Minggu ini', 'list'], ['teman', 'Teman', 'people'], ['pengaturan', 'Pengaturan', 'gear']];
+  return [['kalender', 'Kalender', 'cal'], ['minggu', 'Agenda', 'list'], ['teman', 'Teman', 'people'], ['pengaturan', 'Pengaturan', 'gear']];
 }
 function renderShell() {
   const side = `<nav class="side" aria-label="Menu utama">
@@ -791,17 +801,50 @@ function noteRow(n) {
 }
 
 function vMinggu() {
-  const t = todayD(); let out = '';
-  for (let i = 0; i < 14; i++) {
-    const k = ymd(addDays(t, i)), evs = eventsOn(k); if (!evs.length) continue;
-    out += `<div class="day-group"><h2>${i === 0 ? 'Hari ini' : i === 1 ? 'Besok' : HARI[pd(k).getDay()]}<small>${fmtShort(k)}</small></h2>${evs.map((e) => evRow(e)).join('')}</div>`;
+  const t = todayD(), isMonth = S.agTab === 'bulan';
+  const seg = `<div class="seg ag-seg" role="radiogroup" aria-label="Rentang agenda">
+      <label><input type="radio" name="agtab" value="minggu" data-chg="agTab" ${!isMonth ? 'checked' : ''}><span>Minggu ini</span></label>
+      <label><input type="radio" name="agtab" value="bulan" data-chg="agTab" ${isMonth ? 'checked' : ''}><span>Bulan ini</span></label></div>`;
+  let main = '';
+  if (!isMonth) {
+    let out = '';
+    for (let i = 0; i < 14; i++) {
+      const k = ymd(addDays(t, i)), evs = eventsOn(k); if (!evs.length) continue;
+      out += `<div class="day-group"><h2>${i === 0 ? 'Hari ini' : i === 1 ? 'Besok' : HARI[pd(k).getDay()]}<small>${fmtShort(k)}</small></h2>${evs.map((e) => evRow(e)).join('')}</div>`;
+    }
+    const later = eventsBetween(ymd(addDays(t, 14)), ymd(addDays(t, 90)));
+    main = (out || `<div class="card"><div class="empty">${ic('cal', 32, 1.6)}<b>Belum ada acara dua minggu ke depan</b>Ketuk tombol <b style="font-size:inherit">+</b> lalu tulis seperti chat, misalnya “Budi ultah 14 Januari”.</div></div>`)
+      + (later.length ? `<div class="day-group"><h2>Setelahnya</h2>${later.slice(0, 8).map((e) => evRow(e)).join('')}</div>` : '');
+  } else {
+    const m = S.agMonth, y = m.getFullYear(), mo = m.getMonth();
+    const a = ymd(new Date(y, mo, 1)), z = ymd(new Date(y, mo + 1, 0)), today = todayS();
+    const evs = eventsBetween(a, z), past = evs.filter((e) => e.date < today), next = evs.filter((e) => e.date >= today);
+    const open = evs.reduce((n, e) => n + (e.checklist || []).filter((c) => !c.done).length, 0);
+    const people = new Set(evs.map((e) => evInfo(e).who).filter((w) => w !== 'Kamu'));
+    const busiest = (() => { const c = {}; for (const e of evs) c[e.date] = (c[e.date] || 0) + 1; const top = Object.entries(c).sort((p, q) => q[1] - p[1])[0]; return top && top[1] > 1 ? top : null; })();
+    let list = '', lastDay = '';
+    for (const e of evs) {
+      if (e.date !== lastDay) { if (lastDay) list += '</div>'; lastDay = e.date; const d = pd(e.date); list += `<div class="day-group ${e.date < today ? 'past' : ''}"><h2>${e.date === today ? 'Hari ini' : HARI[d.getDay()] + ', ' + d.getDate()}<small>${e.date < today ? 'Sudah lewat' : rel(e.date)}</small></h2>`; }
+      list += evRow(e);
+    }
+    if (lastDay) list += '</div>';
+    main = `<div class="ag-month"><button type="button" class="icon-btn" data-act="agMonth" data-n="-1" aria-label="Bulan sebelumnya">${ic('left', 18, 2.2)}</button>
+        <button type="button" class="month-btn" data-act="agPick" style="font-size:20px;font-weight:800;flex:1;justify-content:center"><span>${BULAN[mo]} ${y}</span>${ic('down', 18, 2.4)}</button>
+        <button type="button" class="icon-btn" data-act="agMonth" data-n="1" aria-label="Bulan berikutnya">${ic('right', 18, 2.2)}</button></div>
+      <div class="stats">
+        <div class="stat"><b>${evs.length}</b><span>Acara</span></div>
+        <div class="stat"><b>${next.length}</b><span>Akan datang</span></div>
+        <div class="stat"><b>${open}</b><span>Persiapan belum beres</span></div>
+        <div class="stat"><b>${people.size}</b><span>Teman terlibat</span></div>
+      </div>
+      ${busiest ? `<div class="note-row" style="background:#FFF7ED;color:#9A3412;font-weight:600">${ic('zap', 16)}<span>Hari tersibuk: ${h(fmtLong(busiest[0]))} (${busiest[1]} acara)</span></div>` : ''}
+      ${list || `<div class="card"><div class="empty">${ic('cal', 32, 1.6)}<b>Belum ada acara di ${BULAN[mo]}</b>Ketuk tombol <b style="font-size:inherit">+</b> untuk menambah.</div></div>`}`;
   }
-  const later = eventsBetween(ymd(addDays(t, 14)), ymd(addDays(t, 90)));
   const notes = S.data.notes.filter((n) => n.kind !== 'cerita');
-  return `<div class="page-h"><h1>Minggu ini</h1><button type="button" class="btn pri quick-top" data-act="quick">${ic('plus', 18, 2.4)}Tambah cepat</button></div>
+  return `<div class="page-h"><h1>Agenda</h1><button type="button" class="btn pri quick-top" data-act="quick">${ic('plus', 18, 2.4)}Tambah cepat</button></div>
+  ${seg}
   <div class="wk-layout">
-    <section aria-label="Agenda 14 hari">${out || `<div class="card"><div class="empty">${ic('cal', 32, 1.6)}<b>Belum ada acara dua minggu ke depan</b>Ketuk tombol <b style="font-size:inherit">+</b> lalu tulis seperti chat, misalnya “Budi ultah 14 Januari”.</div></div>`}
-    ${later.length ? `<div class="day-group"><h2>Setelahnya</h2>${later.slice(0, 8).map((e) => evRow(e)).join('')}</div>` : ''}</section>
+    <section aria-label="${isMonth ? 'Agenda bulan ini' : 'Agenda 14 hari'}">${main}</section>
     <section class="card" aria-label="Hal yang harus diingat"><div class="sec-h"><h2>Ingat juga</h2><small>${notes.length} catatan</small></div>
       ${notes.length ? notes.map(noteRow).join('') : '<p class="muted" style="margin:0;font-size:14px">Belum ada catatan.</p>'}
     </section>
@@ -1062,7 +1105,8 @@ const SHEETS = {
       </form></div>`;
   },
   monthPick(s) {
-    const y = s.year, mo = S.month.getMonth(), cy = S.month.getFullYear(), t = todayD();
+    const ref = s.target === 'agenda' ? S.agMonth : S.month;
+    const y = s.year, mo = ref.getMonth(), cy = ref.getFullYear(), t = todayD();
     const years = []; for (let k = t.getFullYear() - 3; k <= t.getFullYear() + 6; k++) years.push(k);
     if (!years.includes(y)) years.push(y), years.sort((a, b) => a - b);
     return `<div class="sh-body"><div class="sh-top"><h2>Pilih bulan</h2><button type="button" class="icon-btn round" data-act="closeSheet" aria-label="Tutup">${ic('x', 18, 2.4)}</button></div>
@@ -1087,8 +1131,10 @@ const SHEETS = {
       `<button type="button" class="btn pri block" data-act="closeSheet">Mengerti</button>`;
     else {
       const blocked = st === 'blocked';
-      body = hero(ic('bell', 40, 1.8), '#FEF3C7', '#92400E', blocked ? 'Notifikasi diblokir' : 'Izin tidak muncul', blocked ? 'HP atau Chrome sedang memblokir notifikasi untuk Ingetin. Nyalakan sekali saja:' : 'Biasanya karena notifikasi untuk Chrome/Ingetin dimatikan di pengaturan HP. Nyalakan sekali saja:') +
-        `<section class="card nf-steps"><h3>Android</h3><ol class="steps"><li>Buka <b>Pengaturan HP</b> › <b>Aplikasi</b>.</li><li>Pilih <b>Ingetin</b> (kalau dipasang di Layar Utama) atau <b>Chrome</b>.</li><li>Ketuk <b>Notifikasi</b>, lalu nyalakan.</li><li>Di Chrome: buka situs Ingetin › ikon di kiri alamat › <b>Izin</b> › <b>Notifikasi</b> › <b>Izinkan</b>.</li></ol></section>
+      const samsung = /SamsungBrowser/i.test(navigator.userAgent);
+      const samsungSteps = `<section class="card nf-steps" style="border-color:#C9D7FF"><h3>Samsung Internet</h3><ol class="steps"><li>Buka <b>Samsung Internet</b>, ketuk menu <b>☰</b> › <b>Pengaturan</b>.</li><li>Pilih <b>Situs dan unduhan</b> › <b>Izin situs</b> › <b>Notifikasi</b>.</li><li>Pastikan situs boleh meminta izin notifikasi (tidak diblokir semua). Kalau <b>iiddon.github.io</b> ada di daftar yang diblokir, ketuk lalu ubah ke <b>Izinkan</b>.</li><li>Kembali ke Ingetin, <b>muat ulang halaman</b>, lalu ketuk <b>Coba lagi</b>.</li></ol><p class="muted" style="margin:0;font-size:13px;line-height:1.5">Pengaturan notifikasi di HP (Pengaturan › Notifikasi › Samsung Internet) baru setengahnya: izin per situs ada di dalam browser.</p></section>`;
+      body = hero(ic('bell', 40, 1.8), '#FEF3C7', '#92400E', blocked ? 'Notifikasi diblokir' : 'Izin tidak muncul', blocked ? 'HP atau Chrome sedang memblokir notifikasi untuk Ingetin. Nyalakan sekali saja:' : (samsung ? 'Biasanya karena izin notifikasi untuk situs ini diblokir di dalam Samsung Internet. Buka sekali saja:' : 'Biasanya karena notifikasi untuk Chrome/Ingetin dimatikan di pengaturan HP. Nyalakan sekali saja:')) +
+        (samsung ? samsungSteps : '') + `<section class="card nf-steps"><h3>${samsung ? 'Chrome' : 'Android'}</h3><ol class="steps"><li>Buka <b>Pengaturan HP</b> › <b>Aplikasi</b>.</li><li>Pilih <b>Ingetin</b> (kalau dipasang di Layar Utama) atau <b>Chrome</b>.</li><li>Ketuk <b>Notifikasi</b>, lalu nyalakan.</li><li>Di Chrome: buka situs Ingetin › ikon di kiri alamat › <b>Izin</b> › <b>Notifikasi</b> › <b>Izinkan</b>.</li></ol></section>
          <section class="card nf-steps"><h3>iPad / iPhone</h3><ol class="steps"><li>Pastikan Ingetin dibuka dari ikon Layar Utama.</li><li><b>Pengaturan</b> › <b>Notifikasi</b> › <b>Ingetin</b> › Izinkan.</li></ol></section>
          <div class="row2"><button type="button" class="btn" data-act="closeSheet">Tutup</button><button type="button" class="btn pri" data-act="${blocked ? 'notifRecheck' : 'notifRequest'}">${blocked ? 'Sudah, cek lagi' : 'Coba lagi'}</button></div>
          <p class="muted" style="margin:0;font-size:13px;line-height:1.5">Alternatif yang pasti berbunyi: buka acara › <b>Tambah ke Kalender HP</b>.</p>`;
@@ -1192,13 +1238,15 @@ const A = {
   pkMin(d) { PK.m = d.v; if (!PK.h) PK.h = '09'; renderPicker(); },
   pkNoTime() { setPicked(''); },
   pkTimeOk() { if (PK.h) setPicked(PK.h + ':' + (PK.m || '00')); },
-  go(d) { if (S.view === 'kalender' && d.v !== 'kalender') pushEntry(); S.view = d.v; closeSheet(); render(); $('#main') && ($('#main').scrollTop = 0); },
+  go(d) { if (d.v === S.view && !(d.v === 'teman' && S.personId && !matchMedia('(min-width:760px)').matches)) { closeSheet(); return; } navPush(); if (d.v === 'teman' && !matchMedia('(min-width:760px)').matches) S.personId = null; S.view = d.v; closeSheet(); render(); $('#main') && ($('#main').scrollTop = 0); },
   month(d) { const m = new Date(S.month); m.setMonth(m.getMonth() + +d.n); S.month = m; render(); },
-  today() { const t = todayD(); t.setDate(1); S.month = t; S.sel = todayS(); if (S.sheet) closeSheet(); render(); },
+  today() { const t = todayD(); t.setDate(1); if (S.sheet && S.sheet.target === 'agenda') { S.agMonth = t; } else { S.month = t; S.sel = todayS(); } if (S.sheet) closeSheet(); render(); },
+  agMonth(d) { S.agMonth = new Date(S.agMonth.getFullYear(), S.agMonth.getMonth() + +d.n, 1); S.agMonthTouched = true; render(); },
+  agPick() { openSheet('monthPick', { year: S.agMonth.getFullYear(), target: 'agenda' }); },
   pickMonth() { openSheet('monthPick', { year: S.month.getFullYear() }); const c = $('.mp-years .cur'); c && c.scrollIntoView({ inline: 'center', block: 'nearest' }); },
   mpYear(d) { S.sheet.year += +d.n; renderSheet(); },
   mpSetYear(d) { S.sheet.year = +d.y; renderSheet(); const c = $('.mp-years .cur'); c && c.scrollIntoView({ inline: 'center', block: 'nearest' }); },
-  mpGo(d) { S.month = new Date(S.sheet.year, +d.m, 1); closeSheet(); render(); },
+  mpGo(d) { const m = new Date(S.sheet.year, +d.m, 1); if (S.sheet.target === 'agenda') { S.agMonth = m; S.agMonthTouched = true; } else S.month = m; closeSheet(); render(); },
   pickDay(d) {
     S.sel = d.date; const dd = pd(d.date);
     if (dd.getMonth() !== S.month.getMonth()) { dd.setDate(1); S.month = dd; }
@@ -1230,8 +1278,8 @@ const A = {
     await save('events', { ...e, checklist: list });
     toast('Item dihapus', { label: 'Batalkan', fn: () => { const cur = S.data.events.find((x) => x.id === e.id); const l2 = [...(cur.checklist || [])]; l2.splice(+d.i, 0, old); save('events', { ...cur, checklist: l2 }); } });
   },
-  openPerson(d) { if (!d.id) return; if (!matchMedia('(min-width:760px)').matches || S.view === 'kalender') pushEntry(); S.personId = d.id; S.view = 'teman'; closeSheet(); render(); $('#main').scrollTop = 0; },
-  backList() { S.personId = null; render(); },
+  openPerson(d) { if (!d.id) return; if (S.view !== 'teman' || !matchMedia('(min-width:760px)').matches) navPush(); S.personId = d.id; S.view = 'teman'; closeSheet(); render(); $('#main').scrollTop = 0; },
+  backList() { if (NAV.length && NAV[NAV.length - 1].view === 'teman' && !NAV[NAV.length - 1].personId) { history.back(); return; } S.personId = null; render(); },
   newPerson() { openSheet('person', {}); },
   editPerson(d) { openSheet('person', { id: d.id }); },
   async delPerson(d) {
@@ -1294,6 +1342,7 @@ function fieldSet(id) {
   }
 }
 const CHG = {
+  agTab(el) { S.agTab = el.value; if (el.value === 'bulan') { const d = todayD(); d.setDate(1); if (!S.agMonthTouched) S.agMonth = d; } render(); },
   personPick(el) {
     const f = el.form; const box = f && f.querySelector('.pnew'); if (box) box.hidden = el.value !== '__other';
     const p = S.sheet && S.sheet.kind === 'quick' && S.sheet.parsed; if (p) p.sel = el.value;
@@ -1515,6 +1564,13 @@ async function boot() {
 /* ============ tombol kembali (Android) ============ */
 // Chrome Android melewati entri riwayat yang dibuat tanpa ketukan pengguna,
 // jadi entri selalu dibuat di dalam handler ketukan (click).
+const NAV = [];
+function navPush() { NAV.push({ view: S.view, personId: S.personId, agTab: S.agTab, scroll: $('#main') ? $('#main').scrollTop : 0 }); if (NAV.length > 40) NAV.shift(); pushEntry(); }
+function navBack() {
+  const p = NAV.pop(); if (!p) return false;
+  S.view = p.view; S.personId = p.personId; if (p.agTab) S.agTab = p.agTab; render();
+  const m = $('#main'); if (m) m.scrollTop = p.scroll || 0; return true;
+}
 const hDepth = () => (history.state && history.state.ingetin) || 0;
 function pushEntry() { try { history.pushState({ ingetin: hDepth() + 1 }, ''); } catch {} }
 document.addEventListener('click', () => { if (hDepth() === 0 && !leaving) pushEntry(); }, true);
@@ -1524,6 +1580,7 @@ addEventListener('popstate', async () => {
   if (PK) { closePicker(true); return; }
   if ($('#dlg').innerHTML) { const n = $('#dlg [data-no]'); n && n.click(); return; }
   if (S.sheet) { closeSheet(true); return; }
+  if (navBack()) return;
   if (S.view === 'teman' && S.personId && !matchMedia('(min-width:760px)').matches) { S.personId = null; render(); return; }
   if (S.view !== 'kalender') { S.view = 'kalender'; render(); return; }
   if (exitOpen) return;
