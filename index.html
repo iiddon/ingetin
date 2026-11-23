@@ -319,6 +319,11 @@ textarea.inp{resize:vertical;line-height:1.45}
 .nf-cta-t{flex:1;display:flex;flex-direction:column;gap:2px}
 .nf-cta-t b{font-size:16px;color:var(--tx)}
 .nf-cta-t small{font-size:13px;color:var(--mu)}
+.sstip{background:#FFF7ED;border:1.5px solid #FED7AA;border-radius:14px;padding:14px;display:flex;flex-direction:column;gap:8px}
+.sstip-h{display:flex;align-items:center;gap:8px;color:#9A3412}
+.sstip-h b{font-size:15px}
+.sstip p{margin:0;font-size:14px;line-height:1.5;color:#7C2D12}
+.sstip .btn{align-self:flex-start}
 .inp.bad{border-color:var(--danger);box-shadow:0 0 0 3px #FEE2E2}
 .chipbtn{min-height:34px;padding:0 12px;border-radius:999px;border:1px solid var(--bd);background:var(--bg);font-size:13px;color:var(--mu2)}
 .preview{border-radius:16px;background:var(--bg);padding:14px;display:flex;flex-direction:column;gap:12px}
@@ -352,7 +357,7 @@ textarea.inp{resize:vertical;line-height:1.45}
 
 <script type="module">
 /* ============ helpers ============ */
-const APP_VERSION = '1.8 (24 Nov 2026)';
+const APP_VERSION = '1.9 (24 Nov 2026)';
 const $ = (s, r = document) => r.querySelector(s);
 const h = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const pad = (n) => String(n).padStart(2, '0');
@@ -552,6 +557,11 @@ function dueReminders() {
   const seen = new Set();
   return out.sort((a, b) => sortEv(a.e, b.e)).filter((x) => (seen.has(x.e.id) ? false : seen.add(x.e.id)));
 }
+const IS_SAMSUNG = /SamsungBrowser/i.test(navigator.userAgent);
+const chromeUrl = () => `intent://${location.host}${location.pathname}#Intent;scheme=https;package=com.android.chrome;S.browser_fallback_url=${encodeURIComponent('https://play.google.com/store/apps/details?id=com.android.chrome')};end`;
+const samsungTip = (compact) => IS_SAMSUNG ? `<div class="sstip"><div class="sstip-h">${ic('bell', 18)}<b>Pakai Chrome untuk notifikasi</b></div>
+  <p>Kamu sedang membuka Ingetin di <b>Samsung Internet</b>. Ingetin yang dipasang lewat Samsung Internet sering tidak bisa memunculkan notifikasi. Supaya pengingat lancar, buka dan pasang Ingetin lewat <b>Chrome</b>${compact ? '' : ' (menu ⋮ › <b>Tambahkan ke layar utama</b> / <b>Instal aplikasi</b>), lalu hapus versi Samsung Internet dari Layar Utama'}.</p>
+  <a class="btn pri" href="${chromeUrl()}">${ic('share', 18)}Buka di Chrome</a></div>` : '';
 const isInstalled = () => matchMedia('(display-mode: standalone)').matches || matchMedia('(display-mode: fullscreen)').matches || navigator.standalone === true;
 const absUrl = (p) => new URL(p, location.href).href;
 // Mengirim notifikasi. Hasil: { ok, via, listed, err }
@@ -968,6 +978,7 @@ function vPengaturan() {
   <div class="settings">
     <section class="card"><div class="sec-h"><h2>Akun &amp; sinkronisasi</h2></div>${acct}</section>
     <section class="card"><div class="sec-h"><h2>Pengingat</h2></div>
+      ${samsungTip(false)}
       <p>Pengingat muncul di bagian atas aplikasi saat waktunya tiba (H-7, H-3, H-1 pukul 19.00, dan hari H pukul 07.00).</p>
       ${perm === 'granted' ? `<div class="item" style="background:#F0FDF4"><span style="color:#166534;font-weight:700">${ic('check', 16, 2.4)} Notifikasi aktif</span><button type="button" class="btn ghost" data-act="testNotif">Kirim uji</button></div>`
         : `<button type="button" class="nf-cta" data-act="askNotif"><span class="nf-cta-i">${ic('bell', 24, 2)}</span><span class="nf-cta-t"><b>${perm === 'denied' ? 'Notifikasi diblokir' : 'Aktifkan notifikasi'}</b><small>${perm === 'denied' ? 'Ketuk untuk lihat cara membukanya' : 'Supaya pengingat muncul di HP'}</small></span>${ic('right', 20, 2.2)}</button>`}
@@ -1153,6 +1164,7 @@ const SHEETS = {
     let body = '';
     if (st === 'ask') body = hero(ic('bell', 40, 1.8), '#EAF0FF', '#2F5BEA', 'Jangan sampai lupa lagi', 'Izinkan notifikasi supaya Ingetin bisa mengingatkan acara temanmu tepat waktu.') +
       `<div class="nf-list"><div>${ic('cal', 18)}<span>H-7, H-3, dan H-1 pukul 19.00</span></div><div>${ic('clock', 18)}<span>Hari H pukul 07.00</span></div><div>${ic('lock', 18)}<span>Hanya pengingat, tanpa iklan</span></div></div>
+       ${samsungTip(true)}
        <button type="button" class="btn pri block nf-btn" data-act="notifRequest">${ic('bell', 20)}Izinkan notifikasi</button>
        <button type="button" class="btn ghost" data-act="closeSheet">Nanti saja</button>`;
     else if (st === 'wait') body = hero(`<span class="spin" aria-hidden="true"></span>`, '#EAF0FF', '#2F5BEA', 'Menunggu jawabanmu…', 'Pilih <b>Izinkan</b> pada jendela yang muncul dari HP.') +
@@ -1164,7 +1176,7 @@ const SHEETS = {
     else if (st === 'osblocked' || st === 'testerr') {
       const inst = isInstalled();
       body = hero(ic('bell', 40, 1.8), '#FEF3C7', '#92400E', st === 'testerr' ? 'Notifikasi ditolak' : 'HP menyembunyikan notifikasi', st === 'testerr' ? 'Izin dari browser sudah ada, tetapi pengiriman notifikasi gagal.' : 'Izin dari browser sudah ada, jadi yang menahan adalah pengaturan HP' + (inst ? ' untuk aplikasi Ingetin yang terinstal.' : '.')) +
-        (sh.err ? `<p class="muted" style="margin:0;font-size:12px;text-align:center">Detail: ${h(sh.err)}</p>` : '') +
+        (sh.err ? `<p class="muted" style="margin:0;font-size:12px;text-align:center">Detail: ${h(sh.err)}</p>` : '') + samsungTip(false) +
         `<section class="card nf-steps" style="border-color:#C9D7FF"><h3>${inst ? 'Ingetin yang terinstal (Samsung)' : 'Samsung / Android'}</h3><ol class="steps">
           <li>Tekan lama ikon <b>Ingetin</b> di Layar Utama › ketuk <b>ⓘ Info aplikasi</b>.</li>
           <li>Ketuk <b>Notifikasi</b>, lalu nyalakan <b>Izinkan notifikasi</b>.</li>
