@@ -28,7 +28,7 @@
   --sal:env(safe-area-inset-left,0px);--sar:env(safe-area-inset-right,0px);
 }
 *{box-sizing:border-box}
-html,body{margin:0;height:100%;}
+html,body{margin:0;height:100%;overflow:hidden;overscroll-behavior:none}
 body{font-family:'Plus Jakarta Sans',system-ui,-apple-system,sans-serif;color:var(--tx);background:var(--bg);-webkit-font-smoothing:antialiased;overflow:hidden;height:100dvh;-webkit-tap-highlight-color:transparent}
 button,input,select,textarea{font-family:inherit;font-size:inherit;color:inherit}
 button{cursor:pointer}
@@ -379,7 +379,7 @@ textarea.inp{resize:vertical;line-height:1.45}
 
 <script type="module">
 /* ============ helpers ============ */
-const APP_VERSION = '2.1 (24 Nov 2026)';
+const APP_VERSION = '2.2 (24 Nov 2026)';
 const $ = (s, r = document) => r.querySelector(s);
 const h = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const pad = (n) => String(n).padStart(2, '0');
@@ -753,7 +753,16 @@ function downloadIcs(e) {
 }
 
 /* ============ UI bits ============ */
-function flagField(sel) { const el = $(sel); if (!el) return; el.classList.add('bad'); el.scrollIntoView({ block: 'center', behavior: 'smooth' }); }
+const smooth = () => (matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth');
+// Gulir hanya di dalam wadahnya sendiri (jangan pernah menggulir halaman/body).
+function scrollWithin(box, el, offset = 12, center) {
+  if (!box || !el) return;
+  const b = box.getBoundingClientRect(), r = el.getBoundingClientRect();
+  const top = box.scrollTop + (r.top - b.top) - (center ? (b.height - r.height) / 2 : offset);
+  box.scrollTo({ top: Math.max(0, top), behavior: smooth() });
+}
+function centerX(box, el) { if (!box || !el) return; box.scrollLeft = el.offsetLeft - (box.clientWidth - el.offsetWidth) / 2; }
+function flagField(sel) { const el = $(sel); if (!el) return; el.classList.add('bad'); scrollWithin(el.closest('.sheet') || $('#main'), el, 12, true); }
 let toastTimer;
 function toast(msg, action) {
   const el = $('#toast'); clearTimeout(toastTimer);
@@ -1369,15 +1378,15 @@ const A = {
   agFilter(d) { S.agFilter = d.f === S.agFilter ? 'all' : d.f; render(); const l = $('.stats'); if (l && d.f !== 'all') { const m = $('#main'); const tgt = $('.flt') || l; m && tgt && m.scrollTo({ top: Math.max(0, tgt.offsetTop - 80), behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' }); } },
   agMonth(d) { S.agMonth = new Date(S.agMonth.getFullYear(), S.agMonth.getMonth() + +d.n, 1); S.agMonthTouched = true; render(); },
   agPick() { openSheet('monthPick', { year: S.agMonth.getFullYear(), target: 'agenda' }); },
-  pickMonth() { openSheet('monthPick', { year: S.month.getFullYear() }); const c = $('.mp-years .cur'); c && c.scrollIntoView({ inline: 'center', block: 'nearest' }); },
+  pickMonth() { openSheet('monthPick', { year: S.month.getFullYear() }); centerX($('.mp-years'), $('.mp-years .cur')); },
   mpYear(d) { S.sheet.year += +d.n; renderSheet(); },
-  mpSetYear(d) { S.sheet.year = +d.y; renderSheet(); const c = $('.mp-years .cur'); c && c.scrollIntoView({ inline: 'center', block: 'nearest' }); },
+  mpSetYear(d) { S.sheet.year = +d.y; renderSheet(); centerX($('.mp-years'), $('.mp-years .cur')); },
   mpGo(d) { const m = new Date(S.sheet.year, +d.m, 1); if (S.sheet.target === 'agenda') { S.agMonth = m; S.agMonthTouched = true; } else S.month = m; closeSheet(); render(); },
   pickDay(d) {
     S.sel = d.date; const dd = pd(d.date);
     if (dd.getMonth() !== S.month.getMonth()) { dd.setDate(1); S.month = dd; }
     render();
-    if (!window.matchMedia('(min-width:1100px)').matches) { const a = $('.aside'); a && a.scrollIntoView({ behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block: 'start' }); }
+    if (!window.matchMedia('(min-width:1100px)').matches) scrollWithin($('#main'), $('.aside'), 12);
   },
   quick() { openSheet('quick', { text: '', parsed: null }); },
   qaEx(d) { const ta = $('#qa-text'); ta.value = d.t; S.sheet.forceType = null; quickInput(); },
@@ -1631,6 +1640,7 @@ document.addEventListener('touchend', (ev) => {
   if (sx === null) return; const t = ev.changedTouches[0], dx = t.clientX - sx, dy = t.clientY - sy; sx = null;
   if (Math.abs(dx) > 60 && Math.abs(dx) > Math.abs(dy) * 1.5) { A.month({ n: dx < 0 ? 1 : -1 }); }
 }, { passive: true });
+addEventListener('scroll', () => { if (window.scrollY || window.scrollX) window.scrollTo(0, 0); }, { passive: true });
 let lastW = innerWidth;
 addEventListener('resize', () => { if ((lastW < 760) !== (innerWidth < 760) || (lastW < 1100) !== (innerWidth < 1100)) render(); lastW = innerWidth; });
 document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') { if (S.mode === 'cloud') loadData(); else render(); notifyDue(); } });
