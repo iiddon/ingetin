@@ -336,7 +336,7 @@ textarea.inp{resize:vertical;line-height:1.45}
 .sstip-h b{font-size:15px}
 .sstip p{margin:0;font-size:14px;line-height:1.5;color:#7C2D12}
 .sstip .btn{align-self:flex-start}
-.themes{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:8px}
+.themes{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:8px}
 .theme{position:relative}
 .theme input{position:absolute;opacity:0;inset:0;margin:0;cursor:pointer}
 .theme span{display:flex;align-items:center;gap:6px;min-height:48px;padding:0 12px;border-radius:12px;border:1.5px solid var(--bd);background:var(--card);transition:border-color .15s,transform .12s}
@@ -404,6 +404,22 @@ mark{background:var(--mark);color:inherit;border-radius:3px;padding:0 1px}
 .opt input{width:20px;height:20px;accent-color:var(--p)}
 .more-f summary{cursor:pointer;font-size:14px;font-weight:700;color:var(--p);min-height:40px;display:flex;align-items:center;list-style:none}
 .more-f summary::-webkit-details-marker{display:none}
+.set-back{align-self:flex-start;padding-left:0}
+.set-prof{display:flex;align-items:center;gap:14px;width:100%;padding:14px;border-radius:18px;border:1px solid var(--bd);background:var(--card);text-align:left;color:var(--tx)}
+.set-prof-t{flex:1;min-width:0;display:flex;flex-direction:column;gap:3px}.set-prof-t b{font-size:17px}.set-prof-t span{font-size:13px;color:var(--mu);overflow:hidden;text-overflow:ellipsis}
+.set-prof svg:last-child{color:var(--mu)}
+.set-g{display:flex;flex-direction:column;gap:6px}
+.set-gt{font-size:12px;font-weight:800;color:var(--mu);text-transform:uppercase;letter-spacing:.6px;padding-left:4px}
+.set-box{background:var(--card);border:1px solid var(--bd);border-radius:16px;overflow:hidden}
+.set-row{display:flex;align-items:center;gap:12px;width:100%;min-height:56px;padding:0 14px;border:none;border-bottom:1px solid var(--bd);background:none;text-align:left;color:var(--tx);transition:background .12s}
+.set-row:last-child{border-bottom:none}
+.set-row:active:not([disabled]){background:var(--soft)}
+.set-row[disabled]{opacity:1;cursor:default}
+.set-row>svg{color:var(--mu);flex-shrink:0}
+.set-i{width:34px;height:34px;border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.set-l{flex:1;font-size:15px;font-weight:600}
+.set-v{font-size:13px;color:var(--mu);text-align:right;max-width:45%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.settings small.muted{font-size:12px;line-height:1.45}
 .inp.bad{border-color:var(--danger);box-shadow:0 0 0 3px #FEE2E2}
 .chipbtn{min-height:34px;padding:0 12px;border-radius:999px;border:1px solid var(--bd);background:var(--bg);font-size:13px;color:var(--mu2)}
 .preview{border-radius:16px;background:var(--bg);padding:14px;display:flex;flex-direction:column;gap:12px}
@@ -441,7 +457,7 @@ mark{background:var(--mark);color:inherit;border-radius:3px;padding:0 1px}
 
 <script type="module">
 /* ============ helpers ============ */
-const APP_VERSION = '2.6 (24 Nov 2026)';
+const APP_VERSION = '2.7 (24 Nov 2026)';
 const $ = (s, r = document) => r.querySelector(s);
 const h = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const pad = (n) => String(n).padStart(2, '0');
@@ -499,7 +515,7 @@ const P = {
   gear: '<circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/>',
   plus: '<path d="M12 5v14M5 12h14"/>',
   bell: '<path d="M6 16V11a6 6 0 0 1 12 0v5l2 2H4z"/><path d="M10 21h4"/>',
-  left: '<path d="M15 6l-6 6 6 6"/>', sun: '<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/>', moon: '<path d="M20 14.5A8 8 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5z"/>', repeat: '<path d="M17 2l4 4-4 4"/><path d="M3 11V9a3 3 0 0 1 3-3h15"/><path d="M7 22l-4-4 4-4"/><path d="M21 13v2a3 3 0 0 1-3 3H3"/>', cake: '<path d="M4 21h16v-8a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2z"/><path d="M4 16c2 1.3 4 1.3 6 0s4-1.3 6 0 3 1 4 .5M12 11V7M12 4.5c.7-.7.7-1.8 0-2.5-.7.7-.7 1.8 0 2.5z"/>', down: '<path d="M6 9l6 6 6-6"/>', right: '<path d="M9 6l6 6-6 6"/>',
+  left: '<path d="M15 6l-6 6 6 6"/>', palette: '<path d="M12 3a9 9 0 1 0 0 18c1.1 0 1.5-.8 1.5-1.5 0-.9-.7-1.3-.7-2.2 0-.8.7-1.3 1.5-1.3H17a4 4 0 0 0 4-4C21 6.6 17 3 12 3z"/><circle cx="7.5" cy="11" r="1"/><circle cx="10" cy="7" r="1"/><circle cx="15" cy="7" r="1"/>', db: '<ellipse cx="12" cy="5" rx="8" ry="3"/><path d="M4 5v14c0 1.7 3.6 3 8 3s8-1.3 8-3V5"/><path d="M4 12c0 1.7 3.6 3 8 3s8-1.3 8-3"/>', info: '<circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7.5v.5"/>', sun: '<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/>', moon: '<path d="M20 14.5A8 8 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5z"/>', repeat: '<path d="M17 2l4 4-4 4"/><path d="M3 11V9a3 3 0 0 1 3-3h15"/><path d="M7 22l-4-4 4-4"/><path d="M21 13v2a3 3 0 0 1-3 3H3"/>', cake: '<path d="M4 21h16v-8a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2z"/><path d="M4 16c2 1.3 4 1.3 6 0s4-1.3 6 0 3 1 4 .5M12 11V7M12 4.5c.7-.7.7-1.8 0-2.5-.7.7-.7 1.8 0 2.5z"/>', down: '<path d="M6 9l6 6 6-6"/>', right: '<path d="M9 6l6 6-6 6"/>',
   x: '<path d="M6 6l12 12M18 6L6 18"/>', check: '<path d="M5 12.5l4.5 4.5L19 7.5"/>',
   addUser: '<circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c.8-3.6 3.4-5.5 6.5-5.5s5.7 1.9 6.5 5.5"/><path d="M19 8v6M16 11h6"/>',
   link: '<path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1"/><path d="M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/>',
@@ -693,18 +709,40 @@ const samsungTip = (compact) => IS_SAMSUNG ? `<div class="sstip"><div class="sst
   <a class="btn pri" href="${chromeUrl()}">${ic('share', 18)}Buka di Chrome</a></div>` : '';
 const THEMES = {
   biru: { n: 'Biru', p: '#2F5BEA', d: '#1E40AF', l: '#EAF0FF', m: '#C9D7FF', r: '#93B4FF' },
+  nila: { n: 'Nila', p: '#4338CA', d: '#3730A3', l: '#ECEBFD', m: '#C9C6F7', r: '#A5A0F0' },
+  langit: { n: 'Biru langit', p: '#0369A1', d: '#075985', l: '#E3F2FB', m: '#B6DDF3', r: '#7CC3EA' },
   toska: { n: 'Toska', p: '#0F766E', d: '#115E59', l: '#E3F5F2', m: '#B5E3DB', r: '#7CCFC2' },
   hijau: { n: 'Hijau', p: '#15803D', d: '#166534', l: '#E7F6EC', m: '#BFE6CC', r: '#86CFA0' },
-  ungu: { n: 'Ungu', p: '#6D28D9', d: '#5B21B6', l: '#F1EAFE', m: '#D9C8FB', r: '#B79BF5' },
-  rose: { n: 'Merah muda', p: '#DB2777', d: '#9D174D', l: '#FDEBF3', m: '#F8C5DD', r: '#F09BC3' },
+  emas: { n: 'Kuning emas', p: '#A16207', d: '#854D0E', l: '#FDF5DC', m: '#F5E0A3', r: '#E9C463' },
   oranye: { n: 'Oranye', p: '#C2410C', d: '#9A3412', l: '#FFF0E6', m: '#FDD3B5', r: '#F9A877' },
-  grafit: { n: 'Grafit', p: '#334155', d: '#1E293B', l: '#EEF1F5', m: '#CBD3DE', r: '#94A3B8' }
+  merah: { n: 'Merah', p: '#B91C1C', d: '#991B1B', l: '#FDECEC', m: '#F8C4C4', r: '#F09090' },
+  rose: { n: 'Merah muda', p: '#DB2777', d: '#9D174D', l: '#FDEBF3', m: '#F8C5DD', r: '#F09BC3' },
+  ungu: { n: 'Ungu', p: '#6D28D9', d: '#5B21B6', l: '#F1EAFE', m: '#D9C8FB', r: '#B79BF5' },
+  cokelat: { n: 'Cokelat', p: '#8B5E34', d: '#6F4A27', l: '#F6EEE6', m: '#E5D2BF', r: '#C9A57F' },
+  grafit: { n: 'Grafit', p: '#334155', d: '#1E293B', l: '#EEF1F5', m: '#CBD3DE', r: '#94A3B8' },
+  // pastel lembut: warna utama kalem + latar ikut bernuansa
+  sage: { n: 'Sage', pastel: 1, p: '#4F7A64', d: '#3F6250', l: '#E8F1EC', m: '#C7DDD0', r: '#9CC3AD', bg: '#F3F7F4' },
+  rosa: { n: 'Rose dusty', pastel: 1, p: '#A35570', d: '#84435A', l: '#F8EAEF', m: '#EDCAD6', r: '#DDA3B7', bg: '#FAF4F6' },
+  lavender: { n: 'Lavender', pastel: 1, p: '#6E5BA8', d: '#57478A', l: '#EFEBF8', m: '#D6CDEE', r: '#B6A8E0', bg: '#F6F4FB' },
+  powder: { n: 'Biru kabut', pastel: 1, p: '#4E719A', d: '#3E5A7C', l: '#E9EFF6', m: '#C9D7E8', r: '#9FB8D6', bg: '#F3F6FA' },
+  peach: { n: 'Peach', pastel: 1, p: '#A8603F', d: '#874C31', l: '#FAEEE7', m: '#F0D1C1', r: '#E2AE94', bg: '#FCF6F2' },
+  mint: { n: 'Mint', pastel: 1, p: '#2F7D74', d: '#26645D', l: '#E4F4F1', m: '#BDE5DE', r: '#8DD0C4', bg: '#F2F9F8' }
 };
+// warna sendiri: gelapkan sampai teks putih terbaca (kontras >= 4.5)
+const lum = (hx) => { const c = [1, 3, 5].map((i) => { let v = parseInt(hx.slice(i, i + 2), 16) / 255; return v <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4); }); return 0.2126 * c[0] + 0.7152 * c[1] + 0.0722 * c[2]; };
+const hslHex = (hh, ss, ll) => { ss /= 100; ll /= 100; const k = (n) => (n + hh / 30) % 12, a = ss * Math.min(ll, 1 - ll); const f = (n) => Math.round(255 * (ll - a * Math.max(-1, Math.min(k(n) - 3, Math.min(9 - k(n), 1))))).toString(16).padStart(2, '0'); return '#' + f(0) + f(8) + f(4); };
+function customTheme(hex) {
+  let [hh, ss, ll] = hex2hsl(hex); ss = Math.max(ss, 25);
+  let p = hslHex(hh, ss, ll); while (1.05 / (lum(p) + 0.05) < 4.6 && ll > 10) { ll -= 2; p = hslHex(hh, ss, ll); }
+  return { n: 'Warna sendiri', p, d: hslHex(hh, ss, Math.max(ll - 10, 12)), l: hslHex(hh, Math.min(ss, 70), 95), m: hslHex(hh, Math.min(ss, 70), 84), r: hslHex(hh, Math.min(ss, 75), 70) };
+}
+const themeOf = (k) => (k && k.startsWith('custom:') ? customTheme(k.slice(7)) : THEMES[k] || THEMES.biru);
 const darkMQ = matchMedia('(prefers-color-scheme: dark)');
 const isDark = () => { const m = lsGet('ingetin:mode', 'light'); return m === 'dark' || (m === 'auto' && darkMQ.matches); };
 function applyTheme(k) {
   k = k || lsGet('ingetin:theme', 'biru');
-  const t = THEMES[k] || THEMES.biru, r = document.documentElement.style, dark = isDark();
+  const t = themeOf(k), r = document.documentElement.style, dark = isDark();
+  if (t.bg && !dark) r.setProperty('--bg', t.bg); else r.removeProperty('--bg');
   document.documentElement.dataset.mode = dark ? 'dark' : 'light';
   const rgb = [1, 3, 5].map((i) => parseInt(t.p.slice(i, i + 2), 16)).join(',');
   r.setProperty('--p', t.p); r.setProperty('--p-rgb', rgb);
@@ -987,7 +1025,7 @@ function topNotes() {
   }
   out += briefCard();
   if (S.view !== 'pengaturan' && hasCfg() && S.mode !== 'cloud') {
-    out += `<div class="sync-note">${ic('cloud', 18)}<span>Masuk ke akunmu supaya data tersimpan online dan bisa terhubung dengan teman.</span><button type="button" class="btn ghost" data-act="go" data-v="pengaturan">Masuk</button></div>`;
+    out += `<div class="sync-note">${ic('cloud', 18)}<span>Masuk ke akunmu supaya data tersimpan online dan bisa terhubung dengan teman.</span><button type="button" class="btn ghost" data-act="goAkun">Masuk</button></div>`;
   }
   return out;
 }
@@ -1096,7 +1134,7 @@ const briefDue = () => { const c = briefCfg(); if (!c.on) return false; const [h
 async function sendBrief(force) {
   const b = buildBrief();
   if (!force && (lsGet('ingetin:briefSent', '') === todayS() || !briefDue())) return;
-  if (!('Notification' in window) || Notification.permission !== 'granted') { if (force) toast('Aktifkan notifikasi dulu (Pengaturan › Pengingat)'); return; }
+  if (!('Notification' in window) || Notification.permission !== 'granted') { if (force) toast('Aktifkan notifikasi dulu (Pengaturan › Notifikasi)'); return; }
   if (!force) lsSet('ingetin:briefSent', todayS());
   await showNote(b.title, { body: b.lines.join('\n') || 'Tidak ada acara hari ini. Nikmati harimu!', tag: 'ingetin-brief-' + todayS() + (force ? '-' + Date.now() : '') });
   if (force) toast('Contoh ringkasan dikirim');
@@ -1269,44 +1307,68 @@ function vPengaturan() {
       <div style="display:flex;gap:10px;flex-wrap:wrap"><button type="button" class="btn out" data-act="invite">${ic('addUser', 18)}Undang teman</button><button type="button" class="btn" data-act="sync">Muat ulang data</button><button type="button" class="btn danger" data-act="logout">Keluar</button></div>`;
   }
   const perm = 'Notification' in window ? Notification.permission : 'unsupported';
-  return `<div class="page-h"><h1>Pengaturan</h1></div>
-  <div class="settings">
-    <section class="card"><div class="sec-h"><h2>Akun &amp; sinkronisasi</h2></div>${acct}</section>
-    <section class="card"><div class="sec-h"><h2>Tampilan</h2></div>
-      <span class="flabel">Mode tampilan</span>
-      <div class="seg" role="radiogroup" aria-label="Mode tampilan">${[['light', 'Terang', 'sun'], ['dark', 'Gelap', 'moon'], ['auto', 'Ikuti HP', 'auto']].map(([k, l, i]) => `<label><input type="radio" name="mode" value="${k}" data-chg="mode" ${lsGet('ingetin:mode', 'light') === k ? 'checked' : ''}><span>${i === 'auto' ? '' : ic(i, 16) + '&nbsp;'}${l}</span></label>`).join('')}</div>
-      <span class="flabel">Tema warna</span>
-      <div class="themes" role="radiogroup" aria-label="Tema warna">${Object.entries(THEMES).map(([k, t]) => `<label class="theme"><input type="radio" name="theme" value="${k}" data-chg="theme" ${lsGet('ingetin:theme', 'biru') === k ? 'checked' : ''}><span><i style="background:${t.p}"></i><i style="background:${t.l}"></i><b>${t.n}</b></span></label>`).join('')}</div>
-      <label class="sw"><span><b>Tampilkan libur nasional</b><small>Tanggal merah &amp; cuti bersama (SKB 3 Menteri)${HOL.updated ? ' · data per ' + h(fmtShort(HOL.updated)) : ''}</small></span><input type="checkbox" role="switch" data-chg="holToggle" ${showHol() ? 'checked' : ''}></label>
-    </section>
-    <section class="card"><div class="sec-h"><h2>Ringkasan pagi</h2></div>
-      ${(() => { const c = briefCfg(); return `<label class="sw"><span style="flex-direction:row;align-items:center;gap:12px"><span class="sun-i">${ic('sun', 22)}</span><span style="display:flex;flex-direction:column"><b>Ringkasan pagi</b><small>Satu notifikasi + kartu di Kalender berisi yang perlu diingat hari ini</small></span></span><input type="checkbox" role="switch" data-chg="briefOpt" value="on" ${c.on ? 'checked' : ''}></label>
-      ${c.on ? `<span class="flabel">Jam kirim</span><div class="brief-times">${['06:00', '07:00', '08:00'].map((t) => `<button type="button" class="${c.time === t ? 'on' : ''}" data-act="briefTime" data-t="${t}" aria-pressed="${c.time === t}">${fmtTime(t)}</button>`).join('')}<input type="hidden" id="bf-time" name="time" value="${c.time}"><button type="button" class="${['06:00', '07:00', '08:00'].includes(c.time) ? '' : 'on'}" data-act="pickTime" data-for="bf-time">${['06:00', '07:00', '08:00'].includes(c.time) ? 'Lainnya' : fmtTime(c.time)}</button></div>
-      <span class="flabel">Isi ringkasan</span>
-      <div class="stack" style="gap:2px">${[['today', 'Acara hari ini'], ['tomorrow', 'Acara besok'], ['prep', 'Persiapan yang belum beres'], ['bday', 'Ulang tahun 7 hari ke depan'], ['hol', 'Libur nasional terdekat']].map(([k, l]) => `<label class="opt"><input type="checkbox" data-chg="briefOpt" value="${k}" ${c[k] ? 'checked' : ''}>${l}</label>`).join('')}</div>
-      <button type="button" class="btn" style="align-self:flex-start" data-act="briefTest">${ic('bell', 16)}Kirim contoh sekarang</button>
-      <p>Notifikasi terkirim kalau Ingetin masih berjalan di latar saat jamnya tiba. Kalau tidak, ringkasan tetap muncul sebagai kartu di atas Kalender saat dibuka.</p>` : ''}`; })()}
-    </section>
-    <section class="card"><div class="sec-h"><h2>Privasi</h2></div>
-      <label class="sw"><span><b>Kunci catatan teman dengan PIN</b><small>Catatan “Yang harus diingat” &amp; “Pernah cerita” butuh PIN 4 angka. Kalender dan acara tetap terbuka.</small></span><input type="checkbox" role="switch" data-chg="pinToggle" ${pinSet() ? 'checked' : ''}></label>
-      ${pinSet() ? `<div style="display:flex;gap:10px;flex-wrap:wrap"><button type="button" class="btn" data-act="pinChange">Ganti PIN</button>${notesLocked() ? '' : `<button type="button" class="btn" data-act="lockNow">${ic('lock', 16)}Kunci sekarang</button>`}</div>` : ''}
-    </section>
-    <section class="card"><div class="sec-h"><h2>Pengingat</h2></div>
+  const bc = briefCfg(), modeK = lsGet('ingetin:mode', 'light'), themeK = lsGet('ingetin:theme', 'biru');
+  const modeL = { light: 'Terang', dark: 'Gelap', auto: 'Ikuti HP' }[modeK];
+  const back = (t) => `<button type="button" class="btn ghost set-back" data-act="setBack">${ic('left', 20, 2.2)}Pengaturan</button><div class="page-h" style="margin-top:2px"><h1>${t}</h1></div>`;
+  const pg = S.setPage;
+  if (pg === 'akun') return back('Akun &amp; sinkronisasi') + `<div class="settings"><section class="card">${acct}</section>
+      ${hasCfg() && lsGet(CKEY, {}).supabaseUrl ? `<button type="button" class="btn ghost" style="align-self:flex-start" data-act="clearCfg">Putuskan sambungan Supabase di perangkat ini</button>` : ''}</div>`;
+  if (pg === 'tampilan') {
+    const tile = ([k, t]) => `<label class="theme"><input type="radio" name="theme" value="${k}" data-chg="theme" ${themeK === k ? 'checked' : ''}><span><i style="background:${t.p}"></i><i style="background:${t.l}"></i><b>${t.n}</b></span></label>`;
+    const isCustom = themeK.startsWith('custom:'), cHex = isCustom ? themeK.slice(7) : '#7C9CBF';
+    return back('Tampilan') + `<div class="settings">
+      <section class="card"><span class="flabel">Mode</span>
+        <div class="seg" role="radiogroup" aria-label="Mode tampilan">${[['light', 'Terang', 'sun'], ['dark', 'Gelap', 'moon'], ['auto', 'Ikuti HP', 'auto']].map(([k, l, i]) => `<label><input type="radio" name="mode" value="${k}" data-chg="mode" ${modeK === k ? 'checked' : ''}><span>${i === 'auto' ? '' : ic(i, 16) + '&nbsp;'}${l}</span></label>`).join('')}</div>
+        <small class="muted">“Ikuti HP” mengikuti pengaturan gelap/terang di HP.</small></section>
+      <section class="card"><span class="flabel">Warna cerah</span>
+        <div class="themes" role="radiogroup" aria-label="Warna cerah">${Object.entries(THEMES).filter(([, t]) => !t.pastel).map(tile).join('')}</div></section>
+      <section class="card"><span class="flabel">Pastel lembut</span><small class="muted" style="margin-top:-6px">Warna kalem, latar aplikasi ikut bernuansa lembut.</small>
+        <div class="themes" role="radiogroup" aria-label="Pastel lembut">${Object.entries(THEMES).filter(([, t]) => t.pastel).map(([k, t]) => `<label class="theme"><input type="radio" name="theme" value="${k}" data-chg="theme" ${themeK === k ? 'checked' : ''}><span style="background:${t.bg}"><i style="background:${t.p}"></i><i style="background:${t.m}"></i><b>${t.n}</b></span></label>`).join('')}</div></section>
+      <section class="card"><span class="flabel">Warna sendiri</span>
+        <div class="custom-color" style="margin-top:0"><label for="th-custom">Pilih warna bebas</label><input type="color" id="th-custom" value="${h(cHex)}" data-chg="themeCustom"></div>
+        <label class="theme"><input type="radio" name="theme" value="custom" data-chg="theme" ${isCustom ? 'checked' : ''}><span><i id="th-cprev" style="background:${customTheme(cHex).p}"></i><i style="background:${customTheme(cHex).l}"></i><b>Pakai warna ini</b></span></label>
+        <small class="muted">Warna yang terlalu terang otomatis digelapkan sedikit supaya teks di tombol tetap terbaca.</small></section>
+    </div>`;
+  }
+  if (pg === 'libur') return back('Libur nasional') + `<div class="settings"><section class="card">
+      <label class="sw"><span><b>Tampilkan libur nasional</b><small>Tanggal merah &amp; cuti bersama di Kalender dan Agenda</small></span><input type="checkbox" role="switch" data-chg="holToggle" ${showHol() ? 'checked' : ''}></label>
+      <p>Sumber: SKB 3 Menteri${HOL.updated ? ' · data per ' + h(fmtShort(HOL.updated)) : ''}. Tersedia: ${[...new Set(Object.keys(HOL.days).map((k) => k.slice(0, 4)))].join(', ')}. Diperbarui otomatis saat ada data baru.</p></section></div>`;
+  if (pg === 'notif') return back('Notifikasi') + `<div class="settings"><section class="card">
       ${samsungTip(false)}
-      <p>Pengingat muncul di bagian atas aplikasi saat waktunya tiba (H-7, H-3, H-1 pukul 19.00, dan hari H pukul 07.00).</p>
       ${perm === 'granted' ? `<div class="item"><span style="color:var(--ok);font-weight:700">${ic('check', 16, 2.4)} Notifikasi aktif</span><button type="button" class="btn ghost" data-act="testNotif">Kirim uji</button></div>`
         : `<button type="button" class="nf-cta" data-act="askNotif"><span class="nf-cta-i">${ic('bell', 24, 2)}</span><span class="nf-cta-t"><b>${perm === 'denied' ? 'Notifikasi diblokir' : 'Aktifkan notifikasi'}</b><small>${perm === 'denied' ? 'Ketuk untuk lihat cara membukanya' : 'Supaya pengingat muncul di HP'}</small></span>${ic('right', 20, 2.2)}</button>`}
-      <p>Supaya pengingat pasti berbunyi walau aplikasi tertutup, buka event lalu ketuk <b>Tambah ke Kalender HP</b>.</p>
-    </section>
-    <section class="card"><div class="sec-h"><h2>Data</h2></div>
+      <p>Pengingat acara: H-7, H-3, H-1 pukul 19.00 dan hari H pukul 07.00 (atur per acara).</p>
+      <p>Supaya pasti berbunyi walau aplikasi tertutup, buka acara lalu ketuk <b>Tambah ke Kalender HP</b>.</p></section></div>`;
+  if (pg === 'brief') return back('Ringkasan pagi') + `<div class="settings"><section class="card">
+      <label class="sw"><span style="flex-direction:row;align-items:center;gap:12px"><span class="sun-i">${ic('sun', 22)}</span><span style="display:flex;flex-direction:column"><b>Ringkasan pagi</b><small>Satu notifikasi + kartu di Kalender</small></span></span><input type="checkbox" role="switch" data-chg="briefOpt" value="on" ${bc.on ? 'checked' : ''}></label>
+      ${bc.on ? `<span class="flabel">Jam kirim</span><div class="brief-times">${['06:00', '07:00', '08:00'].map((t) => `<button type="button" class="${bc.time === t ? 'on' : ''}" data-act="briefTime" data-t="${t}" aria-pressed="${bc.time === t}">${fmtTime(t)}</button>`).join('')}<input type="hidden" id="bf-time" name="time" value="${bc.time}"><button type="button" class="${['06:00', '07:00', '08:00'].includes(bc.time) ? '' : 'on'}" data-act="pickTime" data-for="bf-time">${['06:00', '07:00', '08:00'].includes(bc.time) ? 'Lainnya' : fmtTime(bc.time)}</button></div>
+      <span class="flabel">Isi ringkasan</span>
+      <div class="stack" style="gap:2px">${[['today', 'Acara hari ini'], ['tomorrow', 'Acara besok'], ['prep', 'Persiapan yang belum beres'], ['bday', 'Ulang tahun 7 hari ke depan'], ['hol', 'Libur nasional terdekat']].map(([k, l]) => `<label class="opt"><input type="checkbox" data-chg="briefOpt" value="${k}" ${bc[k] ? 'checked' : ''}>${l}</label>`).join('')}</div>
+      <button type="button" class="btn" style="align-self:flex-start" data-act="briefTest">${ic('bell', 16)}Kirim contoh sekarang</button>
+      <p>Notifikasi terkirim kalau Ingetin masih berjalan di latar saat jamnya tiba. Kalau tidak, kartunya tetap muncul di atas Kalender saat dibuka.</p>` : ''}</section></div>`;
+  if (pg === 'privasi') return back('Privasi &amp; PIN') + `<div class="settings"><section class="card">
+      <label class="sw"><span><b>Kunci catatan teman dengan PIN</b><small>“Yang harus diingat” &amp; “Pernah cerita” butuh PIN 4 angka. Kalender dan acara tetap terbuka.</small></span><input type="checkbox" role="switch" data-chg="pinToggle" ${pinSet() ? 'checked' : ''}></label>
+      ${pinSet() ? `<div style="display:flex;gap:10px;flex-wrap:wrap"><button type="button" class="btn" data-act="pinChange">Ganti PIN</button>${notesLocked() ? `<button type="button" class="btn" data-act="unlock">Buka sekarang</button>` : `<button type="button" class="btn" data-act="lockNow">${ic('lock', 16)}Kunci sekarang</button>`}</div>` : ''}
+      <p>Catatan terbuka ${PIN_MIN} menit setelah PIN benar, lalu terkunci lagi otomatis.</p></section></div>`;
+  if (pg === 'data') return back('Data &amp; cadangan') + `<div class="settings"><section class="card">
       <p>Simpan cadangan atau pindahkan data ke perangkat lain.</p>
       <div style="display:flex;gap:10px;flex-wrap:wrap">
         <button type="button" class="btn" data-act="export">${ic('dl', 18)}Ekspor cadangan</button>
         <label class="btn" style="position:relative;overflow:hidden">${ic('share', 18)}Impor cadangan<input type="file" accept="application/json,.json" data-chg="importFile" style="position:absolute;inset:0;opacity:0;cursor:pointer"></label>
-      </div>
-      ${hasCfg() && lsGet(CKEY, {}).supabaseUrl ? `<button type="button" class="btn ghost" style="align-self:flex-start" data-act="clearCfg">Putuskan sambungan Supabase di perangkat ini</button>` : ''}
-    </section>
-    <p style="text-align:center">Ingetin versi ${APP_VERSION} · ${S.mode === 'cloud' ? 'Mode online' : 'Mode perangkat ini'}</p>
+      </div></section></div>`;
+  // ---- halaman utama: daftar menu
+  const row = (p, icon, bgc, fgc, label, val) => `<button type="button" class="set-row" ${p ? `data-act="setPage" data-p="${p}"` : 'disabled'}><span class="set-i" style="background:${bgc};color:${fgc}">${ic(icon, 18)}</span><span class="set-l">${label}</span><span class="set-v">${val}</span>${p ? ic('right', 18, 2.2) : ''}</button>`;
+  const group = (t, rows) => `<div class="set-g"><span class="set-gt">${t}</span><div class="set-box">${rows.filter(Boolean).join('')}</div></div>`;
+  const me = S.mode === 'cloud' ? (S.me ? S.me.name : '') : '';
+  const prof = S.mode === 'cloud'
+    ? `<button type="button" class="set-prof" data-act="setPage" data-p="akun"><span class="av" style="width:52px;height:52px;font-size:20px;background:var(--p-l);color:var(--p-d)">${h((me || '?')[0].toUpperCase())}</span><span class="set-prof-t"><b>${h(me)}</b><span>${h(S.session.user.email)}</span></span><span class="pill" style="${cs('green')}">${ic('cloud', 14)}Tersinkron</span></button>`
+    : `<button type="button" class="set-prof" data-act="setPage" data-p="akun"><span class="av" style="width:52px;height:52px;background:var(--soft);color:var(--mu)">${ic('cloud', 24)}</span><span class="set-prof-t"><b>${hasCfg() ? 'Masuk atau daftar' : 'Mode perangkat ini'}</b><span>${hasCfg() ? 'Simpan data online & terhubung dengan teman' : 'Data tersimpan di HP ini saja'}</span></span>${ic('right', 18, 2.2)}</button>`;
+  const notifV = perm === 'granted' ? 'Aktif' : perm === 'denied' ? 'Diblokir' : perm === 'unsupported' ? 'Tidak didukung' : 'Belum aktif';
+  return `<div class="page-h"><h1>Pengaturan</h1></div><div class="settings">${prof}
+    ${group('Akun', [S.mode === 'cloud' ? `<button type="button" class="set-row" data-act="invite"><span class="set-i" style="${cs('blue')}">${ic('people', 18)}</span><span class="set-l">Teman terhubung</span><span class="set-v">${S.data.friends.length} teman</span>${ic('right', 18, 2.2)}</button>` : row('akun', 'people', '#DBEAFE', '#1E40AF', 'Akun &amp; teman', hasCfg() ? 'Belum masuk' : 'Offline')])}
+    ${group('Umum', [row('tampilan', 'palette', 'var(--p-l)', 'var(--p-d)', 'Tampilan', modeL + ' · ' + h(themeOf(themeK).n)), row('libur', 'cal', '#FEE2E2', '#B91C1C', 'Libur nasional', showHol() ? 'Tampil' : 'Disembunyikan')])}
+    ${group('Pengingat', [row('notif', 'bell', '#FEF3C7', '#92400E', 'Notifikasi', notifV), row('brief', 'sun', '#FFF4D6', '#B45309', 'Ringkasan pagi', bc.on ? fmtTime(bc.time) : 'Mati')])}
+    ${group('Lainnya', [row('privasi', 'lock', '#EDE9FE', '#5B21B6', 'Privasi &amp; PIN', pinSet() ? (notesLocked() ? 'Terkunci' : 'Terbuka') : 'Mati'), row('data', 'db', 'var(--soft)', 'var(--mu2)', 'Data &amp; cadangan', ''), row('', 'info', 'var(--soft)', 'var(--mu2)', 'Tentang', 'Versi ' + APP_VERSION.split(' ')[0])])}
   </div>`;
 }
 const VIEWS = { kalender: vKalender, minggu: vMinggu, teman: vTeman, pengaturan: vPengaturan };
@@ -1551,7 +1613,7 @@ const SHEETS = {
     let body;
     if (S.mode !== 'cloud') {
       body = `<p style="margin:0;line-height:1.5" class="muted">${hasCfg() ? 'Masuk ke akunmu dulu, lalu kamu bisa mengirim link undangan.' : 'Supaya bisa terhubung dengan teman, Ingetin perlu disambungkan ke penyimpanan online (gratis lewat Supabase). Ikuti panduan di SETUP.md, lalu isi di Pengaturan.'}</p>
-        <button type="button" class="btn pri" data-act="go" data-v="pengaturan">Buka Pengaturan</button>`;
+        <button type="button" class="btn pri" data-act="goAkun">${hasCfg() ? 'Masuk / Daftar' : 'Buka Pengaturan'}</button>`;
     } else {
       const link = inviteLink();
       body = `<p style="margin:0;line-height:1.5" class="muted">Setelah temanmu bergabung lewat link ini, event yang kalian bagikan langsung muncul di kalender masing-masing.</p>
@@ -1640,6 +1702,9 @@ function renderPicker() {
 
 /* ============ actions ============ */
 const A = {
+  goAkun() { navPush(); closeSheet(); S.view = 'pengaturan'; S.setPage = 'akun'; render(); const m = $('#main'); if (m) m.scrollTop = 0; },
+  setPage(d) { navPush(); S.setPage = d.p; render(); const m = $('#main'); if (m) m.scrollTop = 0; },
+  setBack() { if (NAV.length && NAV[NAV.length - 1].view === 'pengaturan' && !NAV[NAV.length - 1].setPage) history.back(); else { S.setPage = null; render(); } },
   briefHide() { lsSet('ingetin:briefHide', todayS()); render(); },
   briefTest() { sendBrief(true); },
   briefTime(d) { const c = briefCfg(); c.time = d.t; lsSet('ingetin:brief', c); render(); },
@@ -1688,7 +1753,7 @@ const A = {
   pkMin(d) { PK.m = d.v; if (!PK.h) PK.h = '09'; renderPicker(); },
   pkNoTime() { setPicked(''); },
   pkTimeOk() { if (PK.h) setPicked(PK.h + ':' + (PK.m || '00')); },
-  go(d) { if (d.v === S.view && !(d.v === 'teman' && S.personId && !matchMedia('(min-width:760px)').matches)) { closeSheet(); return; } navPush(); if (d.v === 'teman' && !matchMedia('(min-width:760px)').matches) S.personId = null; S.view = d.v; closeSheet(); render(); $('#main') && ($('#main').scrollTop = 0); },
+  go(d) { if (d.v === S.view && d.v === 'pengaturan' && S.setPage) { navPush(); S.setPage = null; closeSheet(); render(); return; } if (d.v === S.view && !(d.v === 'teman' && S.personId && !matchMedia('(min-width:760px)').matches)) { closeSheet(); return; } navPush(); if (d.v === 'teman' && !matchMedia('(min-width:760px)').matches) S.personId = null; S.setPage = null; S.view = d.v; closeSheet(); render(); $('#main') && ($('#main').scrollTop = 0); },
   month(d) { const m = new Date(S.month); m.setMonth(m.getMonth() + +d.n); S.month = m; render(); },
   today() { const t = todayD(); t.setDate(1); if (S.sheet && S.sheet.target === 'agenda') { S.agMonth = t; } else { S.month = t; S.sel = todayS(); } if (S.sheet) closeSheet(); render(); },
   agFilter(d) { S.agFilter = d.f === S.agFilter ? 'all' : d.f; render(); const l = $('.stats'); if (l && d.f !== 'all') { const m = $('#main'); const tgt = $('.flt') || l; m && tgt && m.scrollTo({ top: Math.max(0, tgt.offsetTop - 80), behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' }); } },
@@ -1811,6 +1876,7 @@ function fieldSet(id) {
   }
 }
 const CHG = {
+  themeCustom(el) { lsSet('ingetin:theme', 'custom:' + el.value); applyTheme(); render(); },
   briefOpt(el) { const c = briefCfg(); c[el.value] = el.checked; lsSet('ingetin:brief', c); render(); },
   pinToggle(el) { if (el.checked) { el.checked = false; openSheet('pin', { mode: 'set', buf: '' }); } else { el.checked = true; openSheet('pin', { mode: 'verify', buf: '', next: 'off' }); } },
   mode(el) { lsSet('ingetin:mode', el.value); applyTheme(); render(); },
@@ -1818,7 +1884,7 @@ const CHG = {
     const f = el.form; const by = f && f.querySelector('.by-field'); if (by) by.hidden = el.value !== 'yearly';
     const p = S.sheet && S.sheet.kind === 'quick' && S.sheet.parsed; if (p) p.repeat = el.value;
   },
-  theme(el) { lsSet('ingetin:theme', el.value); applyTheme(el.value); render(); toast('Tema ' + THEMES[el.value].n + ' dipakai'); },
+  theme(el) { if (el.value === 'custom') { const c = $('#th-custom'); el.value = 'custom:' + (c ? c.value : '#2F5BEA'); } lsSet('ingetin:theme', el.value); applyTheme(el.value); render(); toast('Tema ' + themeOf(el.value).n + ' dipakai'); },
   holToggle(el) { lsSet('ingetin:showHol', el.checked); render(); },
   async prepCheck(el) {
     const e = getEv(el.dataset.id); if (!e) return;
@@ -2081,17 +2147,17 @@ async function boot() {
       S.sb.auth.onAuthStateChange((evt, session) => { if (evt === 'SIGNED_IN' && S.mode !== 'cloud') onSession(session); if (evt === 'SIGNED_OUT') onSession(null); if (evt === 'TOKEN_REFRESHED') S.session = session; });
     } catch (err) { toast('Tidak bisa tersambung ke server. Memakai data di perangkat ini.'); }
   }
-  if (inv && S.mode !== 'cloud') { S.view = 'pengaturan'; S.authTab = 'daftar'; render(); toast('Kamu diundang! Daftar atau masuk untuk terhubung.'); }
+  if (inv && S.mode !== 'cloud') { S.view = 'pengaturan'; S.setPage = 'akun'; S.authTab = 'daftar'; render(); toast('Kamu diundang! Daftar atau masuk untuk terhubung.'); }
   notifyDue();
 }
 /* ============ tombol kembali (Android) ============ */
 // Chrome Android melewati entri riwayat yang dibuat tanpa ketukan pengguna,
 // jadi entri selalu dibuat di dalam handler ketukan (click).
 const NAV = [];
-function navPush() { NAV.push({ view: S.view, personId: S.personId, agTab: S.agTab, scroll: $('#main') ? $('#main').scrollTop : 0 }); if (NAV.length > 40) NAV.shift(); pushEntry(); }
+function navPush() { NAV.push({ view: S.view, personId: S.personId, agTab: S.agTab, setPage: S.setPage || null, scroll: $('#main') ? $('#main').scrollTop : 0 }); if (NAV.length > 40) NAV.shift(); pushEntry(); }
 function navBack() {
   const p = NAV.pop(); if (!p) return false;
-  S.view = p.view; S.personId = p.personId; if (p.agTab) S.agTab = p.agTab; render();
+  S.view = p.view; S.personId = p.personId; S.setPage = p.setPage || null; if (p.agTab) S.agTab = p.agTab; render();
   const m = $('#main'); if (m) m.scrollTop = p.scroll || 0; return true;
 }
 const hDepth = () => (history.state && history.state.ingetin) || 0;
