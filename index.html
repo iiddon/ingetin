@@ -402,6 +402,8 @@ mark{background:var(--mark);color:inherit;border-radius:3px;padding:0 1px}
 .brief-times button.on{border:1.5px solid var(--p);background:var(--p-l);color:var(--p-d)}
 .opt{display:flex;align-items:center;gap:10px;min-height:40px;font-size:14px}
 .opt input{width:20px;height:20px;accent-color:var(--p)}
+.more-f summary{cursor:pointer;font-size:14px;font-weight:700;color:var(--p);min-height:40px;display:flex;align-items:center;list-style:none}
+.more-f summary::-webkit-details-marker{display:none}
 .inp.bad{border-color:var(--danger);box-shadow:0 0 0 3px #FEE2E2}
 .chipbtn{min-height:34px;padding:0 12px;border-radius:999px;border:1px solid var(--bd);background:var(--bg);font-size:13px;color:var(--mu2)}
 .preview{border-radius:16px;background:var(--bg);padding:14px;display:flex;flex-direction:column;gap:12px}
@@ -439,7 +441,7 @@ mark{background:var(--mark);color:inherit;border-radius:3px;padding:0 1px}
 
 <script type="module">
 /* ============ helpers ============ */
-const APP_VERSION = '2.4 (24 Nov 2026)';
+const APP_VERSION = '2.5 (24 Nov 2026)';
 const $ = (s, r = document) => r.querySelector(s);
 const h = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const pad = (n) => String(n).padStart(2, '0');
@@ -1033,9 +1035,9 @@ function vKalender() {
     <aside class="aside" aria-label="Ringkasan">
       <button type="button" class="btn pri block quick-top" data-act="quick">${ic('plus', 18, 2.4)}Tambah cepat</button>
       ${window.matchMedia('(min-width:1100px)').matches ? briefCard() : ''}
-      <div class="sec-h"><h2>${S.sel === today ? 'Hari ini' : h(HARI[pd(S.sel).getDay()] + ', ' + fmtShort(S.sel))}</h2><small>${selEv.length ? selEv.length + ' acara' : ''}</small></div>
+      <div class="sec-h"><h2>${S.sel === today ? 'Hari ini' : h(HARI[pd(S.sel).getDay()] + ', ' + fmtShort(S.sel))}</h2>${selEv.length ? `<button type="button" class="btn ghost" data-act="newEvent" data-date="${S.sel}">+ Tambah</button>` : ''}</div>
       ${holOn(S.sel) ? holRow(S.sel) : ''}
-      <div class="stack">${selEv.length ? selEv.map((e) => evRow(e, false)).join('') : `<div class="note-row" style="justify-content:space-between;align-items:center"><span class="muted">Tidak ada acara.</span><button type="button" class="btn ghost" data-act="newEvent" data-date="${S.sel}">+ Acara di tanggal ini</button></div>`}</div>
+      <div class="stack">${selEv.length ? selEv.map((e) => evRow(e, false)).join('') : `<div class="note-row" style="justify-content:space-between;align-items:center"><span class="muted">Tidak ada acara.</span><button type="button" class="btn ghost" data-act="newEvent" data-date="${S.sel}">+ Tambah di tanggal ini</button></div>`}</div>
       <div class="sec-h" style="margin-top:4px"><h2>Minggu ini</h2><small>${wk0.getDate()} ${BUL3[wk0.getMonth()]} – ${wk1.getDate()} ${BUL3[wk1.getMonth()]}</small></div>
       <div class="stack">${week.length ? week.map((e) => evRow(e)).join('') : `<div class="note-row"><span class="muted">Belum ada acara 7 hari ke depan.</span></div>`}</div>
       ${soon.length ? `<div class="sec-h" style="margin-top:4px"><h2>Segera</h2></div><div class="stack">${soon.map((e) => evRow(e)).join('')}</div>` : ''}
@@ -1362,7 +1364,7 @@ const SHEETS = {
     const pSel = r.sel !== undefined ? r.sel : (r.personId || (r.newName ? '__new' : ''));
     const isNote = r.type === 'note';
     return `<div class="sh-body">
-      <div class="sh-top"><h2>Tambah cepat</h2><button type="button" class="icon-btn round" data-act="closeSheet" aria-label="Tutup">${ic('x', 18, 2.4)}</button></div>
+      <div class="sh-top"><h2>${s.date ? 'Tambah · ' + h(fmtShort(s.date)) : 'Tambah cepat'}</h2><button type="button" class="icon-btn round" data-act="closeSheet" aria-label="Tutup">${ic('x', 18, 2.4)}</button></div>
       <form class="stack" data-form="quick" style="gap:14px">
         <div class="field"><label for="qa-text">Tulis seperti chat biasa</label>
           <textarea id="qa-text" class="inp" rows="3" placeholder="mis. Dina sidang skripsi 3 Desember jam 9" style="font-size:17px">${h(s.text || '')}</textarea></div>
@@ -1389,6 +1391,11 @@ const SHEETS = {
             ${repeatField('qa-rep', r.repeat, r.birthYear)}
             <div class="flabel">Pengingat</div>
             <div style="display:flex;flex-wrap:wrap;gap:8px">${REM.map((x) => `<label class="pill" style="${cs('gray')};min-height:36px;padding:0 12px;cursor:pointer"><input type="checkbox" name="rem" value="${x.k}" ${['h-1', 'hari-h'].includes(x.k) ? 'checked' : ''} style="accent-color:var(--p)">${x.label}</label>`).join('')}</div>
+            <details class="more-f" ${r.location || r.notes ? 'open' : ''}><summary>+ Lokasi &amp; catatan (opsional)</summary>
+              <div class="stack" style="gap:12px;margin-top:10px">
+                <div class="field"><label for="qa-loc">Lokasi</label><input id="qa-loc" class="inp" name="location" value="${h(r.location || '')}" autocomplete="off"></div>
+                <div class="field"><label for="qa-notes">Catatan acara</label><textarea id="qa-notes" class="inp" name="notes" rows="2" placeholder="mis. Dress code batik">${h(r.notes || '')}</textarea></div>
+              </div></details>
             ${shareBox(false)}`}
         </div>
         <p class="err" id="qa-err" role="alert"></p>
@@ -1573,7 +1580,12 @@ function quickInput() {
   const text = ta.value;
   const r = text.trim() ? parseQuick(text) : null;
   S.sheet.text = text;
-  if (r) { if (S.sheet.forceType) r.type = S.sheet.forceType; if (!r.personId && S.sheet.person && !r.newName) r.personId = S.sheet.person; }
+  if (r) {
+    if (S.sheet.date && !r.date) { r.date = S.sheet.date; if (r.type === 'note' && !S.sheet.forceType && !/\b(alergi|suka|tidak suka|gak suka|nggak suka|favorit|ide kado)\b/i.test(text)) r.type = 'event'; }
+    if (S.sheet.forceType) r.type = S.sheet.forceType;
+    if (!r.personId && S.sheet.person && !r.newName) r.personId = S.sheet.person;
+    const old = S.sheet.parsed; if (old) { r.location = old.location; r.notes = old.notes; }
+  }
   S.sheet.parsed = r;
   const pos = ta.selectionStart, hadFocus = document.activeElement === ta;
   renderSheet();
@@ -1697,7 +1709,7 @@ const A = {
   },
   quick() { openSheet('quick', { text: '', parsed: null }); },
   qaEx(d) { const ta = $('#qa-text'); ta.value = d.t; S.sheet.forceType = null; quickInput(); },
-  newEvent(d) { openSheet('editEvent', { id: null, date: d.date || S.sel, person: d.person || '' }); },
+  newEvent(d) { openSheet('quick', { text: '', parsed: null, date: d.date || '', person: d.person || '' }); },
   openEvent(d) { openSheet('event', { id: d.id }); },
   async editEvent(d) {
     const e = getEv(d.id); if (!e) return; const b = baseOf(e);
@@ -1871,7 +1883,7 @@ const FORMS = {
     const pid = await ensurePerson(fd.get('person'), r.newName || '', fd.get('personNew'));
     const rep = fd.get('repeat') || null, by = parseInt(fd.get('birthYear'), 10);
     const kind = rep === 'yearly' && /\b(ultah|ulang\s*tahun|birthday|bday)\b/i.test(title) ? 'ultah' : null;
-    const ev = await save('events', { id: uid(), title, date, time: fd.get('time') || null, person_id: pid, location: null, notes: null, shared: fd.get('shared') === 'on', checklist: [], reminders: fd.getAll('rem'), repeat: rep, birth_year: rep === 'yearly' && by > 1900 ? by : null, occ: {}, kind });
+    const ev = await save('events', { id: uid(), title, date, time: fd.get('time') || null, person_id: pid, location: (fd.get('location') || '').trim() || null, notes: (fd.get('notes') || '').trim() || null, shared: fd.get('shared') === 'on', checklist: [], reminders: fd.getAll('rem'), repeat: rep, birth_year: rep === 'yearly' && by > 1900 ? by : null, occ: {}, kind });
     closeSheet();
     S.sel = date; const m = pd(date); m.setDate(1); S.month = m; S.view = 'kalender'; render();
     toast('Tersimpan: ' + title, { label: 'Lihat', fn: () => openSheet('event', { id: ev.id }) });
@@ -1979,9 +1991,9 @@ document.addEventListener('input', (ev) => {
   }
   if (ev.target.classList && ev.target.classList.contains('bad')) ev.target.classList.remove('bad');
   if (ev.target.id === 'qa-text') { clearTimeout(qaTimer); qaTimer = setTimeout(quickInput, 250); }
-  if (ev.target.id === 'qa-title' || ev.target.id === 'qa-note') {
+  if (['qa-title', 'qa-note', 'qa-loc', 'qa-notes'].includes(ev.target.id)) {
     const p = S.sheet && S.sheet.parsed; if (!p) return;
-    p[ev.target.id === 'qa-title' ? 'title' : 'noteText'] = ev.target.value;
+    p[{ 'qa-title': 'title', 'qa-note': 'noteText', 'qa-loc': 'location', 'qa-notes': 'notes' }[ev.target.id]] = ev.target.value;
   }
 });
 document.addEventListener('keydown', (ev) => {
