@@ -10,9 +10,67 @@
   "theme_color": "#2F5BEA",
   "background_color": "#F5F6FA",
   "icons": [
-    { "src": "icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
-    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
-    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" },
-    { "src": "icon.svg", "sizes": "any", "type": "image/svg+xml" }
+    {
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Tambah cepat",
+      "short_name": "Tambah",
+      "description": "Catat acara atau hal penting dengan cepat",
+      "url": "./?aksi=tambah",
+      "icons": [
+        {
+          "src": "shortcut-tambah.png",
+          "sizes": "192x192",
+          "type": "image/png"
+        }
+      ]
+    },
+    {
+      "name": "Agenda minggu ini",
+      "short_name": "Agenda",
+      "url": "./?view=minggu",
+      "icons": [
+        {
+          "src": "shortcut-agenda.png",
+          "sizes": "192x192",
+          "type": "image/png"
+        }
+      ]
+    },
+    {
+      "name": "Agenda bulan ini",
+      "short_name": "Bulan ini",
+      "url": "./?view=bulan",
+      "icons": [
+        {
+          "src": "shortcut-agenda.png",
+          "sizes": "192x192",
+          "type": "image/png"
+        }
+      ]
+    }
   ]
 }

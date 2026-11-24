@@ -1,0 +1,210 @@
+{
+ "updated": "2026-11-24",
+ "source": "SKB 3 Menteri 2026 & 2027",
+ "days": {
+  "2026-01-01": {
+   "n": "Tahun Baru 2026 Masehi",
+   "t": "libur"
+  },
+  "2026-01-16": {
+   "n": "Isra Mikraj Nabi Muhammad SAW",
+   "t": "libur"
+  },
+  "2026-02-16": {
+   "n": "Cuti bersama Tahun Baru Imlek",
+   "t": "cuti"
+  },
+  "2026-02-17": {
+   "n": "Tahun Baru Imlek 2577 Kongzili",
+   "t": "libur"
+  },
+  "2026-03-18": {
+   "n": "Cuti bersama Hari Suci Nyepi",
+   "t": "cuti"
+  },
+  "2026-03-19": {
+   "n": "Hari Suci Nyepi (Tahun Baru Saka 1948)",
+   "t": "libur"
+  },
+  "2026-03-20": {
+   "n": "Cuti bersama Idulfitri 1447 H",
+   "t": "cuti"
+  },
+  "2026-03-21": {
+   "n": "Idulfitri 1447 H",
+   "t": "libur"
+  },
+  "2026-03-22": {
+   "n": "Idulfitri 1447 H",
+   "t": "libur"
+  },
+  "2026-03-23": {
+   "n": "Cuti bersama Idulfitri 1447 H",
+   "t": "cuti"
+  },
+  "2026-03-24": {
+   "n": "Cuti bersama Idulfitri 1447 H",
+   "t": "cuti"
+  },
+  "2026-04-03": {
+   "n": "Wafat Yesus Kristus",
+   "t": "libur"
+  },
+  "2026-04-05": {
+   "n": "Kebangkitan Yesus Kristus (Paskah)",
+   "t": "libur"
+  },
+  "2026-05-01": {
+   "n": "Hari Buruh Internasional",
+   "t": "libur"
+  },
+  "2026-05-14": {
+   "n": "Kenaikan Yesus Kristus",
+   "t": "libur"
+  },
+  "2026-05-15": {
+   "n": "Cuti bersama Kenaikan Yesus Kristus",
+   "t": "cuti"
+  },
+  "2026-05-27": {
+   "n": "Iduladha 1447 H",
+   "t": "libur"
+  },
+  "2026-05-28": {
+   "n": "Cuti bersama Iduladha 1447 H",
+   "t": "cuti"
+  },
+  "2026-05-31": {
+   "n": "Hari Raya Waisak 2570 BE",
+   "t": "libur"
+  },
+  "2026-06-01": {
+   "n": "Hari Lahir Pancasila",
+   "t": "libur"
+  },
+  "2026-06-16": {
+   "n": "Tahun Baru Islam 1448 H",
+   "t": "libur"
+  },
+  "2026-08-17": {
+   "n": "Proklamasi Kemerdekaan RI",
+   "t": "libur"
+  },
+  "2026-08-25": {
+   "n": "Maulid Nabi Muhammad SAW",
+   "t": "libur"
+  },
+  "2026-12-24": {
+   "n": "Cuti bersama Natal",
+   "t": "cuti"
+  },
+  "2026-12-25": {
+   "n": "Kelahiran Yesus Kristus (Natal)",
+   "t": "libur"
+  },
+  "2027-01-01": {
+   "n": "Tahun Baru 2027 Masehi",
+   "t": "libur"
+  },
+  "2027-01-05": {
+   "n": "Isra Mikraj Nabi Muhammad SAW",
+   "t": "libur"
+  },
+  "2027-02-05": {
+   "n": "Cuti bersama Tahun Baru Imlek",
+   "t": "cuti"
+  },
+  "2027-02-06": {
+   "n": "Tahun Baru Imlek 2578 Kongzili",
+   "t": "libur"
+  },
+  "2027-03-08": {
+   "n": "Hari Suci Nyepi (Tahun Baru Saka 1949)",
+   "t": "libur"
+  },
+  "2027-03-09": {
+   "n": "Cuti bersama Idulfitri 1448 H",
+   "t": "cuti"
+  },
+  "2027-03-10": {
+   "n": "Idulfitri 1448 H",
+   "t": "libur"
+  },
+  "2027-03-11": {
+   "n": "Idulfitri 1448 H",
+   "t": "libur"
+  },
+  "2027-03-12": {
+   "n": "Cuti bersama Idulfitri 1448 H",
+   "t": "cuti"
+  },
+  "2027-03-15": {
+   "n": "Cuti bersama Idulfitri 1448 H",
+   "t": "cuti"
+  },
+  "2027-03-25": {
+   "n": "Cuti bersama Wafat Yesus Kristus",
+   "t": "cuti"
+  },
+  "2027-03-26": {
+   "n": "Wafat Yesus Kristus",
+   "t": "libur"
+  },
+  "2027-03-28": {
+   "n": "Kebangkitan Yesus Kristus (Paskah)",
+   "t": "libur"
+  },
+  "2027-05-01": {
+   "n": "Hari Buruh Internasional",
+   "t": "libur"
+  },
+  "2027-05-06": {
+   "n": "Kenaikan Yesus Kristus",
+   "t": "libur"
+  },
+  "2027-05-17": {
+   "n": "Iduladha 1448 H",
+   "t": "libur"
+  },
+  "2027-05-18": {
+   "n": "Cuti bersama Iduladha 1448 H",
+   "t": "cuti"
+  },
+  "2027-05-19": {
+   "n": "Cuti bersama Hari Raya Waisak",
+   "t": "cuti"
+  },
+  "2027-05-20": {
+   "n": "Hari Raya Waisak 2571 BE",
+   "t": "libur"
+  },
+  "2027-06-01": {
+   "n": "Hari Lahir Pancasila",
+   "t": "libur"
+  },
+  "2027-06-06": {
+   "n": "Tahun Baru Islam 1449 H",
+   "t": "libur"
+  },
+  "2027-08-15": {
+   "n": "Maulid Nabi Muhammad SAW",
+   "t": "libur"
+  },
+  "2027-08-17": {
+   "n": "Proklamasi Kemerdekaan RI",
+   "t": "libur"
+  },
+  "2027-12-24": {
+   "n": "Cuti bersama Natal",
+   "t": "cuti"
+  },
+  "2027-12-25": {
+   "n": "Kelahiran Yesus Kristus (Natal)",
+   "t": "libur"
+  },
+  "2027-12-26": {
+   "n": "Isra Mikraj Nabi Muhammad SAW",
+   "t": "libur"
+  }
+ }
+}

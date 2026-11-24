@@ -20,10 +20,10 @@
 <script src="config.js"></script>
 <style>
 :root{
-  --p:#2F5BEA;--p-d:#1E40AF;--p-l:#EAF0FF;
+  --p:#2F5BEA;--p-d:#1E40AF;--p-l:#EAF0FF;--p-m:var(--p-m);--p-r:var(--p-r);--p-rgb:47,91,234;
   --bg:#F5F6FA;--card:#FFFFFF;--tx:#1B1F2A;--mu:#4B5563;--mu2:#3D4452;
   --bd:#E4E7EE;--soft:#F1F3F7;--danger:#B91C1C;--ok:#166534;
-  --r:14px;--sh:0 6px 16px rgba(47,91,234,.22);
+  --r:14px;--sh:0 6px 16px rgba(var(--p-rgb),.24);
   --sat:env(safe-area-inset-top,0px);--sab:env(safe-area-inset-bottom,0px);
   --sal:env(safe-area-inset-left,0px);--sar:env(safe-area-inset-right,0px);
 }
@@ -35,7 +35,7 @@ button{cursor:pointer}
 a{color:var(--p)}
 h1,h2,h3{margin:0}
 .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
-:focus-visible{outline:3px solid #93B4FF;outline-offset:2px}
+:focus-visible{outline:3px solid var(--p-r);outline-offset:2px}
 
 /* ---------- shell ---------- */
 .app{display:grid;grid-template-columns:1fr;height:100dvh;padding-left:var(--sal);padding-right:var(--sar)}
@@ -66,7 +66,7 @@ main{overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;padding:
 .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:46px;padding:0 16px;border-radius:12px;border:1px solid var(--bd);background:var(--card);font-weight:700;font-size:15px;color:var(--tx);text-decoration:none;transition:transform .15s,background .15s,box-shadow .15s}
 .btn:active{transform:scale(.96)}
 .btn.pri{background:var(--p);border-color:var(--p);color:#fff;box-shadow:var(--sh)}
-.btn.pri:hover{background:#2850D6}
+.btn.pri:hover{filter:brightness(.94)}
 .btn.out{border:1.5px solid var(--p);color:var(--p)}
 .btn.danger{color:var(--danger);border-color:#FECACA}
 .btn.ghost{border:none;background:none;color:var(--p);padding:0 6px;min-height:44px}
@@ -150,7 +150,7 @@ main{overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;padding:
 .stat{background:var(--card);border:1.5px solid var(--bd);border-radius:14px;padding:12px;display:flex;flex-direction:column;gap:2px;text-align:left;min-height:72px;position:relative;transition:transform .12s,border-color .15s,background .15s}
 .stat:active{transform:scale(.97)}
 .stat::after{content:'›';position:absolute;right:12px;top:10px;font-size:20px;color:#9AA1AD;font-weight:700}
-.stat.on{border-color:var(--p);background:var(--p-l);box-shadow:0 0 0 3px #DCE6FF}
+.stat.on{border-color:var(--p);background:var(--p-l);box-shadow:0 0 0 3px var(--p-m)}
 .stat.on::after{color:var(--p)}
 .flt{display:flex;align-items:center;justify-content:space-between;gap:8px;background:var(--p-l);color:var(--p-d);border-radius:12px;padding:4px 4px 4px 14px;margin-bottom:12px;font-size:14px}
 .flt .mini{color:var(--p-d)}
@@ -256,13 +256,13 @@ textarea.inp{resize:vertical;line-height:1.45}
 .seg input{position:absolute;opacity:0;inset:0}
 .seg span{display:flex;align-items:center;justify-content:center;min-height:40px;border-radius:9px;font-weight:700;font-size:14px;color:var(--mu2);transition:background .15s,color .15s}
 .seg input:checked+span{background:var(--card);color:var(--p-d);box-shadow:0 1px 3px rgba(0,0,0,.1)}
-.seg input:focus-visible+span{outline:3px solid #93B4FF}
+.seg input:focus-visible+span{outline:3px solid var(--p-r)}
 .swatches{display:flex;flex-wrap:wrap;gap:10px}
 .swatches label{position:relative}
 .swatches input{position:absolute;opacity:0;inset:0}
 .swatches span{display:block;width:40px;height:40px;border-radius:50%;border:3px solid transparent;transition:transform .15s}
 .swatches input:checked+span{border-color:var(--tx);transform:scale(1.08)}
-.swatches input:focus-visible+span{outline:3px solid #93B4FF}
+.swatches input:focus-visible+span{outline:3px solid var(--p-r)}
 .custom-color{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:12px;padding:8px 8px 8px 14px;border:1px solid var(--bd);border-radius:12px}
 .custom-color label{font-size:14px;font-weight:600;color:var(--mu2)}
 .custom-color input{width:56px;height:40px;border:none;border-radius:10px;background:none;padding:0;cursor:pointer}
@@ -274,7 +274,7 @@ textarea.inp{resize:vertical;line-height:1.45}
 .pchip>span i{width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-style:normal;font-weight:800;font-size:13px}
 .pchip.add>span{padding:0 14px;border-style:dashed;color:var(--p)}
 .pchip input:checked+span{border-color:var(--p);background:var(--p-l);color:var(--p-d)}
-.pchip input:focus-visible+span{outline:3px solid #93B4FF}
+.pchip input:focus-visible+span{outline:3px solid var(--p-r)}
 .pchip:active>span{transform:scale(.96)}
 .pnew{margin-top:10px}
 .pnew[hidden]{display:none}
@@ -310,10 +310,10 @@ textarea.inp{resize:vertical;line-height:1.45}
 .nf-btn{min-height:54px;font-size:16px}
 .nf-steps{gap:6px}.nf-steps h3{font-size:15px;font-weight:800}
 .steps{margin:0;padding-left:20px;font-size:14px;line-height:1.6}
-.spin{width:36px;height:36px;border-radius:50%;border:4px solid #C9D7FF;border-top-color:var(--p);animation:rot .8s linear infinite}
+.spin{width:36px;height:36px;border-radius:50%;border:4px solid var(--p-m);border-top-color:var(--p);animation:rot .8s linear infinite}
 @keyframes rot{to{transform:rotate(360deg)}}
 @keyframes wiggle{0%,100%{transform:rotate(0)}20%{transform:rotate(-10deg)}40%{transform:rotate(9deg)}60%{transform:rotate(-6deg)}80%{transform:rotate(3deg)}}
-.nf-cta{display:flex;align-items:center;gap:14px;width:100%;padding:14px;border-radius:16px;border:1.5px solid #C9D7FF;background:linear-gradient(0deg,#F5F8FF,#F5F8FF);text-align:left;color:var(--p-d);transition:transform .15s,background .15s}
+.nf-cta{display:flex;align-items:center;gap:14px;width:100%;padding:14px;border-radius:16px;border:1.5px solid var(--p-m);background:var(--p-l);text-align:left;color:var(--p-d);transition:transform .15s,background .15s}
 .nf-cta:active{transform:scale(.98)}
 .nf-cta-i{width:48px;height:48px;border-radius:14px;background:var(--p);color:#fff;display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:var(--sh)}
 .nf-cta-t{flex:1;display:flex;flex-direction:column;gap:2px}
@@ -324,6 +324,24 @@ textarea.inp{resize:vertical;line-height:1.45}
 .sstip-h b{font-size:15px}
 .sstip p{margin:0;font-size:14px;line-height:1.5;color:#7C2D12}
 .sstip .btn{align-self:flex-start}
+.themes{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:8px}
+.theme{position:relative}
+.theme input{position:absolute;opacity:0;inset:0;margin:0;cursor:pointer}
+.theme span{display:flex;align-items:center;gap:6px;min-height:48px;padding:0 12px;border-radius:12px;border:1.5px solid var(--bd);background:var(--card);transition:border-color .15s,transform .12s}
+.theme i{width:18px;height:18px;border-radius:50%;flex-shrink:0;box-shadow:inset 0 0 0 1px rgba(0,0,0,.08)}
+.theme i+i{margin-left:-10px}
+.theme b{font-size:14px;margin-left:4px}
+.theme input:checked+span{border-color:var(--p);background:var(--p-l);box-shadow:0 0 0 2px var(--p-m)}
+.theme input:focus-visible+span{outline:3px solid var(--p-r)}
+.theme:active span{transform:scale(.97)}
+.hol{display:block;padding:2px 6px;border-radius:6px;font-size:10.5px;font-weight:700;line-height:1.25;background:#FEE2E2;color:#B91C1C;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
+.hol.cuti{background:#FFEDD5;color:#9A3412}
+.cell.red .num{color:#DC2626}
+.cell.today.red .num{color:#fff}
+.holrow{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:12px;background:#FEF2F2;color:#991B1B;font-size:14px;font-weight:700}
+.holrow.cuti{background:#FFF7ED;color:#9A3412}
+.holrow small{margin-left:auto;font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.5px;opacity:.8}
+@media (max-width:599px){.hol{font-size:0;padding:0;height:5px;border-radius:3px;background:#F87171}.hol.cuti{background:#FB923C}}
 .inp.bad{border-color:var(--danger);box-shadow:0 0 0 3px #FEE2E2}
 .chipbtn{min-height:34px;padding:0 12px;border-radius:999px;border:1px solid var(--bd);background:var(--bg);font-size:13px;color:var(--mu2)}
 .preview{border-radius:16px;background:var(--bg);padding:14px;display:flex;flex-direction:column;gap:12px}
@@ -336,8 +354,11 @@ textarea.inp{resize:vertical;line-height:1.45}
 .dialog p{margin:0;font-size:15px;line-height:1.5}
 .dialog .bd2{position:fixed;inset:0}
 #dlg .backdrop{z-index:60}
-.toast{position:fixed;left:50%;bottom:calc(150px + var(--sab));transform:translateX(-50%);z-index:70;background:#1B1F2A;color:#fff;border-radius:14px;padding:12px 14px 12px 16px;display:flex;align-items:center;gap:14px;font-size:14px;font-weight:600;box-shadow:0 10px 30px rgba(0,0,0,.25);animation:up .22s ease;max-width:92vw}
-.toast button{border:none;background:none;color:#9DB8FF;font-weight:800;min-height:36px;padding:0 6px}
+.toast{position:fixed;left:50%;bottom:calc(150px + var(--sab));transform:translateX(-50%);z-index:70;width:min(420px,calc(100vw - 32px));box-sizing:border-box;background:var(--card);color:var(--tx);border:1px solid var(--bd);border-radius:16px;padding:10px 10px 10px 12px;display:flex;align-items:center;gap:12px;font-size:14px;font-weight:600;line-height:1.4;box-shadow:0 12px 32px rgba(17,24,39,.16);animation:up .22s ease}
+.toast-i{width:32px;height:32px;border-radius:10px;background:var(--p-l);color:var(--p);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.toast-t{flex:1;min-width:0;text-align:left;word-break:break-word}
+.toast button{flex-shrink:0;border:none;background:var(--p);color:#fff;font-weight:800;font-size:13px;min-height:36px;padding:0 14px;border-radius:10px}
+.toast button:active{transform:scale(.95)}
 @media (min-width:1000px){.toast{bottom:32px}}
 @keyframes up{from{transform:translateY(24px);opacity:0}to{transform:none;opacity:1}}
 @keyframes fade{from{opacity:0}}
@@ -357,7 +378,7 @@ textarea.inp{resize:vertical;line-height:1.45}
 
 <script type="module">
 /* ============ helpers ============ */
-const APP_VERSION = '1.9 (24 Nov 2026)';
+const APP_VERSION = '2.0 (24 Nov 2026)';
 const $ = (s, r = document) => r.querySelector(s);
 const h = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const pad = (n) => String(n).padStart(2, '0');
@@ -562,6 +583,33 @@ const chromeUrl = () => `intent://${location.host}${location.pathname}#Intent;sc
 const samsungTip = (compact) => IS_SAMSUNG ? `<div class="sstip"><div class="sstip-h">${ic('bell', 18)}<b>Pakai Chrome untuk notifikasi</b></div>
   <p>Kamu sedang membuka Ingetin di <b>Samsung Internet</b>. Ingetin yang dipasang lewat Samsung Internet sering tidak bisa memunculkan notifikasi. Supaya pengingat lancar, buka dan pasang Ingetin lewat <b>Chrome</b>${compact ? '' : ' (menu ⋮ › <b>Tambahkan ke layar utama</b> / <b>Instal aplikasi</b>), lalu hapus versi Samsung Internet dari Layar Utama'}.</p>
   <a class="btn pri" href="${chromeUrl()}">${ic('share', 18)}Buka di Chrome</a></div>` : '';
+const THEMES = {
+  biru: { n: 'Biru', p: '#2F5BEA', d: '#1E40AF', l: '#EAF0FF', m: '#C9D7FF', r: '#93B4FF' },
+  toska: { n: 'Toska', p: '#0F766E', d: '#115E59', l: '#E3F5F2', m: '#B5E3DB', r: '#7CCFC2' },
+  hijau: { n: 'Hijau', p: '#15803D', d: '#166534', l: '#E7F6EC', m: '#BFE6CC', r: '#86CFA0' },
+  ungu: { n: 'Ungu', p: '#6D28D9', d: '#5B21B6', l: '#F1EAFE', m: '#D9C8FB', r: '#B79BF5' },
+  rose: { n: 'Merah muda', p: '#DB2777', d: '#9D174D', l: '#FDEBF3', m: '#F8C5DD', r: '#F09BC3' },
+  oranye: { n: 'Oranye', p: '#C2410C', d: '#9A3412', l: '#FFF0E6', m: '#FDD3B5', r: '#F9A877' },
+  grafit: { n: 'Grafit', p: '#334155', d: '#1E293B', l: '#EEF1F5', m: '#CBD3DE', r: '#94A3B8' }
+};
+function applyTheme(k) {
+  const t = THEMES[k] || THEMES.biru, r = document.documentElement.style;
+  const rgb = [1, 3, 5].map((i) => parseInt(t.p.slice(i, i + 2), 16)).join(',');
+  r.setProperty('--p', t.p); r.setProperty('--p-d', t.d); r.setProperty('--p-l', t.l); r.setProperty('--p-m', t.m); r.setProperty('--p-r', t.r); r.setProperty('--p-rgb', rgb);
+  const mt = document.querySelector('meta[name=theme-color]'); if (mt) mt.setAttribute('content', t.p);
+}
+applyTheme(lsGet('ingetin:theme', 'biru'));
+// Libur nasional & cuti bersama: bawaan aplikasi, lalu diperbarui otomatis dari holidays.json di repo.
+let HOL = lsGet('ingetin:hol', null) || {"updated": "2026-11-24", "source": "SKB 3 Menteri 2026 & 2027", "days": {"2026-01-01": {"n": "Tahun Baru 2026 Masehi", "t": "libur"}, "2026-01-16": {"n": "Isra Mikraj Nabi Muhammad SAW", "t": "libur"}, "2026-02-16": {"n": "Cuti bersama Tahun Baru Imlek", "t": "cuti"}, "2026-02-17": {"n": "Tahun Baru Imlek 2577 Kongzili", "t": "libur"}, "2026-03-18": {"n": "Cuti bersama Hari Suci Nyepi", "t": "cuti"}, "2026-03-19": {"n": "Hari Suci Nyepi (Tahun Baru Saka 1948)", "t": "libur"}, "2026-03-20": {"n": "Cuti bersama Idulfitri 1447 H", "t": "cuti"}, "2026-03-21": {"n": "Idulfitri 1447 H", "t": "libur"}, "2026-03-22": {"n": "Idulfitri 1447 H", "t": "libur"}, "2026-03-23": {"n": "Cuti bersama Idulfitri 1447 H", "t": "cuti"}, "2026-03-24": {"n": "Cuti bersama Idulfitri 1447 H", "t": "cuti"}, "2026-04-03": {"n": "Wafat Yesus Kristus", "t": "libur"}, "2026-04-05": {"n": "Kebangkitan Yesus Kristus (Paskah)", "t": "libur"}, "2026-05-01": {"n": "Hari Buruh Internasional", "t": "libur"}, "2026-05-14": {"n": "Kenaikan Yesus Kristus", "t": "libur"}, "2026-05-15": {"n": "Cuti bersama Kenaikan Yesus Kristus", "t": "cuti"}, "2026-05-27": {"n": "Iduladha 1447 H", "t": "libur"}, "2026-05-28": {"n": "Cuti bersama Iduladha 1447 H", "t": "cuti"}, "2026-05-31": {"n": "Hari Raya Waisak 2570 BE", "t": "libur"}, "2026-06-01": {"n": "Hari Lahir Pancasila", "t": "libur"}, "2026-06-16": {"n": "Tahun Baru Islam 1448 H", "t": "libur"}, "2026-08-17": {"n": "Proklamasi Kemerdekaan RI", "t": "libur"}, "2026-08-25": {"n": "Maulid Nabi Muhammad SAW", "t": "libur"}, "2026-12-24": {"n": "Cuti bersama Natal", "t": "cuti"}, "2026-12-25": {"n": "Kelahiran Yesus Kristus (Natal)", "t": "libur"}, "2027-01-01": {"n": "Tahun Baru 2027 Masehi", "t": "libur"}, "2027-01-05": {"n": "Isra Mikraj Nabi Muhammad SAW", "t": "libur"}, "2027-02-05": {"n": "Cuti bersama Tahun Baru Imlek", "t": "cuti"}, "2027-02-06": {"n": "Tahun Baru Imlek 2578 Kongzili", "t": "libur"}, "2027-03-08": {"n": "Hari Suci Nyepi (Tahun Baru Saka 1949)", "t": "libur"}, "2027-03-09": {"n": "Cuti bersama Idulfitri 1448 H", "t": "cuti"}, "2027-03-10": {"n": "Idulfitri 1448 H", "t": "libur"}, "2027-03-11": {"n": "Idulfitri 1448 H", "t": "libur"}, "2027-03-12": {"n": "Cuti bersama Idulfitri 1448 H", "t": "cuti"}, "2027-03-15": {"n": "Cuti bersama Idulfitri 1448 H", "t": "cuti"}, "2027-03-25": {"n": "Cuti bersama Wafat Yesus Kristus", "t": "cuti"}, "2027-03-26": {"n": "Wafat Yesus Kristus", "t": "libur"}, "2027-03-28": {"n": "Kebangkitan Yesus Kristus (Paskah)", "t": "libur"}, "2027-05-01": {"n": "Hari Buruh Internasional", "t": "libur"}, "2027-05-06": {"n": "Kenaikan Yesus Kristus", "t": "libur"}, "2027-05-17": {"n": "Iduladha 1448 H", "t": "libur"}, "2027-05-18": {"n": "Cuti bersama Iduladha 1448 H", "t": "cuti"}, "2027-05-19": {"n": "Cuti bersama Hari Raya Waisak", "t": "cuti"}, "2027-05-20": {"n": "Hari Raya Waisak 2571 BE", "t": "libur"}, "2027-06-01": {"n": "Hari Lahir Pancasila", "t": "libur"}, "2027-06-06": {"n": "Tahun Baru Islam 1449 H", "t": "libur"}, "2027-08-15": {"n": "Maulid Nabi Muhammad SAW", "t": "libur"}, "2027-08-17": {"n": "Proklamasi Kemerdekaan RI", "t": "libur"}, "2027-12-24": {"n": "Cuti bersama Natal", "t": "cuti"}, "2027-12-25": {"n": "Kelahiran Yesus Kristus (Natal)", "t": "libur"}, "2027-12-26": {"n": "Isra Mikraj Nabi Muhammad SAW", "t": "libur"}}};
+const showHol = () => lsGet('ingetin:showHol', true);
+const holOn = (d) => (showHol() && HOL.days[d]) || null;
+async function syncHolidays() {
+  try {
+    const r = await fetch('holidays.json', { cache: 'no-cache' }); if (!r.ok) return;
+    const j = await r.json(); if (!j || !j.days) return;
+    if (!HOL.updated || (j.updated || '') >= HOL.updated) { HOL = j; lsSet('ingetin:hol', j); render(); }
+  } catch {}
+}
 const isInstalled = () => matchMedia('(display-mode: standalone)').matches || matchMedia('(display-mode: fullscreen)').matches || navigator.standalone === true;
 const absUrl = (p) => new URL(p, location.href).href;
 // Mengirim notifikasi. Hasil: { ok, via, listed, err }
@@ -708,7 +756,8 @@ function flagField(sel) { const el = $(sel); if (!el) return; el.classList.add('
 let toastTimer;
 function toast(msg, action) {
   const el = $('#toast'); clearTimeout(toastTimer);
-  el.innerHTML = `<div class="toast" role="status"><span>${h(msg)}</span>${action ? `<button type="button" id="toast-act">${h(action.label)}</button>` : ''}</div>`;
+  const bad = /^(Gagal|Terjadi kesalahan|Tidak bisa)/.test(msg);
+  el.innerHTML = `<div class="toast" role="status"><span class="toast-i" ${bad ? 'style="background:#FEE2E2;color:#B91C1C"' : ''}>${ic(bad ? 'x' : 'check', 18, 2.6)}</span><span class="toast-t">${h(msg)}</span>${action ? `<button type="button" id="toast-act">${h(action.label)}</button>` : ''}</div>`;
   if (action) $('#toast-act').onclick = () => { el.innerHTML = ''; action.fn(); };
   toastTimer = setTimeout(() => (el.innerHTML = ''), action ? 6000 : 3200);
 }
@@ -786,10 +835,11 @@ function vKalender() {
   const rows = Math.ceil((offset + dim) / 7), start = addDays(first, -offset), today = todayS();
   let cells = '';
   for (let i = 0; i < rows * 7; i++) {
-    const d = addDays(start, i), key = ymd(d), evs = eventsOn(key), inM = d.getMonth() === mo;
-    cells += `<button type="button" class="cell ${inM ? '' : 'out'} ${key === today ? 'today' : ''} ${key === S.sel ? 'sel' : ''}" data-act="pickDay" data-date="${key}" aria-label="${h(fmtLong(key))}${evs.length ? ', ' + evs.length + ' acara' : ''}" ${key === S.sel ? 'aria-pressed="true"' : 'aria-pressed="false"'}>
+    const d = addDays(start, i), key = ymd(d), evs = eventsOn(key), inM = d.getMonth() === mo, hd = holOn(key);
+    const red = (hd && hd.t === 'libur') || d.getDay() === 0;
+    cells += `<button type="button" class="cell ${inM ? '' : 'out'} ${red ? 'red' : ''} ${key === today ? 'today' : ''} ${key === S.sel ? 'sel' : ''}" data-act="pickDay" data-date="${key}" aria-label="${h(fmtLong(key))}${hd ? ', ' + h(hd.n) : ''}${evs.length ? ', ' + evs.length + ' acara' : ''}" ${key === S.sel ? 'aria-pressed="true"' : 'aria-pressed="false"'}>
       <span class="num">${d.getDate()}</span>
-      <span class="chips">${evs.slice(0, 3).map((e) => `<span class="chip" style="${cs(evInfo(e).color)}">${h(e.title)}</span>`).join('')}${evs.length > 3 ? `<span class="more">+${evs.length - 3}</span>` : ''}</span>
+      <span class="chips">${hd ? `<span class="hol ${hd.t === 'cuti' ? 'cuti' : ''}">${h(hd.t === 'cuti' ? 'Cuti bersama' : holShort(hd.n))}</span>` : ''}${evs.slice(0, 3).map((e) => `<span class="chip" style="${cs(evInfo(e).color)}">${h(e.title)}</span>`).join('')}${evs.length > 3 ? `<span class="more">+${evs.length - 3}</span>` : ''}</span>
     </button>`;
   }
   const used = new Map(); used.set('Kamu', 'blue');
@@ -819,6 +869,7 @@ function vKalender() {
     <aside class="aside" aria-label="Ringkasan">
       <button type="button" class="btn pri block quick-top" data-act="quick">${ic('plus', 18, 2.4)}Tambah cepat</button>
       <div class="sec-h"><h2>${S.sel === today ? 'Hari ini' : h(HARI[pd(S.sel).getDay()] + ', ' + fmtShort(S.sel))}</h2><small>${selEv.length ? selEv.length + ' acara' : ''}</small></div>
+      ${holOn(S.sel) ? holRow(S.sel) : ''}
       <div class="stack">${selEv.length ? selEv.map((e) => evRow(e, false)).join('') : `<div class="note-row" style="justify-content:space-between;align-items:center"><span class="muted">Tidak ada acara.</span><button type="button" class="btn ghost" data-act="newEvent" data-date="${S.sel}">+ Acara di tanggal ini</button></div>`}</div>
       <div class="sec-h" style="margin-top:4px"><h2>Minggu ini</h2><small>${wk0.getDate()} ${BUL3[wk0.getMonth()]} – ${wk1.getDate()} ${BUL3[wk1.getMonth()]}</small></div>
       <div class="stack">${week.length ? week.map((e) => evRow(e)).join('') : `<div class="note-row"><span class="muted">Belum ada acara 7 hari ke depan.</span></div>`}</div>
@@ -828,6 +879,12 @@ function vKalender() {
     </aside>
   </div>`;
 }
+function holShort(n) {
+  const M = [['Nyepi', 'Nyepi'], ['Imlek', 'Imlek'], ['Tahun Baru Islam', 'Tahun Baru Islam'], ['Tahun Baru', 'Tahun Baru'], ['Idulfitri', 'Idulfitri'], ['Iduladha', 'Iduladha'], ['Waisak', 'Waisak'], ['Paskah', 'Paskah'], ['Wafat', 'Wafat Isa Almasih'], ['Kenaikan', 'Kenaikan Isa'], ['Buruh', 'Hari Buruh'], ['Pancasila', 'Hari Pancasila'], ['Kemerdekaan', 'HUT RI'], ['Maulid', 'Maulid Nabi'], ['Isra', 'Isra Mikraj'], ['Natal', 'Natal']];
+  for (const [k, v] of M) if (n.includes(k)) return v; return n;
+}
+function holRow(k) { const hd = holOn(k); return hd ? `<div class="holrow ${hd.t === 'cuti' ? 'cuti' : ''}">${ic('cal', 18)}<span>${h(hd.n)}</span><small>${hd.t === 'cuti' ? 'Cuti' : 'Libur'}</small></div>` : ''; }
+function holBetween(a, z) { return showHol() ? Object.keys(HOL.days).filter((k) => k >= a && k <= z) : []; }
 function noteRow(n) {
   const p = personById(n.person_id);
   return `<button type="button" class="note-row" style="border:none;text-align:left;width:100%" data-act="openPerson" data-id="${h(n.person_id || '')}">${p ? `<span class="pill" style="${cs(p.color)}">${h(p.name)}</span>` : ''}<span>${h(n.text)}</span></button>`;
@@ -842,8 +899,8 @@ function vMinggu() {
   if (!isMonth) {
     let out = '';
     for (let i = 0; i < 14; i++) {
-      const k = ymd(addDays(t, i)), evs = eventsOn(k); if (!evs.length) continue;
-      out += `<div class="day-group"><h2>${i === 0 ? 'Hari ini' : i === 1 ? 'Besok' : HARI[pd(k).getDay()]}<small>${fmtShort(k)}</small></h2>${evs.map((e) => evRow(e)).join('')}</div>`;
+      const k = ymd(addDays(t, i)), evs = eventsOn(k), hd = holOn(k); if (!evs.length && !hd) continue;
+      out += `<div class="day-group"><h2>${i === 0 ? 'Hari ini' : i === 1 ? 'Besok' : HARI[pd(k).getDay()]}<small>${fmtShort(k)}</small></h2>${holRow(k)}${evs.map((e) => evRow(e)).join('')}</div>`;
     }
     const later = eventsBetween(ymd(addDays(t, 14)), ymd(addDays(t, 90)));
     main = (out || `<div class="card"><div class="empty">${ic('cal', 32, 1.6)}<b>Belum ada acara dua minggu ke depan</b>Ketuk tombol <b style="font-size:inherit">+</b> lalu tulis seperti chat, misalnya “Budi ultah 14 Januari”.</div></div>`)
@@ -858,7 +915,10 @@ function vMinggu() {
     for (const e of evs) { const i = evInfo(e); if (i.who === 'Kamu') continue; const k = i.person ? i.person.id : 'f:' + e.owner_id; const cur = pmap.get(k) || { name: i.who, color: i.color, id: i.person ? i.person.id : '', n: 0, next: null }; cur.n++; if (e.date >= today && (!cur.next || e.date < cur.next.date)) cur.next = e; pmap.set(k, cur); }
     const busiest = (() => { const c = {}; for (const e of evs) c[e.date] = (c[e.date] || 0) + 1; const top = Object.entries(c).sort((p, q) => q[1] - p[1])[0]; return top && top[1] > 1 ? top : null; })();
     const f = S.agFilter || 'all';
-    const groupList = (arr) => { let out = '', lastDay = ''; for (const e of arr) { if (e.date !== lastDay) { if (lastDay) out += '</div>'; lastDay = e.date; const d = pd(e.date); out += `<div class="day-group ${e.date < today ? 'past' : ''}"><h2>${e.date === today ? 'Hari ini' : HARI[d.getDay()] + ', ' + d.getDate()}<small>${e.date < today ? 'Sudah lewat' : rel(e.date)}</small></h2>`; } out += evRow(e); } return lastDay ? out + '</div>' : ''; };
+    const groupList = (arr, withHol) => {
+      const days = [...new Set([...arr.map((e) => e.date), ...(withHol ? holBetween(a, z) : [])])].sort();
+      return days.map((k) => { const d = pd(k), es = arr.filter((e) => e.date === k); return `<div class="day-group ${k < today ? 'past' : ''}"><h2>${k === today ? 'Hari ini' : HARI[d.getDay()] + ', ' + d.getDate()}<small>${k < today ? 'Sudah lewat' : rel(k)}</small></h2>${withHol ? holRow(k) : ''}${es.map((e) => evRow(e)).join('')}</div>`; }).join('');
+    };
     const emptyBox = (title, text) => `<div class="card"><div class="empty">${ic('cal', 32, 1.6)}<b>${title}</b>${text}</div></div>`;
     let list = '';
     if (f === 'next') list = groupList(next) || emptyBox('Tidak ada acara yang akan datang', `Semua acara di ${BULAN[mo]} sudah lewat.`);
@@ -871,7 +931,7 @@ function vMinggu() {
       const arr = [...pmap.values()].sort((p, q) => q.n - p.n || p.name.localeCompare(q.name));
       list = arr.length ? `<div class="stack">${arr.map((p) => `<button type="button" class="fr" style="border-color:var(--bd)" ${p.id ? `data-act="openPerson" data-id="${h(p.id)}"` : 'disabled'}>${avatar({ name: p.name, color: p.color })}<span class="fr-t" style="flex:1"><b>${h(p.name)}</b><span>${p.n} acara${p.next ? ' · berikutnya ' + h(p.next.title) + ' (' + rel(p.next.date) + ')' : ''}</span></span>${p.id ? ic('right', 18, 2.2) : ''}</button>`).join('')}</div>`
         : emptyBox('Belum ada teman yang terlibat', `Acara di ${BULAN[mo]} belum dikaitkan dengan teman.`);
-    } else list = groupList(evs) || emptyBox(`Belum ada acara di ${BULAN[mo]}`, 'Ketuk tombol <b style="font-size:inherit">+</b> untuk menambah.');
+    } else list = groupList(evs, true) || emptyBox(`Belum ada acara di ${BULAN[mo]}`, 'Ketuk tombol <b style="font-size:inherit">+</b> untuk menambah.');
     const FL = { next: 'Akan datang', prep: 'Persiapan belum beres', people: 'Teman terlibat' };
     const stat = (k, n, label) => `<button type="button" class="stat ${f === k ? 'on' : ''}" data-act="agFilter" data-f="${k}" aria-pressed="${f === k}"><b>${n}</b><span>${label}</span></button>`;
     main = `<div class="ag-month"><button type="button" class="icon-btn" data-act="agMonth" data-n="-1" aria-label="Bulan sebelumnya">${ic('left', 18, 2.2)}</button>
@@ -977,6 +1037,11 @@ function vPengaturan() {
   return `<div class="page-h"><h1>Pengaturan</h1></div>
   <div class="settings">
     <section class="card"><div class="sec-h"><h2>Akun &amp; sinkronisasi</h2></div>${acct}</section>
+    <section class="card"><div class="sec-h"><h2>Tampilan</h2></div>
+      <span class="flabel">Tema warna</span>
+      <div class="themes" role="radiogroup" aria-label="Tema warna">${Object.entries(THEMES).map(([k, t]) => `<label class="theme"><input type="radio" name="theme" value="${k}" data-chg="theme" ${lsGet('ingetin:theme', 'biru') === k ? 'checked' : ''}><span><i style="background:${t.p}"></i><i style="background:${t.l}"></i><b>${t.n}</b></span></label>`).join('')}</div>
+      <label class="sw"><span><b>Tampilkan libur nasional</b><small>Tanggal merah &amp; cuti bersama (SKB 3 Menteri)${HOL.updated ? ' · data per ' + h(fmtShort(HOL.updated)) : ''}</small></span><input type="checkbox" role="switch" data-chg="holToggle" ${showHol() ? 'checked' : ''}></label>
+    </section>
     <section class="card"><div class="sec-h"><h2>Pengingat</h2></div>
       ${samsungTip(false)}
       <p>Pengingat muncul di bagian atas aplikasi saat waktunya tiba (H-7, H-3, H-1 pukul 19.00, dan hari H pukul 07.00).</p>
@@ -1162,22 +1227,22 @@ const SHEETS = {
     const st = sh.st;
     const hero = (icon, bg, fg, title, text) => `<div class="nf-hero"><span class="nf-icon" style="background:${bg};color:${fg}">${icon}</span><h2>${title}</h2><p>${text}</p></div>`;
     let body = '';
-    if (st === 'ask') body = hero(ic('bell', 40, 1.8), '#EAF0FF', '#2F5BEA', 'Jangan sampai lupa lagi', 'Izinkan notifikasi supaya Ingetin bisa mengingatkan acara temanmu tepat waktu.') +
+    if (st === 'ask') body = hero(ic('bell', 40, 1.8), 'var(--p-l)', 'var(--p)', 'Jangan sampai lupa lagi', 'Izinkan notifikasi supaya Ingetin bisa mengingatkan acara temanmu tepat waktu.') +
       `<div class="nf-list"><div>${ic('cal', 18)}<span>H-7, H-3, dan H-1 pukul 19.00</span></div><div>${ic('clock', 18)}<span>Hari H pukul 07.00</span></div><div>${ic('lock', 18)}<span>Hanya pengingat, tanpa iklan</span></div></div>
        ${samsungTip(true)}
        <button type="button" class="btn pri block nf-btn" data-act="notifRequest">${ic('bell', 20)}Izinkan notifikasi</button>
        <button type="button" class="btn ghost" data-act="closeSheet">Nanti saja</button>`;
-    else if (st === 'wait') body = hero(`<span class="spin" aria-hidden="true"></span>`, '#EAF0FF', '#2F5BEA', 'Menunggu jawabanmu…', 'Pilih <b>Izinkan</b> pada jendela yang muncul dari HP.') +
+    else if (st === 'wait') body = hero(`<span class="spin" aria-hidden="true"></span>`, 'var(--p-l)', 'var(--p)', 'Menunggu jawabanmu…', 'Pilih <b>Izinkan</b> pada jendela yang muncul dari HP.') +
       `<p class="muted" style="margin:0;text-align:center;font-size:13px">Tidak muncul apa-apa? Tunggu sebentar, panduannya akan tampil.</p>`;
     else if (st === 'ok') body = hero(ic('check', 40, 2.4), '#DCFCE7', '#166534', 'Notifikasi aktif!', 'Notifikasi uji baru saja dikirim. Pengingat acara akan muncul seperti itu.') +
       `<button type="button" class="btn block" data-act="testNotif">${ic('bell', 18)}Kirim notifikasi uji lagi</button><button type="button" class="btn pri block" data-act="closeSheet">Selesai</button>`;
-    else if (st === 'tested') body = hero(ic('bell', 40, 1.8), '#EAF0FF', '#2F5BEA', 'Notifikasi uji terkirim', 'Ingetin sudah mengirim notifikasi uji ke HP. Apakah notifikasinya muncul di bilah notifikasi?') +
+    else if (st === 'tested') body = hero(ic('bell', 40, 1.8), 'var(--p-l)', 'var(--p)', 'Notifikasi uji terkirim', 'Ingetin sudah mengirim notifikasi uji ke HP. Apakah notifikasinya muncul di bilah notifikasi?') +
       `<div class="row2"><button type="button" class="btn" data-act="notifNo">Tidak muncul</button><button type="button" class="btn pri" data-act="notifYes">Sudah muncul</button></div>`;
     else if (st === 'osblocked' || st === 'testerr') {
       const inst = isInstalled();
       body = hero(ic('bell', 40, 1.8), '#FEF3C7', '#92400E', st === 'testerr' ? 'Notifikasi ditolak' : 'HP menyembunyikan notifikasi', st === 'testerr' ? 'Izin dari browser sudah ada, tetapi pengiriman notifikasi gagal.' : 'Izin dari browser sudah ada, jadi yang menahan adalah pengaturan HP' + (inst ? ' untuk aplikasi Ingetin yang terinstal.' : '.')) +
         (sh.err ? `<p class="muted" style="margin:0;font-size:12px;text-align:center">Detail: ${h(sh.err)}</p>` : '') + samsungTip(false) +
-        `<section class="card nf-steps" style="border-color:#C9D7FF"><h3>${inst ? 'Ingetin yang terinstal (Samsung)' : 'Samsung / Android'}</h3><ol class="steps">
+        `<section class="card nf-steps" style="border-color:var(--p-m)"><h3>${inst ? 'Ingetin yang terinstal (Samsung)' : 'Samsung / Android'}</h3><ol class="steps">
           <li>Tekan lama ikon <b>Ingetin</b> di Layar Utama › ketuk <b>ⓘ Info aplikasi</b>.</li>
           <li>Ketuk <b>Notifikasi</b>, lalu nyalakan <b>Izinkan notifikasi</b>.</li>
           <li>Di dalamnya, pastikan semua <b>kategori notifikasi</b> juga menyala (dan tidak diset “Senyap”).</li>
@@ -1191,7 +1256,7 @@ const SHEETS = {
     else {
       const blocked = st === 'blocked';
       const samsung = /SamsungBrowser/i.test(navigator.userAgent);
-      const samsungSteps = `<section class="card nf-steps" style="border-color:#C9D7FF"><h3>Samsung Internet</h3><ol class="steps"><li>Buka <b>Samsung Internet</b>, ketuk menu <b>☰</b> › <b>Pengaturan</b>.</li><li>Pilih <b>Situs dan unduhan</b> › <b>Izin situs</b> › <b>Notifikasi</b>.</li><li>Pastikan situs boleh meminta izin notifikasi (tidak diblokir semua). Kalau <b>iiddon.github.io</b> ada di daftar yang diblokir, ketuk lalu ubah ke <b>Izinkan</b>.</li><li>Kembali ke Ingetin, <b>muat ulang halaman</b>, lalu ketuk <b>Coba lagi</b>.</li></ol><p class="muted" style="margin:0;font-size:13px;line-height:1.5">Pengaturan notifikasi di HP (Pengaturan › Notifikasi › Samsung Internet) baru setengahnya: izin per situs ada di dalam browser.</p></section>`;
+      const samsungSteps = `<section class="card nf-steps" style="border-color:var(--p-m)"><h3>Samsung Internet</h3><ol class="steps"><li>Buka <b>Samsung Internet</b>, ketuk menu <b>☰</b> › <b>Pengaturan</b>.</li><li>Pilih <b>Situs dan unduhan</b> › <b>Izin situs</b> › <b>Notifikasi</b>.</li><li>Pastikan situs boleh meminta izin notifikasi (tidak diblokir semua). Kalau <b>iiddon.github.io</b> ada di daftar yang diblokir, ketuk lalu ubah ke <b>Izinkan</b>.</li><li>Kembali ke Ingetin, <b>muat ulang halaman</b>, lalu ketuk <b>Coba lagi</b>.</li></ol><p class="muted" style="margin:0;font-size:13px;line-height:1.5">Pengaturan notifikasi di HP (Pengaturan › Notifikasi › Samsung Internet) baru setengahnya: izin per situs ada di dalam browser.</p></section>`;
       body = hero(ic('bell', 40, 1.8), '#FEF3C7', '#92400E', blocked ? 'Notifikasi diblokir' : 'Izin tidak muncul', blocked ? 'HP atau Chrome sedang memblokir notifikasi untuk Ingetin. Nyalakan sekali saja:' : (samsung ? 'Biasanya karena izin notifikasi untuk situs ini diblokir di dalam Samsung Internet. Buka sekali saja:' : 'Biasanya karena notifikasi untuk Chrome/Ingetin dimatikan di pengaturan HP. Nyalakan sekali saja:')) +
         (samsung ? samsungSteps : '') + `<section class="card nf-steps"><h3>${samsung ? 'Chrome' : 'Android'}</h3><ol class="steps"><li>Buka <b>Pengaturan HP</b> › <b>Aplikasi</b>.</li><li>Pilih <b>Ingetin</b> (kalau dipasang di Layar Utama) atau <b>Chrome</b>.</li><li>Ketuk <b>Notifikasi</b>, lalu nyalakan.</li><li>Di Chrome: buka situs Ingetin › ikon di kiri alamat › <b>Izin</b> › <b>Notifikasi</b> › <b>Izinkan</b>.</li></ol></section>
          <section class="card nf-steps"><h3>iPad / iPhone</h3><ol class="steps"><li>Pastikan Ingetin dibuka dari ikon Layar Utama.</li><li><b>Pengaturan</b> › <b>Notifikasi</b> › <b>Ingetin</b> › Izinkan.</li></ol></section>
@@ -1404,6 +1469,8 @@ function fieldSet(id) {
   }
 }
 const CHG = {
+  theme(el) { lsSet('ingetin:theme', el.value); applyTheme(el.value); render(); toast('Tema ' + THEMES[el.value].n + ' dipakai'); },
+  holToggle(el) { lsSet('ingetin:showHol', el.checked); render(); },
   async prepCheck(el) {
     const e = S.data.events.find((x) => x.id === el.dataset.id); if (!e) return;
     const k = +el.dataset.i, list = (e.checklist || []).map((x, i) => (i === k ? { ...x, done: true } : x));
@@ -1616,9 +1683,14 @@ async function onSession(session) {
 }
 async function boot() {
   const qs = new URLSearchParams(location.search);
-  const inv = qs.get('undang');
+  const inv = qs.get('undang'), aksi = qs.get('aksi'), vw = qs.get('view');
+  if (aksi || vw) history.replaceState(history.state, '', location.pathname);
+  if (vw && VIEWS[vw]) S.view = vw;
+  if (vw === 'bulan') { S.view = 'minggu'; S.agTab = 'bulan'; }
   if (inv) { lsSet(IKEY, inv); history.replaceState(null, '', location.pathname); }
   S.data = Local.load(); render();
+  if (aksi === 'tambah') openSheet('quick', { text: '', parsed: null });
+  syncHolidays();
   if (hasCfg()) {
     try {
       const { createClient } = await import('https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm');

@@ -1,5 +1,5 @@
-const CACHE = 'ingetin-v9';
-const SHELL = ['./', './index.html', './config.js', './manifest.json', './icon.svg', './icon-192.png', './apple-touch-icon.png'];
+const CACHE = 'ingetin-v10';
+const SHELL = ['./', './index.html', './config.js', './manifest.json', './icon.svg', './icon-192.png', './apple-touch-icon.png', './holidays.json'];
 
 self.addEventListener('install', (e) => {
   e.waitUntil(caches.open(CACHE).then((c) => c.addAll(SHELL)).then(() => self.skipWaiting()));
