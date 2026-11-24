@@ -21,7 +21,8 @@
 <style>
 :root{
   --p:#2F5BEA;--p-d:#1E40AF;--p-l:#EAF0FF;--p-m:var(--p-m);--p-r:var(--p-r);--p-rgb:47,91,234;
-  --bg:#F5F6FA;--card:#FFFFFF;--tx:#1B1F2A;--mu:#4B5563;--mu2:#3D4452;
+  --bg:#F5F6FA;--card:#FFFFFF;--tx:#1B1F2A;--mu:#4B5563;--mu2:#3D4452;--bar:rgba(255,255,255,.96);--out:#D5DAE2;--outnum:#6B7280;--remind:#FFF7ED;--remind-b:#FED7AA;--mark:#FEF08A;
+  color-scheme:light;
   --bd:#E4E7EE;--soft:#F1F3F7;--danger:#B91C1C;--ok:#166534;
   --r:14px;--sh:0 6px 16px rgba(var(--p-rgb),.24);
   --sat:env(safe-area-inset-top,0px);--sab:env(safe-area-inset-bottom,0px);
@@ -35,13 +36,23 @@ button{cursor:pointer}
 a{color:var(--p)}
 h1,h2,h3{margin:0}
 .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+[data-mode=dark]{--bg:#0F1115;--card:#181B22;--tx:#E8EAF0;--mu:#A3AAB8;--mu2:#C3C8D3;--bd:#2A303B;--soft:#232833;--bar:rgba(24,27,34,.96);--out:#2E3440;--outnum:#7D8594;--remind:#2A2116;--remind-b:#5A4220;--mark:#6B5B12;--danger:#F87171;--ok:#4ADE80;color-scheme:dark}
+[data-mode=dark] .remind-h{color:#FDBA74}
+[data-mode=dark] .btn.ghost,[data-mode=dark] a,[data-mode=dark] .btn.out,[data-mode=dark] .pchip.add>span,[data-mode=dark] .pinpad button.txt{color:var(--p-r)}
+[data-mode=dark] .btn.out{border-color:var(--p-r)}
+[data-mode=dark] .holrow{background:#3A1A1A;color:#FCA5A5}
+[data-mode=dark] .holrow.cuti{background:#3A2616;color:#FDBA74}
+[data-mode=dark] .sstip{background:#2A2116;border-color:#5A4220}[data-mode=dark] .sstip p{color:#FCD9B6}[data-mode=dark] .sstip-h{color:#FDBA74}
+[data-mode=dark] .cell.red .num{color:#F87171}
+[data-mode=dark] .backdrop{background:rgba(0,0,0,.6)}
+[data-mode=dark] .chip,[data-mode=dark] .dblock,[data-mode=dark] .pill,[data-mode=dark] .av,[data-mode=dark] .pchip>span i{filter:saturate(.9) brightness(.92)}
 :focus-visible{outline:3px solid var(--p-r);outline-offset:2px}
 
 /* ---------- shell ---------- */
 .app{display:grid;grid-template-columns:1fr;height:100dvh;padding-left:var(--sal);padding-right:var(--sar)}
 .side{display:none}
 main{overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;padding:calc(16px + var(--sat)) 16px calc(96px + var(--sab));min-width:0}
-.tabbar{position:fixed;left:0;right:0;bottom:0;z-index:20;display:flex;background:rgba(255,255,255,.96);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border-top:1px solid var(--bd);padding:6px 8px calc(6px + var(--sab))}
+.tabbar{position:fixed;left:0;right:0;bottom:0;z-index:20;display:flex;background:var(--bar);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border-top:1px solid var(--bd);padding:6px 8px calc(6px + var(--sab))}
 .tab{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;min-height:50px;justify-content:center;border:none;background:none;color:var(--mu);font-size:11px;font-weight:700;border-radius:12px;transition:background .15s,color .15s,transform .15s}
 .tab.on{color:var(--p-d);background:var(--p-l)}
 .tab:active{transform:scale(.95)}
@@ -88,7 +99,7 @@ main{overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;padding:
 .stack{display:flex;flex-direction:column;gap:8px}
 
 /* ---------- reminders banner ---------- */
-.remind{background:#FFF7ED;border:1px solid #FED7AA;border-radius:14px;padding:12px 14px;display:flex;flex-direction:column;gap:8px;margin-bottom:14px}
+.remind{background:var(--remind);border:1px solid var(--remind-b);border-radius:14px;padding:12px 14px;display:flex;flex-direction:column;gap:8px;margin-bottom:14px}
 .remind-h{display:flex;align-items:center;gap:8px;font-weight:800;font-size:14px;color:#9A3412}
 .remind-i{display:flex;align-items:center;gap:10px;font-size:14px}
 .remind-i span{flex:1}
@@ -105,6 +116,7 @@ main{overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;padding:
 .month-btn svg{flex-shrink:0;color:var(--mu)}
 .month-btn:active{transform:scale(.97)}
 .cal-nav{display:flex;align-items:center;gap:6px;flex-shrink:0;margin-left:auto}
+@media (max-width:999px){.cal-nav [data-act=search],.page-h [data-act=search]{display:none}}
 .cal-nav .btn{min-height:44px}
 .mp-year{display:flex;align-items:center;justify-content:space-between;gap:10px}
 .mp-year b{font-size:24px;font-weight:800}
@@ -125,8 +137,8 @@ main{overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;padding:
 .grid{grid-auto-rows:minmax(96px,auto)}
 .cell{border:1px solid var(--bd);background:var(--card);border-radius:10px;padding:6px;display:flex;flex-direction:column;gap:4px;text-align:left;min-width:0;overflow:hidden;transition:transform .12s,box-shadow .15s,border-color .15s}
 .cell:active{transform:scale(.97)}
-.cell.out{background:transparent;border-style:dashed;border-color:#D5DAE2}
-.cell.out .num{color:#6B7280}
+.cell.out{background:transparent;border-style:dashed;border-color:var(--out)}
+.cell.out .num{color:var(--outnum)}
 .cell.sel{border:2px solid var(--p);box-shadow:0 0 0 3px var(--p-l)}
 .num{height:24px;display:flex;align-items:center;padding-left:4px;font-size:13px;font-weight:700}
 .cell.today .num{width:24px;padding:0;justify-content:center;border-radius:50%;background:var(--p);color:#fff;font-size:12px;font-weight:800}
@@ -346,6 +358,50 @@ textarea.inp{resize:vertical;line-height:1.45}
 .rep-seg span{font-size:13px}
 .by-field[hidden]{display:none}
 .bday{display:inline-flex;align-items:center;gap:6px;font-size:13px;font-weight:700;color:var(--mu2)}
+.lockcard{display:flex;flex-direction:column;align-items:center;text-align:center;gap:8px;padding:6px 4px}
+.lockcard-i{width:52px;height:52px;border-radius:16px;background:var(--p-l);color:var(--p);display:flex;align-items:center;justify-content:center}
+.lockcard b{font-size:16px}.lockcard>span:not(.lockcard-i){font-size:13px;color:var(--mu);line-height:1.45}
+.pin-dots{display:flex;gap:16px;justify-content:center;margin:6px 0 4px}
+.pin-dots i{width:16px;height:16px;border-radius:50%;border:2px solid var(--p-m);box-sizing:border-box;transition:background .12s,border-color .12s}
+.pin-dots i.on{background:var(--p);border-color:var(--p)}
+.pin-dots.shake{animation:shake .4s}
+@keyframes shake{20%,60%{transform:translateX(-8px)}40%,80%{transform:translateX(8px)}}
+.pinpad{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.pinpad button{min-height:58px;border-radius:16px;border:none;background:var(--soft);font-size:22px;font-weight:700;color:var(--tx);transition:transform .1s,background .12s}
+.pinpad button:active{transform:scale(.93);background:var(--p-l)}
+.pinpad button.txt{background:transparent;font-size:13px;color:var(--p)}
+.pinpad button.del{background:transparent}
+.pin-msg{text-align:center;font-size:13px;min-height:18px;color:var(--mu)}
+.pin-msg.err{color:var(--danger);font-weight:700}
+mark{background:var(--mark);color:inherit;border-radius:3px;padding:0 1px}
+.srch-body{min-height:70dvh}
+.srch-box{flex:1;display:flex;align-items:center;gap:8px;height:48px;padding:0 12px;border-radius:14px;border:2px solid var(--p);background:var(--card);color:var(--mu)}
+.srch-box input{border:none;outline:none;background:transparent;font-size:16px;width:100%;color:var(--tx)}
+.srch-chips{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:6px}
+.srch-chip{min-height:34px;padding:0 12px;border-radius:999px;border:1px solid var(--bd);background:var(--card);font-size:13px;font-weight:700;color:var(--mu2)}
+.srch-chip.on{background:var(--p);border-color:var(--p);color:#fff}
+.srch-sec{font-size:12px;font-weight:800;color:var(--mu);text-transform:uppercase;letter-spacing:.6px;margin:12px 0 6px}
+.srch-row{display:flex;align-items:center;gap:12px;width:100%;padding:10px;margin-bottom:6px;border-radius:12px;border:1px solid var(--bd);background:var(--card);text-align:left;color:var(--tx)}
+.srch-row:active{transform:scale(.98)}
+.srch-i{width:38px;height:38px;border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.brief{border-radius:18px;padding:16px;background:var(--p);color:#fff;display:flex;flex-direction:column;gap:8px;margin-bottom:14px;flex-shrink:0}
+.brief-h{display:flex;align-items:center;gap:8px}.brief-h b{flex:1;font-size:16px}
+.brief-x{width:36px;height:36px;border:none;border-radius:10px;background:rgba(255,255,255,.16);color:#fff;display:flex;align-items:center;justify-content:center}
+.brief-d{font-size:13px;opacity:.9}
+.brief-list{display:flex;flex-direction:column;gap:6px}
+.brief-row{display:flex;align-items:center;gap:10px;background:rgba(255,255,255,.14);border:none;border-radius:12px;padding:10px 12px;font-size:14px;color:#fff;text-align:left;width:100%}
+.brief-row b{min-width:44px}.brief-row span{flex:1;min-width:0}
+.brief-row.light{background:var(--card);color:var(--tx)}
+.brief-row.light svg{color:#DB2777}
+.brief-row small{font-size:11px;font-weight:800;padding:3px 8px;border-radius:999px;background:#FEF3C7;color:#92400E;white-space:nowrap}
+@media (min-width:1100px){main.fit>.brief{display:none}}
+.sw .sun-i{flex:0 0 40px;flex-direction:row}
+.sun-i{width:40px;height:40px;border-radius:12px;background:#FFF4D6;color:#B45309;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.brief-times{display:flex;gap:8px}
+.brief-times button{flex:1;min-height:44px;border-radius:12px;border:1px solid var(--bd);background:var(--card);font-weight:700;font-size:14px;color:var(--tx)}
+.brief-times button.on{border:1.5px solid var(--p);background:var(--p-l);color:var(--p-d)}
+.opt{display:flex;align-items:center;gap:10px;min-height:40px;font-size:14px}
+.opt input{width:20px;height:20px;accent-color:var(--p)}
 .inp.bad{border-color:var(--danger);box-shadow:0 0 0 3px #FEE2E2}
 .chipbtn{min-height:34px;padding:0 12px;border-radius:999px;border:1px solid var(--bd);background:var(--bg);font-size:13px;color:var(--mu2)}
 .preview{border-radius:16px;background:var(--bg);padding:14px;display:flex;flex-direction:column;gap:12px}
@@ -383,7 +439,7 @@ textarea.inp{resize:vertical;line-height:1.45}
 
 <script type="module">
 /* ============ helpers ============ */
-const APP_VERSION = '2.3 (24 Nov 2026)';
+const APP_VERSION = '2.4 (24 Nov 2026)';
 const $ = (s, r = document) => r.querySelector(s);
 const h = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const pad = (n) => String(n).padStart(2, '0');
@@ -441,7 +497,7 @@ const P = {
   gear: '<circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/>',
   plus: '<path d="M12 5v14M5 12h14"/>',
   bell: '<path d="M6 16V11a6 6 0 0 1 12 0v5l2 2H4z"/><path d="M10 21h4"/>',
-  left: '<path d="M15 6l-6 6 6 6"/>', repeat: '<path d="M17 2l4 4-4 4"/><path d="M3 11V9a3 3 0 0 1 3-3h15"/><path d="M7 22l-4-4 4-4"/><path d="M21 13v2a3 3 0 0 1-3 3H3"/>', cake: '<path d="M4 21h16v-8a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2z"/><path d="M4 16c2 1.3 4 1.3 6 0s4-1.3 6 0 3 1 4 .5M12 11V7M12 4.5c.7-.7.7-1.8 0-2.5-.7.7-.7 1.8 0 2.5z"/>', down: '<path d="M6 9l6 6 6-6"/>', right: '<path d="M9 6l6 6-6 6"/>',
+  left: '<path d="M15 6l-6 6 6 6"/>', sun: '<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/>', moon: '<path d="M20 14.5A8 8 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5z"/>', repeat: '<path d="M17 2l4 4-4 4"/><path d="M3 11V9a3 3 0 0 1 3-3h15"/><path d="M7 22l-4-4 4-4"/><path d="M21 13v2a3 3 0 0 1-3 3H3"/>', cake: '<path d="M4 21h16v-8a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2z"/><path d="M4 16c2 1.3 4 1.3 6 0s4-1.3 6 0 3 1 4 .5M12 11V7M12 4.5c.7-.7.7-1.8 0-2.5-.7.7-.7 1.8 0 2.5z"/>', down: '<path d="M6 9l6 6 6-6"/>', right: '<path d="M9 6l6 6-6 6"/>',
   x: '<path d="M6 6l12 12M18 6L6 18"/>', check: '<path d="M5 12.5l4.5 4.5L19 7.5"/>',
   addUser: '<circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c.8-3.6 3.4-5.5 6.5-5.5s5.7 1.9 6.5 5.5"/><path d="M19 8v6M16 11h6"/>',
   link: '<path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1"/><path d="M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/>',
@@ -642,13 +698,20 @@ const THEMES = {
   oranye: { n: 'Oranye', p: '#C2410C', d: '#9A3412', l: '#FFF0E6', m: '#FDD3B5', r: '#F9A877' },
   grafit: { n: 'Grafit', p: '#334155', d: '#1E293B', l: '#EEF1F5', m: '#CBD3DE', r: '#94A3B8' }
 };
+const darkMQ = matchMedia('(prefers-color-scheme: dark)');
+const isDark = () => { const m = lsGet('ingetin:mode', 'light'); return m === 'dark' || (m === 'auto' && darkMQ.matches); };
 function applyTheme(k) {
-  const t = THEMES[k] || THEMES.biru, r = document.documentElement.style;
+  k = k || lsGet('ingetin:theme', 'biru');
+  const t = THEMES[k] || THEMES.biru, r = document.documentElement.style, dark = isDark();
+  document.documentElement.dataset.mode = dark ? 'dark' : 'light';
   const rgb = [1, 3, 5].map((i) => parseInt(t.p.slice(i, i + 2), 16)).join(',');
-  r.setProperty('--p', t.p); r.setProperty('--p-d', t.d); r.setProperty('--p-l', t.l); r.setProperty('--p-m', t.m); r.setProperty('--p-r', t.r); r.setProperty('--p-rgb', rgb);
+  r.setProperty('--p', t.p); r.setProperty('--p-rgb', rgb);
+  if (dark) { r.setProperty('--p-d', t.r); r.setProperty('--p-l', `rgba(${rgb},.22)`); r.setProperty('--p-m', `rgba(${rgb},.45)`); r.setProperty('--p-r', t.r); }
+  else { r.setProperty('--p-d', t.d); r.setProperty('--p-l', t.l); r.setProperty('--p-m', t.m); r.setProperty('--p-r', t.r); }
   const mt = document.querySelector('meta[name=theme-color]'); if (mt) mt.setAttribute('content', t.p);
 }
-applyTheme(lsGet('ingetin:theme', 'biru'));
+applyTheme();
+darkMQ.addEventListener && darkMQ.addEventListener('change', () => { if (lsGet('ingetin:mode', 'light') === 'auto') { applyTheme(); render(); } });
 // Libur nasional & cuti bersama: bawaan aplikasi, lalu diperbarui otomatis dari holidays.json di repo.
 let HOL = lsGet('ingetin:hol', null) || {"updated": "2026-11-24", "source": "SKB 3 Menteri 2026 & 2027", "days": {"2026-01-01": {"n": "Tahun Baru 2026 Masehi", "t": "libur"}, "2026-01-16": {"n": "Isra Mikraj Nabi Muhammad SAW", "t": "libur"}, "2026-02-16": {"n": "Cuti bersama Tahun Baru Imlek", "t": "cuti"}, "2026-02-17": {"n": "Tahun Baru Imlek 2577 Kongzili", "t": "libur"}, "2026-03-18": {"n": "Cuti bersama Hari Suci Nyepi", "t": "cuti"}, "2026-03-19": {"n": "Hari Suci Nyepi (Tahun Baru Saka 1948)", "t": "libur"}, "2026-03-20": {"n": "Cuti bersama Idulfitri 1447 H", "t": "cuti"}, "2026-03-21": {"n": "Idulfitri 1447 H", "t": "libur"}, "2026-03-22": {"n": "Idulfitri 1447 H", "t": "libur"}, "2026-03-23": {"n": "Cuti bersama Idulfitri 1447 H", "t": "cuti"}, "2026-03-24": {"n": "Cuti bersama Idulfitri 1447 H", "t": "cuti"}, "2026-04-03": {"n": "Wafat Yesus Kristus", "t": "libur"}, "2026-04-05": {"n": "Kebangkitan Yesus Kristus (Paskah)", "t": "libur"}, "2026-05-01": {"n": "Hari Buruh Internasional", "t": "libur"}, "2026-05-14": {"n": "Kenaikan Yesus Kristus", "t": "libur"}, "2026-05-15": {"n": "Cuti bersama Kenaikan Yesus Kristus", "t": "cuti"}, "2026-05-27": {"n": "Iduladha 1447 H", "t": "libur"}, "2026-05-28": {"n": "Cuti bersama Iduladha 1447 H", "t": "cuti"}, "2026-05-31": {"n": "Hari Raya Waisak 2570 BE", "t": "libur"}, "2026-06-01": {"n": "Hari Lahir Pancasila", "t": "libur"}, "2026-06-16": {"n": "Tahun Baru Islam 1448 H", "t": "libur"}, "2026-08-17": {"n": "Proklamasi Kemerdekaan RI", "t": "libur"}, "2026-08-25": {"n": "Maulid Nabi Muhammad SAW", "t": "libur"}, "2026-12-24": {"n": "Cuti bersama Natal", "t": "cuti"}, "2026-12-25": {"n": "Kelahiran Yesus Kristus (Natal)", "t": "libur"}, "2027-01-01": {"n": "Tahun Baru 2027 Masehi", "t": "libur"}, "2027-01-05": {"n": "Isra Mikraj Nabi Muhammad SAW", "t": "libur"}, "2027-02-05": {"n": "Cuti bersama Tahun Baru Imlek", "t": "cuti"}, "2027-02-06": {"n": "Tahun Baru Imlek 2578 Kongzili", "t": "libur"}, "2027-03-08": {"n": "Hari Suci Nyepi (Tahun Baru Saka 1949)", "t": "libur"}, "2027-03-09": {"n": "Cuti bersama Idulfitri 1448 H", "t": "cuti"}, "2027-03-10": {"n": "Idulfitri 1448 H", "t": "libur"}, "2027-03-11": {"n": "Idulfitri 1448 H", "t": "libur"}, "2027-03-12": {"n": "Cuti bersama Idulfitri 1448 H", "t": "cuti"}, "2027-03-15": {"n": "Cuti bersama Idulfitri 1448 H", "t": "cuti"}, "2027-03-25": {"n": "Cuti bersama Wafat Yesus Kristus", "t": "cuti"}, "2027-03-26": {"n": "Wafat Yesus Kristus", "t": "libur"}, "2027-03-28": {"n": "Kebangkitan Yesus Kristus (Paskah)", "t": "libur"}, "2027-05-01": {"n": "Hari Buruh Internasional", "t": "libur"}, "2027-05-06": {"n": "Kenaikan Yesus Kristus", "t": "libur"}, "2027-05-17": {"n": "Iduladha 1448 H", "t": "libur"}, "2027-05-18": {"n": "Cuti bersama Iduladha 1448 H", "t": "cuti"}, "2027-05-19": {"n": "Cuti bersama Hari Raya Waisak", "t": "cuti"}, "2027-05-20": {"n": "Hari Raya Waisak 2571 BE", "t": "libur"}, "2027-06-01": {"n": "Hari Lahir Pancasila", "t": "libur"}, "2027-06-06": {"n": "Tahun Baru Islam 1449 H", "t": "libur"}, "2027-08-15": {"n": "Maulid Nabi Muhammad SAW", "t": "libur"}, "2027-08-17": {"n": "Proklamasi Kemerdekaan RI", "t": "libur"}, "2027-12-24": {"n": "Cuti bersama Natal", "t": "cuti"}, "2027-12-25": {"n": "Kelahiran Yesus Kristus (Natal)", "t": "libur"}, "2027-12-26": {"n": "Isra Mikraj Nabi Muhammad SAW", "t": "libur"}}};
 const showHol = () => lsGet('ingetin:showHol', true);
@@ -659,6 +722,15 @@ async function syncHolidays() {
     const j = await r.json(); if (!j || !j.days) return;
     if (!HOL.updated || (j.updated || '') >= HOL.updated) { HOL = j; lsSet('ingetin:hol', j); render(); }
   } catch {}
+}
+/* ---- kunci PIN catatan teman ---- */
+const PIN_MIN = 5;
+const pinSet = () => !!lsGet('ingetin:pin', null);
+const notesLocked = () => pinSet() && Date.now() > (S.unlockedUntil || 0);
+async function pinHash(pin, salt) { const b = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(salt + ':' + pin)); return [...new Uint8Array(b)].map((x) => x.toString(16).padStart(2, '0')).join(''); }
+function lockedCard(where) {
+  const n = S.data.notes.length;
+  return `<div class="lockcard"><span class="lockcard-i">${ic('lock', 24)}</span><b>Catatan terkunci</b><span>${where || (n + ' catatan disembunyikan.')}</span><button type="button" class="btn pri" data-act="unlock">Buka dengan PIN</button></div>`;
 }
 const isInstalled = () => matchMedia('(display-mode: standalone)').matches || matchMedia('(display-mode: fullscreen)').matches || navigator.standalone === true;
 const absUrl = (p) => new URL(p, location.href).href;
@@ -872,7 +944,7 @@ function renderSheet() {
   if (body === null) { closeSheet(); return; }
   const cur = $('#sh .sheet');
   if (cur && cur.dataset.kind === S.sheet.kind) { const st = cur.scrollTop; cur.innerHTML = body; cur.scrollTop = st; return; }
-  $('#sh').innerHTML = `<div class="backdrop" data-act="closeSheet"></div><div class="sheet" role="dialog" aria-modal="true" aria-label="${h({ quick: 'Tambah cepat', event: 'Detail acara', editEvent: 'Ubah acara', note: 'Catatan', person: 'Teman', invite: 'Undang teman', monthPick: 'Pilih bulan', notif: 'Notifikasi' }[S.sheet.kind] || '')}" tabindex="-1" data-kind="${S.sheet.kind}">${body}</div>`;
+  $('#sh').innerHTML = `<div class="backdrop" data-act="closeSheet"></div><div class="sheet" role="dialog" aria-modal="true" aria-label="${h({ quick: 'Tambah cepat', event: 'Detail acara', editEvent: 'Ubah acara', note: 'Catatan', person: 'Teman', invite: 'Undang teman', pin: 'PIN', search: 'Cari', monthPick: 'Pilih bulan', notif: 'Notifikasi' }[S.sheet.kind] || '')}" tabindex="-1" data-kind="${S.sheet.kind}">${body}</div>`;
 }
 
 const avatar = (p, size = 44) => `<span class="av" style="width:${size}px;height:${size}px;font-size:${Math.round(size * 0.38)}px;${cs(p.color)}">${h((p.name || '?')[0].toUpperCase())}</span>`;
@@ -895,10 +967,13 @@ function renderShell() {
   const side = `<nav class="side" aria-label="Menu utama">
     <div class="brand"><span class="logo">${ic('bell', 22)}</span><b>Ingetin</b></div>
     ${navItems().map(([k, l, i]) => `<button type="button" class="nav ${S.view === k ? 'on' : ''}" data-act="go" data-v="${k}" ${S.view === k ? 'aria-current="page"' : ''}>${ic(i)}${l}</button>`).join('')}
+    <button type="button" class="nav" data-act="search">${ic('search')}Cari</button>
     <div class="invite-card"><span>${S.mode === 'cloud' ? S.data.friends.length + ' teman terhubung. Ajak yang lain supaya event mereka ikut muncul.' : 'Hubungkan dengan teman supaya event kalian saling muncul.'}</span>
     <button type="button" class="btn out" style="padding:0 10px;font-size:14px;white-space:nowrap" data-act="invite">${ic('addUser', 18)}Undang teman</button></div>
   </nav>`;
-  const tabs = `<nav class="tabbar" aria-label="Menu">${navItems().map(([k, l, i]) => `<button type="button" class="tab ${S.view === k ? 'on' : ''}" data-act="go" data-v="${k}" ${S.view === k ? 'aria-current="page"' : ''}>${ic(i, 22)}${l}</button>`).join('')}</nav>
+  const tb = navItems().map(([k, l, i]) => `<button type="button" class="tab ${S.view === k ? 'on' : ''}" data-act="go" data-v="${k}" ${S.view === k ? 'aria-current="page"' : ''}>${ic(i, 22)}${l}</button>`);
+  tb.splice(2, 0, `<button type="button" class="tab" data-act="search">${ic('search', 22)}Cari</button>`);
+  const tabs = `<nav class="tabbar" aria-label="Menu">${tb.join('')}</nav>
   <button type="button" class="fab" data-act="quick" aria-label="Tambah cepat">${ic('plus', 26, 2.4)}</button>`;
   return side + `<main id="main" class="${S.view === 'kalender' ? 'fit' : ''}">${topNotes()}${VIEWS[S.view]()}</main>` + tabs;
 }
@@ -910,6 +985,7 @@ function topNotes() {
       ${due.slice(0, 4).map(({ e, key }) => `<div class="remind-i"><span><b>${h(e.title)}</b> · ${rel(e.date)}${e.time ? ', ' + fmtTime(e.time) : ''}</span><button type="button" class="btn ghost" data-act="openEvent" data-id="${h(e.id)}">Lihat</button><button type="button" class="mini" data-act="dismiss" data-key="${h(key)}" aria-label="Tandai sudah dibaca">${ic('check', 18)}</button></div>`).join('')}
     </section>`;
   }
+  out += briefCard();
   if (S.view !== 'pengaturan' && hasCfg() && S.mode !== 'cloud') {
     out += `<div class="sync-note">${ic('cloud', 18)}<span>Masuk ke akunmu supaya data tersimpan online dan bisa terhubung dengan teman.</span><button type="button" class="btn ghost" data-act="go" data-v="pengaturan">Masuk</button></div>`;
   }
@@ -944,6 +1020,7 @@ function vKalender() {
       <div class="cal-h">
         <h1><button type="button" class="month-btn" data-act="pickMonth" aria-label="Pilih bulan dan tahun, sekarang ${BULAN[mo]} ${y}"><span>${BULAN[mo]} ${y}</span>${ic('down', 18, 2.4)}</button></h1>
         <div class="cal-nav">
+          <button type="button" class="icon-btn" data-act="search" aria-label="Cari">${ic('search', 18, 2.2)}</button>
           <button type="button" class="icon-btn" data-act="month" data-n="-1" aria-label="Bulan sebelumnya">${ic('left', 18, 2.2)}</button>
           <button type="button" class="icon-btn" data-act="month" data-n="1" aria-label="Bulan berikutnya">${ic('right', 18, 2.2)}</button>
           <button type="button" class="btn" data-act="today">Hari ini</button>
@@ -955,6 +1032,7 @@ function vKalender() {
     </section>
     <aside class="aside" aria-label="Ringkasan">
       <button type="button" class="btn pri block quick-top" data-act="quick">${ic('plus', 18, 2.4)}Tambah cepat</button>
+      ${window.matchMedia('(min-width:1100px)').matches ? briefCard() : ''}
       <div class="sec-h"><h2>${S.sel === today ? 'Hari ini' : h(HARI[pd(S.sel).getDay()] + ', ' + fmtShort(S.sel))}</h2><small>${selEv.length ? selEv.length + ' acara' : ''}</small></div>
       ${holOn(S.sel) ? holRow(S.sel) : ''}
       <div class="stack">${selEv.length ? selEv.map((e) => evRow(e, false)).join('') : `<div class="note-row" style="justify-content:space-between;align-items:center"><span class="muted">Tidak ada acara.</span><button type="button" class="btn ghost" data-act="newEvent" data-date="${S.sel}">+ Acara di tanggal ini</button></div>`}</div>
@@ -962,9 +1040,78 @@ function vKalender() {
       <div class="stack">${week.length ? week.map((e) => evRow(e)).join('') : `<div class="note-row"><span class="muted">Belum ada acara 7 hari ke depan.</span></div>`}</div>
       ${soon.length ? `<div class="sec-h" style="margin-top:4px"><h2>Segera</h2></div><div class="stack">${soon.map((e) => evRow(e)).join('')}</div>` : ''}
       <div class="sec-h" style="margin-top:4px"><h2>Ingat juga</h2><button type="button" class="btn ghost" data-act="go" data-v="teman">Lihat semua</button></div>
-      <div class="stack">${notes.length ? notes.map(noteRow).join('') : `<div class="note-row"><span class="muted">Catat hal penting tentang teman, misalnya “Rina alergi udang”.</span></div>`}</div>
+      <div class="stack">${notesLocked() ? `<div class="note-row" style="justify-content:space-between;align-items:center"><span class="muted">${ic('lock', 14)} Catatan terkunci</span><button type="button" class="btn ghost" data-act="unlock">Buka</button></div>` : notes.length ? notes.map(noteRow).join('') : `<div class="note-row"><span class="muted">Catat hal penting tentang teman, misalnya “Rina alergi udang”.</span></div>`}</div>
     </aside>
   </div>`;
+}
+function hl(text, q) {
+  const t = String(text || ''); if (!q) return h(t);
+  const i = t.toLowerCase().indexOf(q); if (i < 0) return h(t);
+  return h(t.slice(0, i)) + '<mark>' + h(t.slice(i, i + q.length)) + '</mark>' + h(t.slice(i + q.length));
+}
+function searchResults(s) {
+  const q = (s.q || '').trim().toLowerCase(), f = s.f || 'all';
+  if (q.length < 2) return `<p class="muted" style="text-align:center;font-size:14px;margin:18px 0">Ketik minimal 2 huruf. Contoh: <b>kado</b>, <b>alergi</b>, nama teman.</p>`;
+  const has = (x) => String(x || '').toLowerCase().includes(q);
+  const today = todayS();
+  const evs = [], preps = [], notes = [], people = [];
+  for (const b of S.data.events) {
+    const inst = isRec(b) ? (getEv(b.id + '@' + (occDates(b, today, ymd(addDays(todayD(), 400)))[0] || b.date))) : b;
+    if (has(b.title) || has(b.notes) || has(b.location) || (b.checklist || []).some((c) => has(c.text))) evs.push(inst);
+    for (const c of inst.checklist || []) if (!c.done && has(c.text) && inst.date >= today) preps.push({ e: inst, c });
+  }
+  evs.sort((a, b) => (a.date >= today) - (b.date >= today) || sortEv(a, b)).reverse();
+  if (!notesLocked()) for (const n of S.data.notes) if (has(n.text)) notes.push(n);
+  for (const p of S.data.people) if (has(p.name)) people.push(p);
+  const cnt = { all: evs.length + preps.length + notes.length + people.length, ev: evs.length, prep: preps.length, note: notes.length, ppl: people.length };
+  const chip = (k, l) => `<button type="button" class="srch-chip ${f === k ? 'on' : ''}" data-act="srchF" data-f="${k}">${l} ${cnt[k]}</button>`;
+  const row = (icon, style, title, sub, act, id) => `<button type="button" class="srch-row" data-act="${act}" data-id="${h(id)}"><span class="srch-i" style="${style}">${ic(icon, 18)}</span><span class="ev-t"><b>${title}</b><span>${sub}</span></span></button>`;
+  const sec = (t, html) => (html ? `<div class="srch-sec">${t}</div>${html}` : '');
+  let out = `<div class="srch-chips">${chip('all', 'Semua')}${chip('ev', 'Acara')}${chip('prep', 'Persiapan')}${chip('note', 'Catatan')}${chip('ppl', 'Teman')}</div>`;
+  if (f === 'all' || f === 'ev') out += sec('Acara', evs.slice(0, 30).map((e) => { const i = evInfo(e), c = (e.checklist || []).find((x) => has(x.text)); return row('cal', cs(i.color), hl(e.title, q), h(fmtShort(e.date) + (e.date < today ? ' · sudah lewat' : ' · ' + rel(e.date))) + (c ? ' · ' + hl(c.text, q) : (has(e.notes) ? ' · ' + hl(e.notes, q) : has(e.location) ? ' · ' + hl(e.location, q) : '')), 'openEvent', e.id); }).join(''));
+  if (f === 'all' || f === 'prep') out += sec('Persiapan belum beres', preps.slice(0, 30).map(({ e, c }) => row('check', cs('blue'), hl(c.text, q), h(e.title + ' · ' + rel(e.date)), 'openEvent', e.id)).join(''));
+  if (f === 'all' || f === 'note') out += notesLocked() ? `<div class="srch-sec">Catatan teman</div><div class="note-row" style="justify-content:space-between;align-items:center"><span class="muted">${ic('lock', 14)} Catatan terkunci, tidak ikut dicari</span><button type="button" class="btn ghost" data-act="unlock">Buka</button></div>` : sec('Catatan teman', notes.slice(0, 30).map((n) => { const p = personById(n.person_id) || { name: '?', color: 'gray' }; return row('note', cs(p.color), h(p.name), hl(n.text, q), 'openPerson', n.person_id); }).join(''));
+  if (f === 'all' || f === 'ppl') out += sec('Teman', people.map((p) => row('people', cs(p.color), hl(p.name, q), h(S.data.notes.filter((n) => n.person_id === p.id).length + ' catatan'), 'openPerson', p.id)).join(''));
+  if (!cnt.all) out += `<div class="empty">${ic('search', 30, 1.6)}<b>Tidak ada yang cocok dengan “${h(s.q)}”</b>Coba kata lain atau nama teman.</div>`;
+  return out;
+}
+const BRIEF_DEF = { on: true, time: '07:00', today: true, tomorrow: true, prep: true, bday: true, hol: false };
+const briefCfg = () => ({ ...BRIEF_DEF, ...lsGet('ingetin:brief', {}) });
+function buildBrief() {
+  const c = briefCfg(), t = todayD(), td = ymd(t), tm = ymd(addDays(t, 1));
+  const today = c.today ? eventsOn(td) : [], tomorrow = c.tomorrow ? eventsOn(tm) : [];
+  const prep = c.prep ? expand(td, ymd(addDays(t, 7))).filter((e) => (e.checklist || []).some((x) => !x.done)) : [];
+  const bdays = c.bday ? expand(ymd(addDays(t, 2)), ymd(addDays(t, 7))).filter((e) => e.repeat === 'yearly' && (e.kind === 'ultah' || /ultah|ulang tahun|birthday/i.test(e.title))) : [];
+  let hol = null; if (c.hol && showHol()) { const k = Object.keys(HOL.days).find((d) => d >= td && d <= ymd(addDays(t, 14))); if (k) hol = { d: k, ...HOL.days[k] }; }
+  const n = today.length;
+  const title = n ? `Selamat pagi! ${n} hal hari ini` : 'Selamat pagi! Hari ini kosong';
+  const lines = [];
+  if (n) lines.push(today.map((e) => (e.time ? fmtTime(e.time) + ' ' : '') + e.title).join(' · '));
+  if (tomorrow.length) lines.push('Besok: ' + tomorrow.map((e) => e.title + (ageOn(e) > 0 ? ' (ke-' + ageOn(e) + ')' : '')).join(', '));
+  const open = prep.reduce((x, e) => x + e.checklist.filter((i) => !i.done).length, 0); if (open) lines.push(open + ' persiapan belum beres minggu ini');
+  if (bdays.length) lines.push('Ulang tahun: ' + bdays.map((e) => (e.title.replace(/\b(ultah|ulang\s*tahun)\b/gi, '').trim() || e.title) + ' ' + rel(e.date).toLowerCase()).join(', '));
+  if (hol) lines.push((hol.t === 'cuti' ? 'Cuti bersama' : 'Libur') + ' ' + rel(hol.d) + ': ' + holShort(hol.n));
+  return { title, lines, today, tomorrow, prep, bdays, hol, empty: !n && !lines.length };
+}
+const briefDue = () => { const c = briefCfg(); if (!c.on) return false; const [hh, mm] = c.time.split(':').map(Number); const now = new Date(); return now.getHours() * 60 + now.getMinutes() >= hh * 60 + mm; };
+async function sendBrief(force) {
+  const b = buildBrief();
+  if (!force && (lsGet('ingetin:briefSent', '') === todayS() || !briefDue())) return;
+  if (!('Notification' in window) || Notification.permission !== 'granted') { if (force) toast('Aktifkan notifikasi dulu (Pengaturan › Pengingat)'); return; }
+  if (!force) lsSet('ingetin:briefSent', todayS());
+  await showNote(b.title, { body: b.lines.join('\n') || 'Tidak ada acara hari ini. Nikmati harimu!', tag: 'ingetin-brief-' + todayS() + (force ? '-' + Date.now() : '') });
+  if (force) toast('Contoh ringkasan dikirim');
+}
+function briefCard() {
+  if (S.view !== 'kalender' || !briefDue() || lsGet('ingetin:briefHide', '') === todayS()) return '';
+  const b = buildBrief(), d = todayD();
+  const row = (left, text, extra) => `<div class="brief-row">${left}<span>${text}</span>${extra || ''}</div>`;
+  let rows = b.today.map((e) => `<button type="button" class="brief-row" data-act="openEvent" data-id="${h(e.id)}"><b>${e.time ? fmtTime(e.time) : 'Hari ini'}</b><span>${h(e.title)}</span></button>`).join('');
+  rows += b.tomorrow.map((e) => { const pr = (e.checklist || []).length ? (e.checklist.filter((x) => x.done).length + '/' + e.checklist.length + ' siap') : ''; return `<button type="button" class="brief-row light" data-act="openEvent" data-id="${h(e.id)}">${ic(e.repeat === 'yearly' ? 'cake' : 'cal', 18)}<span><b>Besok:</b> ${h(e.title)}${ageOn(e) > 0 ? ' (ke-' + ageOn(e) + ')' : ''}</span>${pr ? `<small>${pr}</small>` : ''}</button>`; }).join('');
+  const rest = b.lines.filter((l) => !l.startsWith('Besok:') && !(b.today.length && l === b.lines[0]));
+  rows += rest.map((l) => row(ic('zap', 16), h(l))).join('');
+  if (!rows) rows = row(ic('check', 16), 'Tidak ada acara hari ini. Nikmati harimu!');
+  return `<section class="brief" aria-label="Ringkasan hari ini"><div class="brief-h">${ic('sun', 20)}<b>Selamat ${d.getHours() < 11 ? 'pagi' : d.getHours() < 15 ? 'siang' : d.getHours() < 18 ? 'sore' : 'malam'}</b><button type="button" class="brief-x" data-act="briefHide" aria-label="Tutup ringkasan hari ini">${ic('x', 16, 2.4)}</button></div><span class="brief-d">${h(fmtLong(todayS()))}</span><div class="brief-list">${rows}</div></section>`;
 }
 function holShort(n) {
   const M = [['Nyepi', 'Nyepi'], ['Imlek', 'Imlek'], ['Tahun Baru Islam', 'Tahun Baru Islam'], ['Tahun Baru', 'Tahun Baru'], ['Idulfitri', 'Idulfitri'], ['Iduladha', 'Iduladha'], ['Waisak', 'Waisak'], ['Paskah', 'Paskah'], ['Wafat', 'Wafat Isa Almasih'], ['Kenaikan', 'Kenaikan Isa'], ['Buruh', 'Hari Buruh'], ['Pancasila', 'Hari Pancasila'], ['Kemerdekaan', 'HUT RI'], ['Maulid', 'Maulid Nabi'], ['Isra', 'Isra Mikraj'], ['Natal', 'Natal']];
@@ -1030,12 +1177,12 @@ function vMinggu() {
       ${list}`;
   }
   const notes = S.data.notes.filter((n) => n.kind !== 'cerita');
-  return `<div class="page-h"><h1>Agenda</h1><button type="button" class="btn pri quick-top" data-act="quick">${ic('plus', 18, 2.4)}Tambah cepat</button></div>
+  return `<div class="page-h"><h1>Agenda</h1><button type="button" class="icon-btn" data-act="search" aria-label="Cari">${ic('search', 18, 2.2)}</button><button type="button" class="btn pri quick-top" data-act="quick">${ic('plus', 18, 2.4)}Tambah cepat</button></div>
   ${seg}
   <div class="wk-layout">
     <section aria-label="${isMonth ? 'Agenda bulan ini' : 'Agenda 14 hari'}">${main}</section>
     <section class="card" aria-label="Hal yang harus diingat"><div class="sec-h"><h2>Ingat juga</h2><small>${notes.length} catatan</small></div>
-      ${notes.length ? notes.map(noteRow).join('') : '<p class="muted" style="margin:0;font-size:14px">Belum ada catatan.</p>'}
+      ${notesLocked() ? lockedCard() : notes.length ? notes.map(noteRow).join('') : '<p class="muted" style="margin:0;font-size:14px">Belum ada catatan.</p>'}
     </section>
   </div>`;
 }
@@ -1061,7 +1208,7 @@ function vTeman() {
 }
 function friendList() {
   const q = S.q.trim().toLowerCase();
-  const list = [...S.data.people].sort((a, b) => a.name.localeCompare(b.name)).filter((p) => !q || p.name.toLowerCase().includes(q) || S.data.notes.some((n) => n.person_id === p.id && n.text.toLowerCase().includes(q)));
+  const list = [...S.data.people].sort((a, b) => a.name.localeCompare(b.name)).filter((p) => !q || p.name.toLowerCase().includes(q) || !notesLocked() && S.data.notes.some((n) => n.person_id === p.id && n.text.toLowerCase().includes(q)));
   if (!list.length) return `<p class="muted" style="font-size:14px;padding:8px">Tidak ada yang cocok dengan “${h(S.q)}”.</p>`;
   return list.map((p) => {
     const nn = S.data.notes.filter((n) => n.person_id === p.id).length, nx = personEvents(p)[0];
@@ -1081,15 +1228,16 @@ function personDetail(p, wide) {
     ${(() => { const nb = nextBday(p.id); if (!nb) return `<button type="button" class="btn ghost" style="align-self:flex-start;min-height:32px;padding:0" data-act="editPerson" data-id="${h(p.id)}">${ic('cake', 16)}&nbsp;Tambah ulang tahun</button>`; const d = pd(nb.date), n = diffDays(nb.date, todayS()), age = ageOn(nb); return `<span class="bday">${ic('cake', 16)}${d.getDate()} ${BULAN[d.getMonth()]}${age > 0 ? ' · ke-' + age : ''} · ${n === 0 ? 'hari ini!' : n === 1 ? 'besok' : n + ' hari lagi'}</span>`; })()}
   </div><button type="button" class="icon-btn" data-act="editPerson" data-id="${h(p.id)}" aria-label="Ubah ${h(p.name)}">${ic('edit', 18)}</button></div>
   <div style="display:flex;gap:10px;flex-wrap:wrap"><button type="button" class="btn pri" style="flex:1 1 200px" data-act="newNote" data-id="${h(p.id)}">+ Catat tentang ${h(p.name)}</button><button type="button" class="btn out" style="flex:0 1 auto" data-act="newEvent" data-person="${h(p.id)}">+ Event</button></div>
-  <section class="card"><h3 style="font-size:16px;font-weight:800">Yang harus diingat</h3>
+  ${notesLocked() ? `<section class="card">${lockedCard(ingat.length + ' catatan “Yang harus diingat” dan ' + cerita.length + ' “Pernah cerita” disembunyikan.')}</section>` : ''}
+  ${notesLocked() ? '' : `<section class="card"><h3 style="font-size:16px;font-weight:800">Yang harus diingat</h3>
     ${ingat.length ? ingat.map((n) => `<div class="item"><span>${h(n.text)}</span><button type="button" class="mini" data-act="editNote" data-id="${h(n.id)}" aria-label="Ubah catatan">${ic('edit', 16)}</button><button type="button" class="mini" data-act="delNote" data-id="${h(n.id)}" aria-label="Hapus catatan">${ic('trash', 16)}</button></div>`).join('') : `<p class="muted" style="margin:0;font-size:14px">Belum ada. Misalnya alergi, makanan favorit, nama anggota keluarga.</p>`}
-  </section>
+  </section>`}
   <section class="card"><h3 style="font-size:16px;font-weight:800">Event mendatang</h3>
     ${evs.length ? evs.slice(0, 6).map((e) => evRow(e)).join('') : `<p class="muted" style="margin:0;font-size:14px">Tidak ada event mendatang.</p>`}
   </section>
-  <section class="card"><h3 style="font-size:16px;font-weight:800">Pernah cerita</h3>
+  ${notesLocked() ? '' : `<section class="card"><h3 style="font-size:16px;font-weight:800">Pernah cerita</h3>
     ${cerita.length ? `<div class="timeline">${cerita.map((n) => `<div class="tl"><div class="tl-rail"><i style="background:${c[1]}"></i><u style="background:${c[0]}"></u></div><div class="tl-b"><small>${n.created_at ? fmtShort(ymd(new Date(n.created_at))) : ''}</small><span>${h(n.text)}</span></div><button type="button" class="mini" data-act="editNote" data-id="${h(n.id)}" aria-label="Ubah cerita">${ic('edit', 16)}</button><button type="button" class="mini" data-act="delNote" data-id="${h(n.id)}" aria-label="Hapus cerita">${ic('trash', 16)}</button></div>`).join('')}</div>` : `<p class="muted" style="margin:0;font-size:14px">Catat cerita ${h(p.name)} supaya kamu bisa menanyakan kabarnya nanti.</p>`}
-  </section>`;
+  </section>`}`;
 }
 
 function vPengaturan() {
@@ -1126,14 +1274,28 @@ function vPengaturan() {
   <div class="settings">
     <section class="card"><div class="sec-h"><h2>Akun &amp; sinkronisasi</h2></div>${acct}</section>
     <section class="card"><div class="sec-h"><h2>Tampilan</h2></div>
+      <span class="flabel">Mode tampilan</span>
+      <div class="seg" role="radiogroup" aria-label="Mode tampilan">${[['light', 'Terang', 'sun'], ['dark', 'Gelap', 'moon'], ['auto', 'Ikuti HP', 'auto']].map(([k, l, i]) => `<label><input type="radio" name="mode" value="${k}" data-chg="mode" ${lsGet('ingetin:mode', 'light') === k ? 'checked' : ''}><span>${i === 'auto' ? '' : ic(i, 16) + '&nbsp;'}${l}</span></label>`).join('')}</div>
       <span class="flabel">Tema warna</span>
       <div class="themes" role="radiogroup" aria-label="Tema warna">${Object.entries(THEMES).map(([k, t]) => `<label class="theme"><input type="radio" name="theme" value="${k}" data-chg="theme" ${lsGet('ingetin:theme', 'biru') === k ? 'checked' : ''}><span><i style="background:${t.p}"></i><i style="background:${t.l}"></i><b>${t.n}</b></span></label>`).join('')}</div>
       <label class="sw"><span><b>Tampilkan libur nasional</b><small>Tanggal merah &amp; cuti bersama (SKB 3 Menteri)${HOL.updated ? ' · data per ' + h(fmtShort(HOL.updated)) : ''}</small></span><input type="checkbox" role="switch" data-chg="holToggle" ${showHol() ? 'checked' : ''}></label>
     </section>
+    <section class="card"><div class="sec-h"><h2>Ringkasan pagi</h2></div>
+      ${(() => { const c = briefCfg(); return `<label class="sw"><span style="flex-direction:row;align-items:center;gap:12px"><span class="sun-i">${ic('sun', 22)}</span><span style="display:flex;flex-direction:column"><b>Ringkasan pagi</b><small>Satu notifikasi + kartu di Kalender berisi yang perlu diingat hari ini</small></span></span><input type="checkbox" role="switch" data-chg="briefOpt" value="on" ${c.on ? 'checked' : ''}></label>
+      ${c.on ? `<span class="flabel">Jam kirim</span><div class="brief-times">${['06:00', '07:00', '08:00'].map((t) => `<button type="button" class="${c.time === t ? 'on' : ''}" data-act="briefTime" data-t="${t}" aria-pressed="${c.time === t}">${fmtTime(t)}</button>`).join('')}<input type="hidden" id="bf-time" name="time" value="${c.time}"><button type="button" class="${['06:00', '07:00', '08:00'].includes(c.time) ? '' : 'on'}" data-act="pickTime" data-for="bf-time">${['06:00', '07:00', '08:00'].includes(c.time) ? 'Lainnya' : fmtTime(c.time)}</button></div>
+      <span class="flabel">Isi ringkasan</span>
+      <div class="stack" style="gap:2px">${[['today', 'Acara hari ini'], ['tomorrow', 'Acara besok'], ['prep', 'Persiapan yang belum beres'], ['bday', 'Ulang tahun 7 hari ke depan'], ['hol', 'Libur nasional terdekat']].map(([k, l]) => `<label class="opt"><input type="checkbox" data-chg="briefOpt" value="${k}" ${c[k] ? 'checked' : ''}>${l}</label>`).join('')}</div>
+      <button type="button" class="btn" style="align-self:flex-start" data-act="briefTest">${ic('bell', 16)}Kirim contoh sekarang</button>
+      <p>Notifikasi terkirim kalau Ingetin masih berjalan di latar saat jamnya tiba. Kalau tidak, ringkasan tetap muncul sebagai kartu di atas Kalender saat dibuka.</p>` : ''}`; })()}
+    </section>
+    <section class="card"><div class="sec-h"><h2>Privasi</h2></div>
+      <label class="sw"><span><b>Kunci catatan teman dengan PIN</b><small>Catatan “Yang harus diingat” &amp; “Pernah cerita” butuh PIN 4 angka. Kalender dan acara tetap terbuka.</small></span><input type="checkbox" role="switch" data-chg="pinToggle" ${pinSet() ? 'checked' : ''}></label>
+      ${pinSet() ? `<div style="display:flex;gap:10px;flex-wrap:wrap"><button type="button" class="btn" data-act="pinChange">Ganti PIN</button>${notesLocked() ? '' : `<button type="button" class="btn" data-act="lockNow">${ic('lock', 16)}Kunci sekarang</button>`}</div>` : ''}
+    </section>
     <section class="card"><div class="sec-h"><h2>Pengingat</h2></div>
       ${samsungTip(false)}
       <p>Pengingat muncul di bagian atas aplikasi saat waktunya tiba (H-7, H-3, H-1 pukul 19.00, dan hari H pukul 07.00).</p>
-      ${perm === 'granted' ? `<div class="item" style="background:#F0FDF4"><span style="color:#166534;font-weight:700">${ic('check', 16, 2.4)} Notifikasi aktif</span><button type="button" class="btn ghost" data-act="testNotif">Kirim uji</button></div>`
+      ${perm === 'granted' ? `<div class="item"><span style="color:var(--ok);font-weight:700">${ic('check', 16, 2.4)} Notifikasi aktif</span><button type="button" class="btn ghost" data-act="testNotif">Kirim uji</button></div>`
         : `<button type="button" class="nf-cta" data-act="askNotif"><span class="nf-cta-i">${ic('bell', 24, 2)}</span><span class="nf-cta-t"><b>${perm === 'denied' ? 'Notifikasi diblokir' : 'Aktifkan notifikasi'}</b><small>${perm === 'denied' ? 'Ketuk untuk lihat cara membukanya' : 'Supaya pengingat muncul di HP'}</small></span>${ic('right', 20, 2.2)}</button>`}
       <p>Supaya pengingat pasti berbunyi walau aplikasi tertutup, buka event lalu ketuk <b>Tambah ke Kalender HP</b>.</p>
     </section>
@@ -1312,6 +1474,22 @@ const SHEETS = {
         ${s.id ? `<button type="button" class="btn danger" data-act="delPerson" data-id="${h(p.id)}">${ic('trash', 18)}Hapus ${h(p.name)}${p.linked_user_id ? ' & putuskan hubungan' : ''}</button>` : ''}
       </form></div>`;
   },
+  pin(s) {
+    const titles = { unlock: 'Masukkan PIN', set: 'Buat PIN baru', confirm: 'Ulangi PIN baru', verify: 'Masukkan PIN lama' };
+    const sub = { unlock: '4 angka untuk membuka catatan teman', set: 'Pilih 4 angka yang mudah kamu ingat', confirm: 'Ketik sekali lagi untuk memastikan', verify: 'Untuk mengubah atau mematikan kunci' };
+    const dots = [0, 1, 2, 3].map((i) => `<i class="${i < (s.buf || '').length ? 'on' : ''}"></i>`).join('');
+    const keys = ['1', '2', '3', '4', '5', '6', '7', '8', '9'].map((k) => `<button type="button" data-act="pinKey" data-k="${k}">${k}</button>`).join('');
+    return `<div class="sh-body" style="align-items:stretch"><div class="sh-top"><h2 style="text-align:center">${titles[s.mode]}</h2><button type="button" class="icon-btn round" data-act="closeSheet" aria-label="Tutup">${ic('x', 18, 2.4)}</button></div>
+      <p class="muted" style="margin:-6px 0 0;text-align:center;font-size:13px">${sub[s.mode]}</p>
+      <div class="pin-dots ${s.shake ? 'shake' : ''}" aria-label="${(s.buf || '').length} dari 4 angka">${dots}</div>
+      <p class="pin-msg ${s.err ? 'err' : ''}" role="alert">${h(s.msg || '')}</p>
+      <div class="pinpad">${keys}${s.mode === 'unlock' || s.mode === 'verify' ? '<button type="button" class="txt" data-act="pinForgot">Lupa PIN?</button>' : '<span></span>'}<button type="button" data-act="pinKey" data-k="0">0</button><button type="button" class="del" data-act="pinDel" aria-label="Hapus angka">${ic('left', 22, 2.2)}</button></div>
+      ${s.mode === 'unlock' ? `<p class="muted" style="margin:0;text-align:center;font-size:12px">Tetap terbuka ${PIN_MIN} menit setelah dibuka</p>` : ''}</div>`;
+  },
+  search(s) {
+    return `<div class="sh-body srch-body"><div class="sh-top"><label for="srch" class="srch-box">${ic('search', 18)}<input id="srch" type="search" placeholder="Cari acara, persiapan, catatan, teman…" value="${h(s.q || '')}" autocomplete="off" enterkeyhint="search"></label><button type="button" class="btn ghost" data-act="closeSheet">Tutup</button></div>
+      <div id="srch-res">${searchResults(s)}</div></div>`;
+  },
   monthPick(s) {
     const ref = s.target === 'agenda' ? S.agMonth : S.month;
     const y = s.year, mo = ref.getMonth(), cy = ref.getFullYear(), t = todayD();
@@ -1453,6 +1631,45 @@ function renderPicker() {
 
 /* ============ actions ============ */
 const A = {
+  briefHide() { lsSet('ingetin:briefHide', todayS()); render(); },
+  briefTest() { sendBrief(true); },
+  briefTime(d) { const c = briefCfg(); c.time = d.t; lsSet('ingetin:brief', c); render(); },
+  search() { openSheet('search', { q: '', f: 'all' }); },
+  srchF(d) { S.sheet.f = d.f; const r = $('#srch-res'); if (r) r.innerHTML = searchResults(S.sheet); },
+  unlock() { openSheet('pin', { mode: 'unlock', buf: '' }); },
+  lockNow() { S.unlockedUntil = 0; render(); toast('Catatan dikunci'); },
+  pinChange() { openSheet('pin', { mode: 'verify', buf: '', next: 'change' }); },
+  pinDel() { S.sheet.buf = (S.sheet.buf || '').slice(0, -1); S.sheet.err = false; S.sheet.shake = false; renderSheet(); },
+  async pinForgot() {
+    if (!(await confirmBox('Lupa PIN? Untuk keamanan, PIN hanya bisa direset dengan MENGHAPUS semua catatan teman. Acara dan daftar teman tetap aman.', 'Hapus catatan & reset', true))) return;
+    for (const n of [...S.data.notes]) await remove('notes', n.id);
+    localStorage.removeItem('ingetin:pin'); S.unlockedUntil = 0; closeSheet(); render(); toast('PIN direset, catatan dihapus');
+  },
+  async pinKey(d) {
+    const s = S.sheet; if (!s || (s.buf || '').length >= 4) return;
+    if (s.waitUntil && Date.now() < s.waitUntil) { s.msg = 'Tunggu ' + Math.ceil((s.waitUntil - Date.now()) / 1000) + ' detik lagi'; s.err = true; renderSheet(); return; }
+    s.buf = (s.buf || '') + d.k; s.err = false; s.shake = false; s.msg = ''; renderSheet();
+    if (s.buf.length < 4) return;
+    await new Promise((r) => setTimeout(r, 120));
+    const stored = lsGet('ingetin:pin', null);
+    if (s.mode === 'set') { s.first = s.buf; s.mode = 'confirm'; s.buf = ''; renderSheet(); return; }
+    if (s.mode === 'confirm') {
+      if (s.buf !== s.first) { s.mode = 'set'; s.buf = ''; s.err = true; s.shake = true; s.msg = 'PIN tidak sama, ulangi dari awal'; renderSheet(); return; }
+      const salt = uid(); lsSet('ingetin:pin', { salt, hash: await pinHash(s.buf, salt) }); S.unlockedUntil = Date.now() + PIN_MIN * 60000;
+      closeSheet(); render(); toast('PIN aktif. Catatan teman sekarang terkunci'); return;
+    }
+    const ok = stored && (await pinHash(s.buf, stored.salt)) === stored.hash;
+    if (!ok) {
+      s.tries = (s.tries || 0) + 1; s.buf = ''; s.err = true; s.shake = true;
+      if (s.tries >= 5) { s.waitUntil = Date.now() + 30000; s.tries = 0; s.msg = 'Terlalu banyak salah. Tunggu 30 detik'; } else s.msg = 'PIN salah (' + s.tries + '/5)';
+      renderSheet(); return;
+    }
+    if (s.mode === 'unlock') { S.unlockedUntil = Date.now() + PIN_MIN * 60000; closeSheet(); render(); toast('Catatan terbuka ' + PIN_MIN + ' menit'); return; }
+    if (s.mode === 'verify') {
+      if (s.next === 'off') { localStorage.removeItem('ingetin:pin'); S.unlockedUntil = 0; closeSheet(); render(); toast('Kunci PIN dimatikan'); return; }
+      s.mode = 'set'; s.buf = ''; s.msg = ''; renderSheet(); return;
+    }
+  },
   pickDate(d) { openPicker('date', d.for); },
   pickTime(d) { openPicker('time', d.for); },
   pkClose() { closePicker(); },
@@ -1566,6 +1783,7 @@ const A = {
   async sync() { await loadData(); toast('Data diperbarui'); },
   async clearCfg() { if (!(await confirmBox('Putuskan sambungan Supabase di perangkat ini?', 'Putuskan', true))) return; localStorage.removeItem(CKEY); location.reload(); },
   export() {
+    if (notesLocked()) { toast('Buka kunci catatan dulu untuk ekspor cadangan'); A.unlock(); return; }
     const { people, events, notes } = S.data;
     const blob = new Blob([JSON.stringify({ app: 'ingetin', v: 1, at: new Date().toISOString(), people, events: events.filter(isMine), notes }, null, 2)], { type: 'application/json' });
     const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'ingetin-cadangan-' + todayS() + '.json'; document.body.appendChild(a); a.click(); a.remove();
@@ -1573,6 +1791,7 @@ const A = {
 };
 function fieldSet(id) {
   const inp = $('#' + id); if (!inp) return; const v = inp.value;
+  if (id === 'bf-time') { const c = briefCfg(); c.time = v || '07:00'; lsSet('ingetin:brief', c); render(); return; }
   const btn = $(`[data-for="${id}"]`), lab = $('#' + id + '-v');
   if (lab) lab.textContent = v ? (inp.name === 'date' ? fmtDMY(v) : fmtTime(v)) : (inp.name === 'date' ? 'DD/MM/YYYY' : '--.--');
   if (btn) { btn.classList.toggle('unset', !v); btn.classList.remove('bad'); }
@@ -1583,6 +1802,9 @@ function fieldSet(id) {
   }
 }
 const CHG = {
+  briefOpt(el) { const c = briefCfg(); c[el.value] = el.checked; lsSet('ingetin:brief', c); render(); },
+  pinToggle(el) { if (el.checked) { el.checked = false; openSheet('pin', { mode: 'set', buf: '' }); } else { el.checked = true; openSheet('pin', { mode: 'verify', buf: '', next: 'off' }); } },
+  mode(el) { lsSet('ingetin:mode', el.value); applyTheme(); render(); },
   repeatPick(el) {
     const f = el.form; const by = f && f.querySelector('.by-field'); if (by) by.hidden = el.value !== 'yearly';
     const p = S.sheet && S.sheet.kind === 'quick' && S.sheet.parsed; if (p) p.repeat = el.value;
@@ -1747,6 +1969,7 @@ document.addEventListener('submit', async (ev) => {
 });
 let qaTimer;
 document.addEventListener('input', (ev) => {
+  if (ev.target.id === 'srch' && S.sheet && S.sheet.kind === 'search') { S.sheet.q = ev.target.value; const r = $('#srch-res'); if (r) r.innerHTML = searchResults(S.sheet); }
   if (ev.target.id === 'cari') { S.q = ev.target.value; const l = $('#frlist'); if (l) l.innerHTML = friendList(); }
   if (ev.target.id === 'pp-custom' || (ev.target.name === 'color' && ev.target.closest('[data-form=person]'))) {
     const f = ev.target.form; if (ev.target.id === 'pp-custom') { const r = $('#pp-custom-r'); if (r) r.checked = true; }
@@ -1762,6 +1985,8 @@ document.addEventListener('input', (ev) => {
   }
 });
 document.addEventListener('keydown', (ev) => {
+  if (S.sheet && S.sheet.kind === 'pin' && /^[0-9]$/.test(ev.key)) { A.pinKey({ k: ev.key }); return; }
+  if (S.sheet && S.sheet.kind === 'pin' && ev.key === 'Backspace') { A.pinDel(); return; }
   if (ev.key === 'Escape') { if (PK) closePicker(); else if ($('#dlg').innerHTML) { const n = $('#dlg [data-no]'); n && n.click(); } else if (S.sheet) closeSheet(); }
   if (ev.key === 'Enter' && (ev.metaKey || ev.ctrlKey) && ev.target.id === 'qa-text') { const f = ev.target.form; f && f.requestSubmit(); }
 });
@@ -1775,6 +2000,10 @@ addEventListener('scroll', () => { if (window.scrollY || window.scrollX) window.
 let lastW = innerWidth;
 addEventListener('resize', () => { if ((lastW < 760) !== (innerWidth < 760) || (lastW < 1100) !== (innerWidth < 1100)) render(); lastW = innerWidth; });
 document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') { if (S.mode === 'cloud') loadData(); else render(); notifyDue(); } });
+setTimeout(() => sendBrief(), 1500);
+setInterval(() => sendBrief(), 60000);
+let wasLocked = notesLocked();
+setInterval(() => { const l = notesLocked(); if (l !== wasLocked) { wasLocked = l; if (!S.sheet) render(); } }, 15000);
 let lastDay = todayS();
 setInterval(() => {
   notifyDue();
