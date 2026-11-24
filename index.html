@@ -436,6 +436,18 @@ mark{background:var(--mark);color:inherit;border-radius:3px;padding:0 1px}
 .pend-t b{font-size:14px;word-break:break-word}.pend-t span{font-size:12px;color:var(--mu)}
 [data-mode=dark] .pend{border-color:#7F1D1D}[data-mode=dark] .pend-h{color:#FCA5A5}
 [data-mode=dark] .chk-due.late{background:#3A1A1A;border-color:#7F1D1D;color:#FCA5A5}
+.tbar{display:flex;align-items:center;gap:8px;width:100%;min-height:48px;padding:0 10px 0 12px;margin-bottom:12px;border-radius:14px;border:1px solid var(--bd);background:var(--card);color:var(--tx);text-align:left;flex-shrink:0;transition:transform .12s}
+.tbar:active{transform:scale(.98)}
+.tbar b{flex:1;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tbar>svg:last-child{color:var(--mu);flex-shrink:0}
+.tbar-sun{color:#B45309;display:flex}
+.tchip{display:inline-flex;align-items:center;gap:4px;padding:4px 9px;border-radius:999px;font-size:12px;font-weight:800;white-space:nowrap}
+.tchip.warn{background:#FEF3C7;color:#92400E}.tchip.bad{background:#FEE2E2;color:#B91C1C}.tchip.ok{background:#DCFCE7;color:#166534}
+.tsec{display:flex;flex-direction:column;gap:2px}
+.tsec-h{display:flex;align-items:center;gap:6px;font-weight:800;font-size:14px;margin-bottom:2px}
+.tsec-h.warn{color:#92400E}.tsec-h.bad{color:#B91C1C}
+[data-mode=dark] .tsec-h.warn{color:#FDBA74}[data-mode=dark] .tsec-h.bad{color:#FCA5A5}
+.sync-note .mini{color:var(--p-d)}
 .inp.bad{border-color:var(--danger);box-shadow:0 0 0 3px #FEE2E2}
 .chipbtn{min-height:34px;padding:0 12px;border-radius:999px;border:1px solid var(--bd);background:var(--bg);font-size:13px;color:var(--mu2)}
 .preview{border-radius:16px;background:var(--bg);padding:14px;display:flex;flex-direction:column;gap:12px}
@@ -473,7 +485,7 @@ mark{background:var(--mark);color:inherit;border-radius:3px;padding:0 1px}
 
 <script type="module">
 /* ============ helpers ============ */
-const APP_VERSION = '2.9 (24 Nov 2026)';
+const APP_VERSION = '3.0 (24 Nov 2026)';
 const $ = (s, r = document) => r.querySelector(s);
 const h = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const pad = (n) => String(n).padStart(2, '0');
@@ -707,29 +719,31 @@ const personEvents = (p) => {
 const OFFS = [[0, 'Tepat waktu'], [15, '15 mnt'], [30, '30 mnt'], [60, '1 jam'], [120, '2 jam']];
 const FKEY = 'ingetin:friendRem';
 const remOff = (list) => { const k = (list || []).find((x) => String(x).startsWith('off-')); return k ? +String(k).slice(4) : 60; };
-const defaultRem = (rep) => (rep === 'daily' ? ['hari-h', 'off-0'] : ['h-1', 'hari-h', 'off-60']);
+const defaultRem = (rep) => (rep === 'daily' ? ['hari-h'] : ['h-1', 'hari-h']);
 // pengingat yang berlaku untukku: milik sendiri dari acara; acara teman dari pengaturan pribadi (perangkat ini)
 function remindersOf(e) {
   if (isMine(e)) return e.reminders || [];
   const f = lsGet(FKEY, {}); return f[e._base || e.id] || ['h-1', 'hari-h', 'off-60'];
 }
-function remindAt(e, k) {
-  const r = REM.find((x) => x.k === k); if (!r) return null;
+// semua waktu pengingat untuk satu pilihan. Hari H + jam acara = 1 jam sebelum DAN tepat waktu.
+function remTimes(e, k) {
+  const r = REM.find((x) => x.k === k); if (!r) return [];
   const d = addDays(pd(e.date), -r.days);
   if (r.days === 0) {
-    if (e.time) { const [hh, mm] = e.time.split(':').map(Number); d.setHours(hh, mm || 0, 0, 0); d.setTime(d.getTime() - remOff(remindersOf(e)) * 60000); }
-    else d.setHours(7, 0, 0, 0);
-  } else d.setHours(19, 0, 0, 0);
-  return d;
+    if (e.time) { const [hh, mm] = e.time.split(':').map(Number); d.setHours(hh, mm || 0, 0, 0); return [{ k: 'hari-h', at: new Date(d.getTime() - 3600000), lead: true }, { k: 'hari-h@0', at: d }]; }
+    d.setHours(7, 0, 0, 0); return [{ k: 'hari-h', at: d }];
+  }
+  d.setHours(19, 0, 0, 0); return [{ k, at: d }];
 }
-const remLabel = (e, k) => { const d = remindAt(e, k); return HARI[d.getDay()] + ', ' + d.getDate() + ' ' + BUL3[d.getMonth()] + ' · ' + pad(d.getHours()) + '.' + pad(d.getMinutes()); };
+function remindAt(e, k) { const t = remTimes(e, k); return t.length ? t[0].at : null; }
+const remLabel = (e, k) => { const t = remTimes(e, k); if (!t.length) return ''; const d = t[0].at; return HARI[d.getDay()] + ', ' + d.getDate() + ' ' + BUL3[d.getMonth()] + ' · ' + t.map((x) => pad(x.at.getHours()) + '.' + pad(x.at.getMinutes())).join(' & ') + (t.length > 1 ? ' (1 jam sebelum & tepat waktu)' : ''); };
 function dueReminders() {
   const now = new Date(), dis = lsGet(DKEY, []), out = [];
   for (const e of expand(ymd(addDays(todayD(), -1)), ymd(addDays(todayD(), 8)))) {
     const end = addDays(pd(e.date), 1); if (now > end) continue;
     const rs = remindersOf(e).filter((k) => REM.some((r) => r.k === k));
-    for (const k of rs) {
-      const at = remindAt(e, k); if (!at || now < at) continue;
+    for (const k0 of rs) for (const { k, at } of remTimes(e, k0)) {
+      if (now < at) continue;
       const key = e.id + '|' + k + '|' + e.date; if (dis.includes(key)) continue;
       out.push({ e, k, key });
     }
@@ -860,7 +874,7 @@ async function notifyDue() {
   for (const { e, key, k, open } of dueReminders()) {
     if (sent.includes(key)) continue;
     sent.push(key);
-    const body = k === 'susulan' ? open + ' persiapan belum ditandai beres' : rel(e.date) + ' · ' + fmtLong(e.date) + (e.time ? ' ' + fmtTime(e.time) : '');
+    const body = k === 'susulan' ? open + ' persiapan belum ditandai beres' : k === 'hari-h@0' ? 'Dimulai sekarang · ' + fmtTime(e.time) : k === 'hari-h' && e.time ? '1 jam lagi · ' + fmtTime(e.time) : rel(e.date) + ' · ' + fmtLong(e.date) + (e.time ? ' ' + fmtTime(e.time) : '');
     await showNote('Ingetin: ' + e.title, { body, icon: 'icon-192.png', badge: 'icon-192.png', tag: key });
   }
   lsSet(NKEY, sent.slice(-300));
@@ -977,8 +991,8 @@ function downloadIcs(inst) {
   }
   if (e.location) L.push('LOCATION:' + esc(e.location));
   L.push('DESCRIPTION:' + esc(desc));
-  for (const k of remindersOf(inst).filter((x) => REM.some((r) => r.k === x))) {
-    const at = remindAt({ ...e, reminders: remindersOf(inst), owner_id: inst.owner_id }, k); const mins = Math.round((at - start) / 60000);
+  for (const { at } of remindersOf(inst).filter((x) => REM.some((r) => r.k === x)).flatMap((k) => remTimes(e, k))) {
+    const mins = Math.round((at - start) / 60000);
     L.push('BEGIN:VALARM', 'ACTION:DISPLAY', 'DESCRIPTION:' + esc(e.title), 'TRIGGER:' + (mins < 0 ? '-' : '') + 'PT' + Math.abs(mins) + 'M', 'END:VALARM');
   }
   L.push('END:VEVENT', 'END:VCALENDAR');
@@ -1042,7 +1056,7 @@ function renderSheet() {
   if (body === null) { closeSheet(); return; }
   const cur = $('#sh .sheet');
   if (cur && cur.dataset.kind === S.sheet.kind) { const st = cur.scrollTop; cur.innerHTML = body; cur.scrollTop = st; return; }
-  $('#sh').innerHTML = `<div class="backdrop" data-act="closeSheet"></div><div class="sheet" role="dialog" aria-modal="true" aria-label="${h({ quick: 'Tambah cepat', event: 'Detail acara', editEvent: 'Ubah acara', note: 'Catatan', person: 'Teman', invite: 'Undang teman', pin: 'PIN', search: 'Cari', monthPick: 'Pilih bulan', notif: 'Notifikasi' }[S.sheet.kind] || '')}" tabindex="-1" data-kind="${S.sheet.kind}">${body}</div>`;
+  $('#sh').innerHTML = `<div class="backdrop" data-act="closeSheet"></div><div class="sheet" role="dialog" aria-modal="true" aria-label="${h({ quick: 'Tambah cepat', event: 'Detail acara', editEvent: 'Ubah acara', note: 'Catatan', person: 'Teman', invite: 'Undang teman', today: 'Hari ini', pin: 'PIN', search: 'Cari', monthPick: 'Pilih bulan', notif: 'Notifikasi' }[S.sheet.kind] || '')}" tabindex="-1" data-kind="${S.sheet.kind}">${body}</div>`;
 }
 
 const avatar = (p, size = 44) => `<span class="av" style="width:${size}px;height:${size}px;font-size:${Math.round(size * 0.38)}px;${cs(p.color)}">${h((p.name || '?')[0].toUpperCase())}</span>`;
@@ -1073,31 +1087,40 @@ function renderShell() {
   <button type="button" class="fab" data-act="quick" aria-label="Tambah cepat">${ic('plus', 26, 2.4)}</button>`;
   return side + `<main id="main" class="${S.view === 'kalender' ? 'fit' : ''}">${topNotes()}${VIEWS[S.view]()}</main>` + tabs;
 }
+function todayCounts() { return { due: dueReminders(), pend: pendingItems(), brief: briefDue() && lsGet('ingetin:briefHide', '') !== todayS() }; }
+const greet = () => { const hr = new Date().getHours(); return 'Selamat ' + (hr < 11 ? 'pagi' : hr < 15 ? 'siang' : hr < 18 ? 'sore' : 'malam'); };
 function topNotes() {
   let out = '';
-  const due = dueReminders();
-  if (due.length) {
-    out += `<section class="remind" aria-label="Pengingat"><div class="remind-h">${ic('bell', 18)}Pengingat</div>
-      ${due.slice(0, 4).map(({ e, key, k, open }) => `<div class="remind-i"><span><b>${h(e.title)}</b> · ${k === 'susulan' ? open + ' persiapan belum beres' : rel(e.date) + (e.time ? ', ' + fmtTime(e.time) : '')}</span><button type="button" class="btn ghost" data-act="openEvent" data-id="${h(e.id)}">Lihat</button><button type="button" class="mini" data-act="dismiss" data-key="${h(key)}" aria-label="Tandai sudah dibaca">${ic('check', 18)}</button></div>`).join('')}
-    </section>`;
-  }
-  out += briefCard();
   if (S.view === 'kalender' || S.view === 'minggu') {
-    const pend = pendingItems();
-    if (pend.length) {
-      const shown = S.pendAll ? pend : pend.slice(0, 3);
-      out += `<section class="pend" aria-label="Tugas tertunda"><div class="pend-h">${ic('clock', 18)}Tertunda (${pend.length})<input type="hidden" id="resch-date" name="date"></div>
-        ${shown.map((p, n) => `<div class="pend-i"><span class="pend-t"><b>${h(p.x.text)}</b><span>${h(p.e.title)} · ${p.x.before != null ? 'tenggat ' + h(rel(p.due).toLowerCase()) : 'acara ' + h(rel(p.e.date).toLowerCase())}</span></span>
-          <button type="button" class="mini" data-act="pendDone" data-n="${n}" aria-label="Tandai beres: ${h(p.x.text)}" title="Beres">${ic('check', 18, 2.4)}</button>
-          <button type="button" class="mini" data-act="pendResched" data-n="${n}" aria-label="Jadwalkan ulang: ${h(p.x.text)}" title="Jadwalkan ulang">${ic('clock', 18)}</button>
-          <button type="button" class="mini" data-act="pendSkip" data-n="${n}" aria-label="Abaikan: ${h(p.x.text)}" title="Abaikan">${ic('x', 18)}</button></div>`).join('')}
-        ${pend.length > 3 ? `<button type="button" class="btn ghost" style="align-self:flex-start;min-height:36px" data-act="pendAll">${S.pendAll ? 'Tampilkan lebih sedikit' : 'Lihat semua (' + pend.length + ')'}</button>` : ''}</section>`;
+    const c = todayCounts();
+    if (c.due.length || c.pend.length || c.brief) {
+      out += `<button type="button" class="tbar" data-act="openToday" aria-label="Buka ringkasan hari ini: ${c.due.length} pengingat, ${c.pend.length} tertunda">
+        <span class="tbar-sun">${ic('sun', 18)}</span><b>${greet()}</b>
+        ${c.due.length ? `<span class="tchip warn">${ic('bell', 14, 2.4)}${c.due.length}</span>` : ''}
+        ${c.pend.length ? `<span class="tchip bad">${ic('clock', 14, 2.4)}${c.pend.length} tertunda</span>` : ''}
+        ${!c.due.length && !c.pend.length ? `<span class="tchip ok">${ic('check', 14, 2.4)}Beres</span>` : ''}
+        ${ic('right', 18, 2.2)}</button>`;
     }
   }
-  if (S.view !== 'pengaturan' && hasCfg() && S.mode !== 'cloud') {
-    out += `<div class="sync-note">${ic('cloud', 18)}<span>Masuk ke akunmu supaya data tersimpan online dan bisa terhubung dengan teman.</span><button type="button" class="btn ghost" data-act="goAkun">Masuk</button></div>`;
+  if (S.view !== 'pengaturan' && hasCfg() && S.mode !== 'cloud' && !lsGet('ingetin:syncHide', false)) {
+    out += `<div class="sync-note">${ic('cloud', 18)}<span>Masuk supaya data tersimpan online &amp; terhubung dengan teman.</span><button type="button" class="btn ghost" data-act="goAkun">Masuk</button><button type="button" class="mini" data-act="syncHide" aria-label="Tutup">${ic('x', 16)}</button></div>`;
   }
   return out;
+}
+function todaySheetBody() {
+  const c = todayCounts();
+  let html = `<div class="sh-body"><div class="sh-top"><h2>Hari ini</h2><button type="button" class="icon-btn round" data-act="closeSheet" aria-label="Tutup">${ic('x', 18, 2.4)}</button></div>`;
+  if (c.brief) html += briefCard(true);
+  if (c.due.length) html += `<section class="tsec"><div class="tsec-h warn">${ic('bell', 16)}Pengingat (${c.due.length})</div>
+    ${c.due.map(({ e, key, k, open }) => `<div class="pend-i"><span class="pend-t"><b>${h(e.title)}</b><span>${k === 'susulan' ? open + ' persiapan belum beres' : k === 'hari-h@0' ? 'Dimulai ' + fmtTime(e.time) : rel(e.date) + (e.time ? ', ' + fmtTime(e.time) : '')}</span></span><button type="button" class="btn ghost" style="min-height:36px" data-act="openEvent" data-id="${h(e.id)}">Lihat</button><button type="button" class="mini" data-act="dismiss" data-key="${h(key)}" aria-label="Tandai sudah dibaca" title="Sudah dibaca">${ic('check', 18, 2.4)}</button></div>`).join('')}
+    ${c.due.length > 1 ? `<button type="button" class="btn ghost" style="align-self:flex-start;min-height:36px" data-act="dismissAll">Tandai semua dibaca</button>` : ''}</section>`;
+  if (c.pend.length) html += `<section class="tsec"><div class="tsec-h bad">${ic('clock', 16)}Tertunda (${c.pend.length})<input type="hidden" id="resch-date" name="date"></div>
+    ${c.pend.map((p, n) => `<div class="pend-i"><span class="pend-t"><b>${h(p.x.text)}</b><span>${h(p.e.title)} · ${p.x.before != null ? 'tenggat ' + h(rel(p.due).toLowerCase()) : 'acara ' + h(rel(p.e.date).toLowerCase())}</span></span>
+      <button type="button" class="mini" data-act="pendDone" data-n="${n}" aria-label="Tandai beres: ${h(p.x.text)}" title="Beres">${ic('check', 18, 2.4)}</button>
+      <button type="button" class="mini" data-act="pendResched" data-n="${n}" aria-label="Jadwalkan ulang: ${h(p.x.text)}" title="Jadwalkan ulang">${ic('clock', 18)}</button>
+      <button type="button" class="mini" data-act="pendSkip" data-n="${n}" aria-label="Abaikan: ${h(p.x.text)}" title="Abaikan">${ic('x', 18)}</button></div>`).join('')}</section>`;
+  if (!c.due.length && !c.pend.length) html += `<div class="empty">${ic('check', 30, 1.8)}<b>Semua beres</b>Tidak ada pengingat atau tugas tertunda.</div>`;
+  return html + '</div>';
 }
 
 function vKalender() {
@@ -1139,7 +1162,6 @@ function vKalender() {
     </section>
     <aside class="aside" aria-label="Ringkasan">
       <button type="button" class="btn pri block quick-top" data-act="quick">${ic('plus', 18, 2.4)}Tambah cepat</button>
-      ${window.matchMedia('(min-width:1100px)').matches ? briefCard() : ''}
       <div class="sec-h"><h2>${S.sel === today ? 'Hari ini' : h(HARI[pd(S.sel).getDay()] + ', ' + fmtShort(S.sel))}</h2>${selEv.length ? `<button type="button" class="btn ghost" data-act="newEvent" data-date="${S.sel}">+ Tambah</button>` : ''}</div>
       ${holOn(S.sel) ? holRow(S.sel) : ''}
       <div class="stack">${selEv.length ? selEv.map((e) => evRow(e, false)).join('') : `<div class="note-row" style="justify-content:space-between;align-items:center"><span class="muted">Tidak ada acara.</span><button type="button" class="btn ghost" data-act="newEvent" data-date="${S.sel}">+ Tambah di tanggal ini</button></div>`}</div>
@@ -1210,9 +1232,9 @@ async function sendBrief(force) {
   await showNote(b.title, { body: b.lines.join('\n') || 'Tidak ada acara hari ini. Nikmati harimu!', tag: 'ingetin-brief-' + todayS() + (force ? '-' + Date.now() : '') });
   if (force) toast('Contoh ringkasan dikirim');
 }
-function briefCard() {
-  if (S.view !== 'kalender' || !briefDue() || lsGet('ingetin:briefHide', '') === todayS()) return '';
-  const b = buildBrief(), d = todayD();
+function briefCard(force) {
+  if ((!force && S.view !== 'kalender') || !briefDue() || lsGet('ingetin:briefHide', '') === todayS()) return '';
+  const b = buildBrief(), d = new Date();
   const row = (left, text, extra) => `<div class="brief-row">${left}<span>${text}</span>${extra || ''}</div>`;
   let rows = b.today.map((e) => `<button type="button" class="brief-row" data-act="openEvent" data-id="${h(e.id)}"><b>${e.time ? fmtTime(e.time) : 'Hari ini'}</b><span>${h(e.title)}</span></button>`).join('');
   rows += b.tomorrow.map((e) => { const pr = (e.checklist || []).length ? (e.checklist.filter((x) => x.done).length + '/' + e.checklist.length + ' siap') : ''; return `<button type="button" class="brief-row light" data-act="openEvent" data-id="${h(e.id)}">${ic(e.repeat === 'yearly' ? 'cake' : 'cal', 18)}<span><b>Besok:</b> ${h(e.title)}${ageOn(e) > 0 ? ' (ke-' + ageOn(e) + ')' : ''}</span>${pr ? `<small>${pr}</small>` : ''}</button>`; }).join('');
@@ -1486,11 +1508,9 @@ function remPicker(list, repeat) {
   const off = remOff(list);
   const days = REM.filter((r) => !(repeat === 'daily' && r.days > 0));
   return `<div class="rem-pick"><div style="display:flex;flex-wrap:wrap;gap:8px">${days.map((x) => `<label class="pill" style="${cs('gray')};min-height:36px;padding:0 12px;cursor:pointer"><input type="checkbox" name="rem" value="${x.k}" ${list.includes(x.k) ? 'checked' : ''} style="accent-color:var(--p)">${x.label}</label>`).join('')}</div>
-    <span class="flabel" style="margin-top:4px">Pengingat hari H</span>
-    <div class="off-chips">${OFFS.map(([m, l]) => `<label class="pchip"><input type="radio" name="remOff" value="${m}" ${off === m ? 'checked' : ''}><span>${l}</span></label>`).join('')}</div>
-    <small class="muted" style="font-size:12px">${repeat === 'daily' ? 'Diulang setiap hari sesuai jam acara.' : 'Dihitung dari jam acara. Acara tanpa jam: pukul 07.00. H-7/H-3/H-1: pukul 19.00.'}</small></div>`;
+    <small class="muted" style="font-size:12px">Hari H: 1 jam sebelum &amp; tepat di jam acara (acara tanpa jam: pukul 07.00). H-7/H-3/H-1: pukul 19.00.</small></div>`;
 }
-const remFromForm = (fd) => [...fd.getAll('rem'), 'off-' + (fd.get('remOff') || '60')];
+const remFromForm = (fd) => fd.getAll('rem');
 const remChecks = (list, repeat) => remPicker(list, repeat);
 // siapa saja yang boleh melihat acara: daftar id teman (kosong = hanya kamu)
 const sharedWith = (e) => (e && e.shared ? (Array.isArray(e.share_with) ? e.share_with : S.data.friends.map((f) => f.id)) : []);
@@ -1578,7 +1598,7 @@ const SHEETS = {
       </section>
       ${(() => { const rl = remindersOf(e), off = remOff(rl); return `<section class="card"><div class="sec-h"><h3>Pengingat</h3>${mine ? '' : '<small>Hanya untukmu</small>'}</div>
         ${REM.filter((r) => !(e.repeat === 'daily' && r.days > 0)).map((r) => `<label class="sw">${ic('bell', 20)}<span><b>${r.label}</b><small>${h(remLabel(e, r.k))}</small></span><input type="checkbox" role="switch" data-chg="remEv" value="${r.k}" ${rl.includes(r.k) ? 'checked' : ''}></label>`).join('')}
-        ${e.time ? `<span class="flabel">Hari H, sebelum pukul ${fmtTime(e.time)}</span><div class="off-chips">${OFFS.map(([m, l]) => `<label class="pchip"><input type="radio" name="evOff" value="${m}" data-chg="remEv" ${off === m ? 'checked' : ''}><span>${l}</span></label>`).join('')}</div>` : '<small class="muted" style="font-size:12px">Acara tanpa jam: pengingat hari H pukul 07.00.</small>'}
+        ${e.time ? '' : '<small class="muted" style="font-size:12px">Acara tanpa jam: pengingat hari H pukul 07.00.</small>'}
         ${mine ? '' : `<small class="muted" style="font-size:12px">Acara milik ${h(i.from)}. Pengingat ini tersimpan di perangkat ini dan tidak mengubah acara temanmu.</small>`}
       </section>`; })()}
       <div class="sh-actions">
@@ -1652,6 +1672,7 @@ const SHEETS = {
     return `<div class="sh-body srch-body"><div class="sh-top"><label for="srch" class="srch-box">${ic('search', 18)}<input id="srch" type="search" placeholder="Cari acara, persiapan, catatan, teman…" value="${h(s.q || '')}" autocomplete="off" enterkeyhint="search"></label><button type="button" class="btn ghost" data-act="closeSheet">Tutup</button></div>
       <div id="srch-res">${searchResults(s)}</div></div>`;
   },
+  today() { return todaySheetBody(); },
   monthPick(s) {
     const ref = s.target === 'agenda' ? S.agMonth : S.month;
     const y = s.year, mo = ref.getMonth(), cy = ref.getFullYear(), t = todayD();
@@ -1798,6 +1819,9 @@ function renderPicker() {
 
 /* ============ actions ============ */
 const A = {
+  openToday() { openSheet('today'); },
+  syncHide() { lsSet('ingetin:syncHide', true); render(); },
+  dismissAll() { const l = lsGet(DKEY, []); for (const x of dueReminders()) l.push(x.key); lsSet(DKEY, l.slice(-500)); render(); },
   async itemDue(d) {
     const e = getEv(S.sheet.id); if (!e) return; const k = +d.i, x = e.checklist[k];
     const c = await choiceBox(`Tenggat untuk “${x.text}”?`, [['none', 'Tidak ada (ikut tanggal acara)'], ['0', 'Hari H'], ['1', 'H-1'], ['3', 'H-3'], ['7', 'H-7']]);
@@ -2040,8 +2064,7 @@ const CHG = {
     const inst = getEv(S.sheet.id); if (!inst) return;
     const sec = el.closest('section');
     const list = [...sec.querySelectorAll('input[data-chg=remEv][type=checkbox]:checked')].map((x) => x.value);
-    const offEl = sec.querySelector('input[name=evOff]:checked');
-    const next = [...list, 'off-' + (offEl ? offEl.value : remOff(remindersOf(inst)))];
+    const next = list;
     if (isMine(inst)) { const b = baseOf(inst); await save('events', { ...b, reminders: next }); }
     else { const f = lsGet(FKEY, {}); f[inst._base || inst.id] = next; lsSet(FKEY, f); renderSheet(); render(); }
   },
@@ -2188,7 +2211,7 @@ document.addEventListener('input', (ev) => {
   }
   if (ev.target.classList && ev.target.classList.contains('bad')) ev.target.classList.remove('bad');
   if (ev.target.id === 'qa-text') { clearTimeout(qaTimer); qaTimer = setTimeout(quickInput, 250); }
-  if (S.sheet && S.sheet.kind === 'quick' && (ev.target.name === 'rem' || ev.target.name === 'remOff')) { const f = ev.target.form; S.sheet.rem = [...f.querySelectorAll('input[name=rem]:checked')].map((x) => x.value).concat('off-' + ((f.querySelector('input[name=remOff]:checked') || {}).value || '60')); }
+  if (S.sheet && S.sheet.kind === 'quick' && ev.target.name === 'rem') { const f = ev.target.form; S.sheet.rem = [...f.querySelectorAll('input[name=rem]:checked')].map((x) => x.value); }
   if (['qa-title', 'qa-note', 'qa-loc', 'qa-notes'].includes(ev.target.id)) {
     const p = S.sheet && S.sheet.parsed; if (!p) return;
     p[{ 'qa-title': 'title', 'qa-note': 'noteText', 'qa-loc': 'location', 'qa-notes': 'notes' }[ev.target.id]] = ev.target.value;
