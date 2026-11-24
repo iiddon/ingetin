@@ -131,6 +131,16 @@ main{overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;overscro
 @media (max-width:999px){.aside .quick-top,.page-h .quick-top{display:none}}
 .legend{display:flex;flex-wrap:wrap;gap:6px}
 .legend .pill{font-size:12px}
+.legend .pill .dot{width:14px;height:4px;border-radius:3px}
+.evbar{width:5px;align-self:stretch;min-height:34px;border-radius:4px;flex-shrink:0}
+.vtog{display:flex;gap:2px;padding:3px;border-radius:12px;background:var(--bd)}
+.vtog button{width:38px;height:36px;border:0;border-radius:9px;background:transparent;color:var(--mu);display:grid;place-items:center;transition:background .15s,color .15s}
+.vtog button.on{background:var(--card);color:var(--p);box-shadow:0 1px 4px rgba(0,0,0,.1)}
+.vtog button:active{transform:scale(.94)}
+.m-short{display:none}
+.daftar{max-width:820px;display:flex;flex-direction:column;gap:12px}
+.daftar .ag-seg{margin-bottom:0}
+@media (max-width:599px){.m-long{display:none}.m-short{display:inline}.wide-only{display:none}.cal-h h1{font-size:22px}}
 .dot{width:8px;height:8px;border-radius:50%;background:currentColor;flex-shrink:0}
 .dows,.grid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:6px}
 .dows span{font-size:12px;font-weight:700;color:var(--mu);text-align:center;text-transform:uppercase;letter-spacing:.6px}
@@ -456,6 +466,40 @@ mark{background:var(--mark);color:inherit;border-radius:3px;padding:0 1px}
 .sync-note .mini{color:var(--p-d)}
 .inp.bad{border-color:var(--danger);box-shadow:0 0 0 3px #FEE2E2}
 .chipbtn{min-height:34px;padding:0 12px;border-radius:999px;border:1px solid var(--bd);background:var(--bg);font-size:13px;color:var(--mu2)}
+.qtitle{width:100%;border:0;border-bottom:2px solid var(--bd);background:transparent;font:inherit;font-size:22px;font-weight:800;color:var(--tx);padding:6px 2px 8px;border-radius:0;resize:none;outline:none;transition:border-color .15s}
+.qtitle:focus{border-bottom-color:var(--p)}
+.qtitle.bad{border-bottom-color:#DC2626}
+.qtitle::placeholder{color:#9AA1AD;font-weight:700}
+.qa-auto{display:flex;flex-direction:column;gap:8px}
+.qa-auto-btn{align-self:flex-start;display:inline-flex;align-items:center;gap:6px;border:0;background:none;padding:4px 0;color:var(--p);font-weight:700;font-size:14px;min-height:36px}
+.qrows{border:1px solid var(--bd);border-radius:18px;overflow:hidden;background:var(--card)}
+.qrow+.qrow{border-top:1px solid var(--bd)}
+.qrow.bad{box-shadow:inset 0 0 0 2px #DC2626}
+.qrow-h{width:100%;display:flex;align-items:center;gap:12px;min-height:56px;padding:0 14px;border:0;background:transparent;color:var(--tx);text-align:left;font:inherit}
+.qrow-h b{flex:1;font-size:15px}
+.qrow-h>svg{color:#9AA1AD;flex-shrink:0;transition:transform .2s}
+.qrow.open .qrow-h>svg{transform:rotate(90deg)}
+.qrow.open .qrow-h{background:var(--p-l)}
+.qrow-i{width:32px;height:32px;border-radius:10px;background:var(--bg);display:grid;place-items:center;color:var(--p);flex-shrink:0}
+.qrow.open .qrow-i{background:var(--card)}
+.qrow-v{font-size:14px;font-weight:700;color:var(--mu2);text-align:right;max-width:52%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.qrow-v.warn{color:#DC2626}
+.qrow-b{padding:12px 14px 14px;display:flex;flex-direction:column;gap:12px;background:var(--p-l)}
+.qrow-b .flabel{display:none}
+.qrow-b[hidden],.qa-auto>[hidden]{display:none}
+.dstrip{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;padding:2px;margin:0 -2px}
+.dstrip::-webkit-scrollbar{display:none}
+.dchip{flex:0 0 56px;height:68px;border-radius:14px;border:1.5px solid var(--bd);background:var(--card);color:var(--tx);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;transition:transform .12s}
+.dchip small{font-size:10.5px;font-weight:700;color:var(--mu)}
+.dchip b{font-size:18px}
+.dchip.red b{color:#DC2626}
+.dchip.on{background:var(--p);border-color:var(--p)}
+.dchip.on b,.dchip.on small{color:#fff}
+.dchip:active,.tchip2:active{transform:scale(.95)}
+.qa-more{align-self:flex-start;display:inline-flex;align-items:center;gap:6px;background:var(--card)}
+.qchips{display:flex;flex-wrap:wrap;gap:8px}
+.tchip2{min-height:40px;padding:0 14px;border-radius:999px;border:1.5px solid var(--bd);background:var(--card);color:var(--tx);font-weight:700;font-size:14px;display:inline-flex;align-items:center;gap:6px}
+.tchip2.on{background:var(--p);border-color:var(--p);color:#fff}
 .preview{border-radius:16px;background:var(--bg);padding:14px;display:flex;flex-direction:column;gap:12px}
 .preview-h{display:flex;align-items:center;gap:8px;font-weight:800;font-size:15px}
 .linkbox{display:flex;align-items:center;gap:8px;padding:6px 6px 6px 14px;border-radius:12px;background:var(--bg);border:1px solid var(--bd)}
@@ -491,7 +535,7 @@ mark{background:var(--mark);color:inherit;border-radius:3px;padding:0 1px}
 
 <script type="module">
 /* ============ helpers ============ */
-const APP_VERSION = '3.1 (24 Nov 2026)';
+const APP_VERSION = '3.2 (25 Nov 2026)';
 const $ = (s, r = document) => r.querySelector(s);
 const h = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const pad = (n) => String(n).padStart(2, '0');
@@ -575,7 +619,7 @@ const S = {
   view: 'kalender', month: (() => { const d = todayD(); d.setDate(1); return d; })(), sel: todayS(),
   personId: null, q: '', authTab: 'masuk',
   data: { people: [], events: [], notes: [], friends: [] },
-  agTab: 'minggu', agMonth: (() => { const d = todayD(); d.setDate(1); return d; })(),
+  agTab: 'minggu', kalMode: (() => { try { return JSON.parse(localStorage.getItem('ingetin:kalMode')) === 'daftar' ? 'daftar' : 'bulan'; } catch { return 'bulan'; } })(),
   mode: 'local', sb: null, session: null, me: null, sheet: null, busy: false
 };
 const lsGet = (k, def) => { try { const v = localStorage.getItem(k); return v ? JSON.parse(v) : def; } catch { return def; } };
@@ -1140,7 +1184,7 @@ function evRow(e, showDate = true) {
   const age = ageOn(e);
   const sub = [age > 0 ? 'Ke-' + age : '', e.time ? fmtTime(e.time) : '', i.from ? 'Dari ' + i.from : (i.person ? i.person.name : ''), e.location || ''].filter(Boolean).join(' · ') || rel(e.date);
   return `<button type="button" class="ev" data-act="openEvent" data-id="${h(e.id)}">
-    ${showDate ? `<span class="dblock" style="${cs(i.color)}"><small>${HARI3[d.getDay()]}</small><b>${d.getDate()}</b></span>` : `<span class="dot" style="color:${pair(i.color)[1]};width:10px;height:10px"></span>`}
+    ${showDate ? `<span class="dblock" style="${cs(i.color)}"><small>${HARI3[d.getDay()]}</small><b>${d.getDate()}</b></span>` : `<span class="evbar" style="background:${pair(i.color)[1]}"></span>`}
     <span class="ev-t"><b>${h(e.title)}${isRec(e) ? `<span class="rec" title="${recLabel(e)}" aria-label="${recLabel(e)}">${ic('repeat', 13, 2.4)}</span>` : ''}</b><span>${h(sub)}</span></span>
     ${prog ? `<span class="tag">${prog}</span>` : (e.shared && isMine(e) ? `<span class="tag" title="${h('Dibagikan ke ' + shareLabel(e))}">${ic('people', 12, 2.4)} ${sharedWith(e).length}</span>` : '')}
   </button>`;
@@ -1148,9 +1192,10 @@ function evRow(e, showDate = true) {
 
 /* ============ views ============ */
 function navItems() {
-  return [['kalender', 'Kalender', 'cal'], ['minggu', 'Agenda', 'list'], ['teman', 'Teman', 'people'], ['pengaturan', 'Pengaturan', 'gear']];
+  return [['kalender', 'Kalender', 'cal'], ['teman', 'Teman', 'people'], ['pengaturan', 'Pengaturan', 'gear']];
 }
 function renderShell() {
+  if (S.view === 'minggu') { S.view = 'kalender'; S.kalMode = 'daftar'; }
   const side = `<nav class="side" aria-label="Menu utama">
     <div class="brand"><span class="logo">${ic('bell', 22)}</span><b>Ingetin</b></div>
     ${navItems().map(([k, l, i]) => `<button type="button" class="nav ${S.view === k ? 'on' : ''}" data-act="go" data-v="${k}" ${S.view === k ? 'aria-current="page"' : ''}>${ic(i)}${l}</button>`).join('')}
@@ -1160,7 +1205,7 @@ function renderShell() {
   const tb = navItems().map(([k, l, i]) => `<button type="button" class="tab ${S.view === k ? 'on' : ''}" data-act="go" data-v="${k}" ${S.view === k ? 'aria-current="page"' : ''}>${ic(i, 22)}${l}</button>`);
   const tabs = `<nav class="tabbar" aria-label="Menu">${tb.join('')}</nav>
   <button type="button" class="fab" data-act="quick" aria-label="Tambah cepat">${ic('plus', 26, 2.4)}</button>`;
-  return side + `<main id="main" class="${S.view === 'kalender' ? 'fit' : ''}">${topNotes()}${VIEWS[S.view]()}</main>` + tabs;
+  return side + `<main id="main" class="${S.view === 'kalender' && S.kalMode !== 'daftar' ? 'fit' : ''}">${topNotes()}${VIEWS[S.view]()}</main>` + tabs;
 }
 function todayCounts() { return { due: dueReminders(), pend: pendingItems(), brief: briefDue() && lsGet('ingetin:briefHide', '') !== todayS() }; }
 const greet = () => { const hr = new Date().getHours(); return 'Selamat ' + (hr < 11 ? 'pagi' : hr < 15 ? 'siang' : hr < 18 ? 'sore' : 'malam'); };
@@ -1206,7 +1251,24 @@ function todaySheetBody() {
   return html + '</div>';
 }
 
+function calHead() {
+  const y = S.month.getFullYear(), mo = S.month.getMonth(), list = S.kalMode === 'daftar';
+  return `<div class="cal-h">
+        <h1><button type="button" class="month-btn" data-act="pickMonth" aria-label="Pilih bulan dan tahun, sekarang ${BULAN[mo]} ${y}"><span><span class="m-long">${BULAN[mo]}</span><span class="m-short">${BUL3[mo]}</span> ${y}</span>${ic('down', 18, 2.4)}</button></h1>
+        <div class="cal-nav">
+          <button type="button" class="icon-btn" data-act="search" aria-label="Cari acara, persiapan, catatan, teman">${ic('search', 19, 2.2)}</button>
+          <div class="vtog" role="radiogroup" aria-label="Tampilan">
+            <button type="button" role="radio" aria-checked="${!list}" class="${list ? '' : 'on'}" data-act="kalMode" data-m="bulan" aria-label="Tampilan bulan">${ic('cal', 17, 2.2)}</button>
+            <button type="button" role="radio" aria-checked="${list}" class="${list ? 'on' : ''}" data-act="kalMode" data-m="daftar" aria-label="Tampilan daftar">${ic('list', 17, 2.2)}</button>
+          </div>
+          <button type="button" class="icon-btn" data-act="month" data-n="-1" aria-label="Bulan sebelumnya">${ic('left', 18, 2.2)}</button>
+          <button type="button" class="icon-btn" data-act="month" data-n="1" aria-label="Bulan berikutnya">${ic('right', 18, 2.2)}</button>
+          <button type="button" class="btn wide-only" data-act="today">Hari ini</button>
+        </div>
+      </div>`;
+}
 function vKalender() {
+  if (S.kalMode === 'daftar') return vMinggu();
   const m = S.month, y = m.getFullYear(), mo = m.getMonth();
   const first = new Date(y, mo, 1), offset = (first.getDay() + 6) % 7, dim = new Date(y, mo + 1, 0).getDate();
   const rows = Math.ceil((offset + dim) / 7), start = addDays(first, -offset), today = todayS();
@@ -1224,21 +1286,9 @@ function vKalender() {
   const legend = [...used].map(([n, c]) => `<span class="pill" style="${cs(c)}"><span class="dot"></span>${h(n)}</span>`).join('');
 
   const selEv = eventsOn(S.sel);
-  const wkEnd = ymd(addDays(todayD(), 6));
-  const week = eventsBetween(today, wkEnd);
-  const soon = eventsBetween(ymd(addDays(todayD(), 7)), ymd(addDays(todayD(), 45))).slice(0, 3);
-  const notes = S.data.notes.filter((n) => n.kind !== 'cerita').sort((a, b) => (b.created_at || '').localeCompare(a.created_at || '')).slice(0, 3);
-  const wk0 = todayD(), wk1 = addDays(wk0, 6);
   return `<div class="cal-layout">
     <section class="cal-main" aria-label="Kalender">
-      <div class="cal-h">
-        <h1><button type="button" class="month-btn" data-act="pickMonth" aria-label="Pilih bulan dan tahun, sekarang ${BULAN[mo]} ${y}"><span>${BULAN[mo]} ${y}</span>${ic('down', 18, 2.4)}</button></h1>
-        <div class="cal-nav">
-          <button type="button" class="icon-btn" data-act="month" data-n="-1" aria-label="Bulan sebelumnya">${ic('left', 18, 2.2)}</button>
-          <button type="button" class="icon-btn" data-act="month" data-n="1" aria-label="Bulan berikutnya">${ic('right', 18, 2.2)}</button>
-          <button type="button" class="btn" data-act="today">Hari ini</button>
-        </div>
-      </div>
+      ${calHead()}
       <div class="legend">${legend}</div>
       <div class="dows" aria-hidden="true">${['Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab', 'Min'].map((d) => `<span>${d}</span>`).join('')}</div>
       <div class="grid">${cells}</div>
@@ -1248,11 +1298,6 @@ function vKalender() {
       <div class="sec-h"><h2>${S.sel === today ? 'Hari ini' : h(HARI[pd(S.sel).getDay()] + ', ' + fmtShort(S.sel))}</h2>${selEv.length ? `<button type="button" class="btn ghost" data-act="newEvent" data-date="${S.sel}">+ Tambah</button>` : ''}</div>
       ${holOn(S.sel) ? holRow(S.sel) : ''}
       <div class="stack">${selEv.length ? selEv.map((e) => evRow(e, false)).join('') : `<div class="note-row" style="justify-content:space-between;align-items:center"><span class="muted">Tidak ada acara.</span><button type="button" class="btn ghost" data-act="newEvent" data-date="${S.sel}">+ Tambah di tanggal ini</button></div>`}</div>
-      <div class="sec-h" style="margin-top:4px"><h2>Minggu ini</h2><small>${wk0.getDate()} ${BUL3[wk0.getMonth()]} – ${wk1.getDate()} ${BUL3[wk1.getMonth()]}</small></div>
-      <div class="stack">${week.length ? week.map((e) => evRow(e)).join('') : `<div class="note-row"><span class="muted">Belum ada acara 7 hari ke depan.</span></div>`}</div>
-      ${soon.length ? `<div class="sec-h" style="margin-top:4px"><h2>Segera</h2></div><div class="stack">${soon.map((e) => evRow(e)).join('')}</div>` : ''}
-      <div class="sec-h" style="margin-top:4px"><h2>Ingat juga</h2><button type="button" class="btn ghost" data-act="go" data-v="teman">Lihat semua</button></div>
-      <div class="stack">${notesLocked() ? `<div class="note-row" style="justify-content:space-between;align-items:center"><span class="muted">${ic('lock', 14)} Catatan terkunci</span><button type="button" class="btn ghost" data-act="unlock">Buka</button></div>` : notes.length ? notes.map(noteRow).join('') : `<div class="note-row"><span class="muted">Catat hal penting tentang teman, misalnya “Rina alergi udang”.</span></div>`}</div>
     </aside>
   </div>`;
 }
@@ -1340,8 +1385,8 @@ function noteRow(n) {
 function vMinggu() {
   const t = todayD(), isMonth = S.agTab === 'bulan';
   const seg = `<div class="seg ag-seg" role="radiogroup" aria-label="Rentang agenda">
-      <label><input type="radio" name="agtab" value="minggu" data-chg="agTab" ${!isMonth ? 'checked' : ''}><span>Minggu ini</span></label>
-      <label><input type="radio" name="agtab" value="bulan" data-chg="agTab" ${isMonth ? 'checked' : ''}><span>Bulan ini</span></label></div>`;
+      <label><input type="radio" name="agtab" value="minggu" data-chg="agTab" ${!isMonth ? 'checked' : ''}><span>2 minggu ke depan</span></label>
+      <label><input type="radio" name="agtab" value="bulan" data-chg="agTab" ${isMonth ? 'checked' : ''}><span>Sebulan · ${BUL3[S.month.getMonth()]} ${S.month.getFullYear()}</span></label></div>`;
   let main = '';
   if (!isMonth) {
     let out = '';
@@ -1353,7 +1398,7 @@ function vMinggu() {
     main = (out || `<div class="card"><div class="empty">${ic('cal', 32, 1.6)}<b>Belum ada acara dua minggu ke depan</b>Ketuk tombol <b style="font-size:inherit">+</b> lalu tulis seperti chat, misalnya “Budi ultah 14 Januari”.</div></div>`)
       + (later.length ? `<div class="day-group"><h2>Setelahnya</h2>${later.slice(0, 8).map((e) => evRow(e)).join('')}</div>` : '');
   } else {
-    const m = S.agMonth, y = m.getFullYear(), mo = m.getMonth();
+    const m = S.month, y = m.getFullYear(), mo = m.getMonth();
     const a = ymd(new Date(y, mo, 1)), z = ymd(new Date(y, mo + 1, 0)), today = todayS();
     const evs = eventsBetween(a, z), past = evs.filter((e) => e.date < today), next = evs.filter((e) => e.date >= today);
     const prepEvs = evs.filter((e) => (e.checklist || []).some((c) => !c.done));
@@ -1381,23 +1426,14 @@ function vMinggu() {
     } else list = groupList(evs, true) || emptyBox(`Belum ada acara di ${BULAN[mo]}`, 'Ketuk tombol <b style="font-size:inherit">+</b> untuk menambah.');
     const FL = { next: 'Akan datang', prep: 'Persiapan belum beres', people: 'Teman terlibat' };
     const stat = (k, n, label) => `<button type="button" class="stat ${f === k ? 'on' : ''}" data-act="agFilter" data-f="${k}" aria-pressed="${f === k}"><b>${n}</b><span>${label}</span></button>`;
-    main = `<div class="ag-month"><button type="button" class="icon-btn" data-act="agMonth" data-n="-1" aria-label="Bulan sebelumnya">${ic('left', 18, 2.2)}</button>
-        <button type="button" class="month-btn" data-act="agPick" style="font-size:20px;font-weight:800;flex:1;justify-content:center"><span>${BULAN[mo]} ${y}</span>${ic('down', 18, 2.4)}</button>
-        <button type="button" class="icon-btn" data-act="agMonth" data-n="1" aria-label="Bulan berikutnya">${ic('right', 18, 2.2)}</button></div>
-      <div class="stats">${stat('all', evs.length, 'Acara')}${stat('next', next.length, 'Akan datang')}${stat('prep', open, 'Persiapan belum beres')}${stat('people', pmap.size, 'Teman terlibat')}</div>
+    main = `<div class="stats">${stat('all', evs.length, 'Acara')}${stat('next', next.length, 'Akan datang')}${stat('prep', open, 'Persiapan belum beres')}${stat('people', pmap.size, 'Teman terlibat')}</div>
       ${f !== 'all' ? `<div class="flt"><span>Menampilkan: <b>${FL[f]}</b></span><button type="button" class="mini" data-act="agFilter" data-f="all" aria-label="Hapus filter, tampilkan semua acara">${ic('x', 16, 2.4)}</button></div>` : ''}
       ${busiest && f === 'all' ? `<div class="note-row" style="background:#FFF7ED;color:#9A3412;font-weight:600">${ic('zap', 16)}<span>Hari tersibuk: ${h(fmtLong(busiest[0]))} (${busiest[1]} acara)</span></div>` : ''}
       ${list}`;
   }
-  const notes = S.data.notes.filter((n) => n.kind !== 'cerita');
-  return `<div class="page-h"><h1>Agenda</h1><button type="button" class="btn pri quick-top" data-act="quick">${ic('plus', 18, 2.4)}Tambah cepat</button><button type="button" class="icon-btn" data-act="search" aria-label="Cari acara, persiapan, catatan, teman">${ic('search', 20, 2.2)}</button></div>
+  return `<div class="daftar">${calHead()}
   ${seg}
-  <div class="wk-layout">
-    <section aria-label="${isMonth ? 'Agenda bulan ini' : 'Agenda 14 hari'}">${main}</section>
-    <section class="card" aria-label="Hal yang harus diingat"><div class="sec-h"><h2>Ingat juga</h2><small>${notes.length} catatan</small></div>
-      ${notesLocked() ? lockedCard() : notes.length ? notes.map(noteRow).join('') : '<p class="muted" style="margin:0;font-size:14px">Belum ada catatan.</p>'}
-    </section>
-  </div>`;
+  <section aria-label="${isMonth ? 'Daftar acara sebulan' : 'Daftar acara 2 minggu'}">${main}</section></div>`;
 }
 // put agenda first on wide screens
 function vTeman() {
@@ -1616,46 +1652,52 @@ const shareFromForm = (fd) => { const ids = fd.getAll('shareTo'); return { share
 
 const SHEETS = {
   quick(s) {
-    const r = s.parsed || { type: 'event', title: '', date: s.date || '', time: '', personId: s.person || '', newName: '', noteText: '' };
-    const newOpt = r.newName ? `<option value="__new" ${!r.personId ? 'selected' : ''}>+ Teman baru: ${h(r.newName)}</option>` : '';
+    const r = s.parsed || (s.parsed = { type: 'event', title: '', date: s.date || '', time: '', personId: s.person || '', newName: '', noteText: '' });
+    const kind = qaKind(s), isNote = kind === 'note', isBday = kind === 'bday', open = s.open || (s.open = {});
     const pSel = r.sel !== undefined ? r.sel : (r.personId || (r.newName ? '__new' : ''));
-    const isNote = r.type === 'note';
+    const v = qaVals(r, pSel, s);
+    const row = (k, icon, label, val, body, warn) => `<div class="qrow ${open[k] ? 'open' : ''}" data-row="${k}">
+      <button type="button" class="qrow-h" data-act="qaRow" data-r="${k}" aria-expanded="${!!open[k]}"><span class="qrow-i">${ic(icon, 17, 2.2)}</span><b>${label}</b><span class="qrow-v ${warn ? 'warn' : ''}" id="qv-${k}">${h(val)}</span>${ic('right', 18, 2.2)}</button>
+      <div class="qrow-b" ${open[k] ? '' : 'hidden'}>${body}</div></div>`;
+    const base = todayD(), days = []; for (let i = 0; i < 21; i++) days.push(ymd(addDays(base, i)));
+    if (r.date && !days.includes(r.date)) days.unshift(r.date);
+    const strip = `<div class="dstrip" role="radiogroup" aria-label="Pilih tanggal">${days.map((k) => { const d = pd(k), hd = holOn(k); return `<button type="button" role="radio" aria-checked="${k === r.date}" class="dchip ${k === r.date ? 'on' : ''} ${(hd && hd.t === 'libur') || d.getDay() === 0 ? 'red' : ''}" data-act="qaDate" data-d="${k}" aria-label="${h(fmtLong(k))}"><small>${k === todayS() ? 'Hari ini' : HARI3[d.getDay()]}</small><b>${d.getDate()}</b><small>${BUL3[d.getMonth()]}</small></button>`; }).join('')}</div>
+      <button type="button" class="chipbtn qa-more" data-act="pickDate" data-for="qa-date">${ic('cal', 15)} Kalender penuh</button>
+      ${isBday ? `<div class="field"><label for="qa-by">Tahun lahir (opsional)</label><input class="inp" id="qa-by" name="birthYear" inputmode="numeric" pattern="[0-9]{4}" maxlength="4" placeholder="mis. 1998" value="${h(r.birthYear || '')}" autocomplete="off"><small class="muted" style="font-size:12px">Untuk menampilkan “Ulang tahun ke-…”</small></div>` : ''}`;
+    const TIMES = ['', '07:00', '09:00', '12:00', '15:00', '19:00', '20:00'];
+    const times = `<div class="qchips">${TIMES.map((t) => `<button type="button" class="tchip2 ${(r.time || '') === t ? 'on' : ''}" data-act="qaTime" data-t="${t}">${t ? fmtTime(t) : 'Tanpa jam'}</button>`).join('')}<button type="button" class="tchip2" data-act="pickTime" data-for="qa-time">${ic('clock', 15)} Jam lain</button></div>`;
+    const types = [['event', 'Acara'], ['bday', 'Ulang tahun'], ['note', 'Catatan']];
     return `<div class="sh-body">
       <div class="sh-top"><h2>${s.date ? 'Tambah · ' + h(fmtShort(s.date)) : 'Tambah cepat'}</h2><button type="button" class="icon-btn round" data-act="closeSheet" aria-label="Tutup">${ic('x', 18, 2.4)}</button></div>
-      <form class="stack" data-form="quick" style="gap:14px">
-        <div class="field"><label for="qa-text">Tulis seperti chat biasa</label>
-          <textarea id="qa-text" class="inp" rows="3" placeholder="mis. Dina sidang skripsi 3 Desember jam 9" style="font-size:17px">${h(s.text || '')}</textarea></div>
-        <div style="display:flex;flex-wrap:wrap;gap:6px;align-items:center"><span class="muted" style="font-size:12px;font-weight:600">Contoh:</span>
-          <button type="button" class="chipbtn" data-act="qaEx" data-t="Budi ultah 14 Januari">Budi ultah 14 Januari</button>
-          <button type="button" class="chipbtn" data-act="qaEx" data-t="Rina alergi udang">Rina alergi udang</button></div>
-        <div class="preview" id="qa-prev">
-          <div class="preview-h">${ic('zap', 18)}<span style="flex:1">Yang terbaca</span><span class="muted" style="font-size:12px;font-weight:600">Bisa diubah</span></div>
-          <div class="seg" role="radiogroup" aria-label="Jenis">
-            <label><input type="radio" name="type" value="event" data-chg="qaType" ${!isNote ? 'checked' : ''}><span>${ic('cal', 16)}&nbsp;Acara</span></label>
-            <label><input type="radio" name="type" value="note" data-chg="qaType" ${isNote ? 'checked' : ''}><span>${ic('note', 16)}&nbsp;Catatan</span></label>
+      <form class="stack" data-form="quick" style="gap:14px" novalidate>
+        <div class="seg" role="radiogroup" aria-label="Jenis">${types.map(([k, l]) => `<label><input type="radio" name="type" value="${k}" data-chg="qaType" ${kind === k ? 'checked' : ''}><span>${l}</span></label>`).join('')}</div>
+        ${isNote
+          ? `<label class="sr" for="qa-title">Catatan</label><textarea id="qa-title" class="qtitle" name="noteText" rows="2" placeholder="Apa yang perlu diingat? mis. alergi udang">${h(r.noteText || '')}</textarea>`
+          : `<label class="sr" for="qa-title">${isBday ? 'Judul (opsional)' : 'Judul acara'}</label><input id="qa-title" class="qtitle" name="title" value="${h(r.title || '')}" placeholder="${isBday ? 'Ulang tahun siapa? (opsional)' : 'Judul acara'}" autocomplete="off">`}
+        <div class="qa-auto">
+          <button type="button" class="qa-auto-btn" data-act="qaAuto" aria-expanded="${!!s.auto}">${ic('zap', 15, 2.2)}Isi otomatis dari kalimat${ic(s.auto ? 'down' : 'right', 15, 2.2)}</button>
+          <div ${s.auto ? '' : 'hidden'} class="stack" style="gap:8px">
+            <textarea id="qa-text" class="inp" rows="2" placeholder="mis. Dina sidang skripsi 3 Desember jam 9" style="font-size:16px">${h(s.text || '')}</textarea>
+            <div style="display:flex;flex-wrap:wrap;gap:6px;align-items:center"><span class="muted" style="font-size:12px;font-weight:600">Contoh:</span>
+              <button type="button" class="chipbtn" data-act="qaEx" data-t="Budi ultah 14 Januari">Budi ultah 14 Januari</button>
+              <button type="button" class="chipbtn" data-act="qaEx" data-t="Rina alergi udang">Rina alergi udang</button></div>
           </div>
-          ${personPicker('qa-person', pSel, { newName: r.newName, required: isNote, label: isNote ? 'Tentang' : 'Teman' })}
-          ${isNote ? `
-            <div class="field"><label for="qa-note">Catatan</label><input id="qa-note" class="inp" name="noteText" value="${h(r.noteText)}"></div>
-            <div class="seg" role="radiogroup" aria-label="Jenis catatan">
-              <label><input type="radio" name="kind" value="ingat" checked><span>Harus diingat</span></label>
-              <label><input type="radio" name="kind" value="cerita"><span>Pernah cerita</span></label>
-            </div>` : `
-            <div class="field"><label for="qa-title">Judul</label><input id="qa-title" class="inp" name="title" value="${h(r.title)}"></div>
-            <div class="row2">${dateField('qa-date', 'Tanggal', r.date)}${timeField('qa-time', 'Jam (opsional)', r.time)}</div>
-            <p class="muted" style="margin:0;font-size:13px" id="qa-when">${r.date ? h(fmtLong(r.date)) + ' · ' + rel(r.date) : 'Tanggal belum terbaca — pilih tanggalnya.'}</p>
-            ${repeatField('qa-rep', r.repeat, r.birthYear)}
-            <div class="flabel">Pengingat</div>
-            ${remPicker(S.sheet.rem || defaultRem(r.repeat), r.repeat)}
-            <details class="more-f" ${r.location || r.notes ? 'open' : ''}><summary>+ Lokasi &amp; catatan (opsional)</summary>
-              <div class="stack" style="gap:12px;margin-top:10px">
-                <div class="field"><label for="qa-loc">Lokasi</label><input id="qa-loc" class="inp" name="location" value="${h(r.location || '')}" autocomplete="off"></div>
-                <div class="field"><label for="qa-notes">Catatan acara</label><textarea id="qa-notes" class="inp" name="notes" rows="2" placeholder="mis. Dress code batik">${h(r.notes || '')}</textarea></div>
-              </div></details>
-            ${shareBox(S.sheet && S.sheet.shareTo)}`}
         </div>
+        <input type="hidden" id="qa-date" name="date" value="${h(r.date || '')}"><input type="hidden" id="qa-time" name="time" value="${h(isBday ? '' : r.time || '')}">
+        ${isBday ? '<input type="hidden" name="repeat" value="yearly">' : ''}
+        <div class="qrows">
+          ${row('person', 'people', isNote ? 'Tentang' : 'Teman', v.person, personPicker('qa-person', pSel, { newName: r.newName, required: isNote, label: isNote ? 'Tentang siapa' : 'Teman' }), isNote && !pSel)}
+          ${isNote ? row('nkind', 'note', 'Jenis', r.nkind === 'cerita' ? 'Pernah cerita' : 'Harus diingat', `<div class="seg" role="radiogroup" aria-label="Jenis catatan"><label><input type="radio" name="kind" value="ingat" ${r.nkind !== 'cerita' ? 'checked' : ''}><span>Harus diingat</span></label><label><input type="radio" name="kind" value="cerita" ${r.nkind === 'cerita' ? 'checked' : ''}><span>Pernah cerita</span></label></div>`) : `
+          ${row('date', 'cal', 'Tanggal', v.date, strip, !r.date)}
+          ${isBday ? '' : row('time', 'clock', 'Jam', v.time, times)}
+          ${isBday ? '' : row('repeat', 'repeat', 'Ulangi', v.repeat, repeatField('qa-rep', r.repeat, r.birthYear))}
+          ${row('rem', 'bell', 'Pengingat', v.rem, remPicker(S.sheet.rem || defaultRem(isBday ? 'yearly' : r.repeat), isBday ? 'yearly' : r.repeat))}
+          ${row('loc', 'pin', 'Lokasi & catatan', v.loc, `<div class="field"><label for="qa-loc">Lokasi</label><input id="qa-loc" class="inp" name="location" value="${h(r.location || '')}" autocomplete="off"></div>
+            <div class="field"><label for="qa-notes">Catatan acara</label><textarea id="qa-notes" class="inp" name="notes" rows="2" placeholder="mis. Dress code batik">${h(r.notes || '')}</textarea></div>`)}`}
+        </div>
+        ${isNote ? '' : shareBox(S.sheet && S.sheet.shareTo)}
         <p class="err" id="qa-err" role="alert"></p>
-        <div class="row2"><button type="button" class="btn" data-act="closeSheet">Batal</button><button type="submit" class="btn pri">${isNote ? 'Simpan catatan' : 'Simpan ke kalender'}</button></div>
+        <div class="row2"><button type="button" class="btn" data-act="closeSheet">Batal</button><button type="submit" class="btn pri">${isNote ? 'Simpan catatan' : 'Simpan'}</button></div>
       </form></div>`;
   },
   event(s) {
@@ -1769,7 +1811,7 @@ const SHEETS = {
       <small class="muted">Kunci rahasia untuk mengirim notifikasi dibuat otomatis oleh server dan tidak pernah dikirim ke HP.</small></div>`;
   },
   monthPick(s) {
-    const ref = s.target === 'agenda' ? S.agMonth : S.month;
+    const ref = s.target === 'agenda' ? S.month : S.month;
     const y = s.year, mo = ref.getMonth(), cy = ref.getFullYear(), t = todayD();
     const years = []; for (let k = t.getFullYear() - 3; k <= t.getFullYear() + 6; k++) years.push(k);
     if (!years.includes(y)) years.push(y), years.sort((a, b) => a - b);
@@ -1846,14 +1888,48 @@ const inviteLink = () => location.origin + location.pathname + '?undang=' + (S.m
 const inviteMsg = () => `Hai! Yuk pakai Ingetin bareng aku, biar kita saling ingat acara & janji. Buka link ini lalu daftar: ${inviteLink()}`;
 
 /* ============ quick add logic ============ */
+const REPL = { '': 'Tidak', daily: 'Harian', weekly: 'Mingguan', monthly: 'Bulanan', yearly: 'Tahunan' };
+function qaKind(s) {
+  if (s.forceType) return s.forceType;
+  const r = s.parsed || {};
+  if (r.type === 'note') return 'note';
+  if (r.repeat === 'yearly' && /\b(ultah|ulang\s*tahun|ulangtahun|birthday|bday)\b/i.test((s.text || '') + ' ' + (r.title || ''))) return 'bday';
+  return 'event';
+}
+const qaDateLabel = (d) => { const x = pd(d); return HARI3[x.getDay()] + ', ' + x.getDate() + ' ' + BUL3[x.getMonth()] + ' ' + x.getFullYear(); };
+function qaVals(r, sel, s) {
+  let person = 'Kamu';
+  if (sel === '__other') person = 'Teman baru'; else if (sel === '__new') person = r.newName + ' (baru)'; else if (sel) person = (personById(sel) || {}).name || 'Kamu';
+  else if (qaKind(s) === 'note') person = 'Pilih teman';
+  const rep = qaKind(s) === 'bday' ? 'yearly' : r.repeat || '';
+  const rem = S.sheet.rem || defaultRem(rep);
+  return { person, date: r.date ? qaDateLabel(r.date) : 'Pilih tanggal', time: r.time ? fmtTime(r.time) : 'Tanpa jam', repeat: REPL[rep] || 'Tidak',
+    rem: rem.filter((k) => REM.some((x) => x.k === k)).map((k) => REM.find((x) => x.k === k).label).join(', ') || 'Tidak ada', loc: (r.location || '').trim() || 'Tambah' };
+}
+// simpan isi formulir ke S.sheet.parsed & perbarui nilai di tiap baris
+function qaSync() {
+  const f = $('form[data-form=quick]'); if (!f || !S.sheet || S.sheet.kind !== 'quick') return;
+  const fd = new FormData(f), p = S.sheet.parsed || (S.sheet.parsed = { type: 'event', title: '', date: '', time: '', personId: '', newName: '', noteText: '' });
+  const sel = fd.get('person'); if (sel !== null) p.sel = sel;
+  for (const k of ['title', 'noteText', 'location', 'notes', 'birthYear']) if (fd.has(k)) p[k] = fd.get(k);
+  p.date = fd.get('date') || ''; if (qaKind(S.sheet) !== 'bday') p.time = fd.get('time') || '';
+  if (fd.has('kind')) p.nkind = fd.get('kind');
+  const v = qaVals(p, p.sel !== undefined ? p.sel : p.personId, S.sheet);
+  if (p.sel === '__other') { const n = (fd.get('personNew') || '').trim(); if (n) v.person = n + ' (baru)'; }
+  const set = (k, t, warn) => { const el = $('#qv-' + k); if (el) { el.textContent = t; el.classList.toggle('warn', !!warn); } };
+  set('person', v.person, qaKind(S.sheet) === 'note' && !p.sel); set('date', v.date, !p.date); set('time', v.time); set('repeat', v.repeat); set('rem', v.rem); set('loc', v.loc);
+  set('nkind', p.nkind === 'cerita' ? 'Pernah cerita' : 'Harus diingat');
+}
 function quickInput() {
   const ta = $('#qa-text'); if (!ta) return;
   const text = ta.value;
-  const r = text.trim() ? parseQuick(text) : null;
+  const r = text.trim() ? parseQuick(text) : S.sheet.parsed;
   S.sheet.text = text;
-  if (r) {
+  if (r && text.trim()) {
     if (S.sheet.date && !r.date) { r.date = S.sheet.date; if (r.type === 'note' && !S.sheet.forceType && !/\b(alergi|suka|tidak suka|gak suka|nggak suka|favorit|ide kado)\b/i.test(text)) r.type = 'event'; }
-    if (S.sheet.forceType) r.type = S.sheet.forceType;
+    if (S.sheet.forceType) r.type = S.sheet.forceType === 'note' ? 'note' : 'event';
+    if (S.sheet.forceType === 'bday') r.repeat = 'yearly';
+    S.sheet.rem = null;
     if (!r.personId && S.sheet.person && !r.newName) r.personId = S.sheet.person;
     const old = S.sheet.parsed; if (old) { r.location = old.location; r.notes = old.notes; }
   }
@@ -1861,6 +1937,7 @@ function quickInput() {
   const pos = ta.selectionStart, hadFocus = document.activeElement === ta;
   renderSheet();
   const t2 = $('#qa-text'); if (hadFocus) { t2.focus(); t2.setSelectionRange(pos, pos); }
+  const st = $('.dstrip .on'); if (st) centerX($('.dstrip'), st);
 }
 async function ensurePerson(sel, newName, typed) {
   if (sel === '__other') newName = (typed || '').trim();
@@ -1994,15 +2071,16 @@ const A = {
   pkNoTime() { setPicked(''); },
   pkTimeOk() { if (PK.h) setPicked(PK.h + ':' + (PK.m || '00')); },
   go(d) { if (d.v === S.view && d.v === 'pengaturan' && S.setPage) { navPush(); S.setPage = null; closeSheet(); render(); return; } if (d.v === S.view && !(d.v === 'teman' && S.personId && !matchMedia('(min-width:760px)').matches)) { closeSheet(); return; } navPush(); if (d.v === 'teman' && !matchMedia('(min-width:760px)').matches) S.personId = null; S.setPage = null; S.view = d.v; closeSheet(); render(); $('#main') && ($('#main').scrollTop = 0); },
-  month(d) { const m = new Date(S.month); m.setMonth(m.getMonth() + +d.n); S.month = m; render(); },
-  today() { const t = todayD(); t.setDate(1); if (S.sheet && S.sheet.target === 'agenda') { S.agMonth = t; } else { S.month = t; S.sel = todayS(); } if (S.sheet) closeSheet(); render(); },
+  month(d) { const m = new Date(S.month); m.setDate(1); m.setMonth(m.getMonth() + +d.n); S.month = m; if (S.kalMode === 'daftar') S.agTab = 'bulan'; render(); },
+  kalMode(d) { if (S.kalMode === d.m) return; pushEntry(); navPush(); S.kalMode = d.m; lsSet('ingetin:kalMode', d.m); render(); const m = $('#main'); if (m) m.scrollTop = 0; },
+  today() { const t = todayD(); t.setDate(1); if (S.sheet && S.sheet.target === 'agenda') { S.month = t; } else { S.month = t; S.sel = todayS(); } if (S.sheet) closeSheet(); render(); },
   agFilter(d) { S.agFilter = d.f === S.agFilter ? 'all' : d.f; render(); const l = $('.stats'); if (l && d.f !== 'all') { const m = $('#main'); const tgt = $('.flt') || l; m && tgt && m.scrollTo({ top: Math.max(0, tgt.offsetTop - 80), behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' }); } },
-  agMonth(d) { S.agMonth = new Date(S.agMonth.getFullYear(), S.agMonth.getMonth() + +d.n, 1); S.agMonthTouched = true; render(); },
-  agPick() { openSheet('monthPick', { year: S.agMonth.getFullYear(), target: 'agenda' }); },
+  agMonth(d) { S.month = new Date(S.month.getFullYear(), S.month.getMonth() + +d.n, 1); S.monthTouched = true; render(); },
+  agPick() { openSheet('monthPick', { year: S.month.getFullYear(), target: 'agenda' }); },
   pickMonth() { openSheet('monthPick', { year: S.month.getFullYear() }); centerX($('.mp-years'), $('.mp-years .cur')); },
   mpYear(d) { S.sheet.year += +d.n; renderSheet(); },
   mpSetYear(d) { S.sheet.year = +d.y; renderSheet(); centerX($('.mp-years'), $('.mp-years .cur')); },
-  mpGo(d) { const m = new Date(S.sheet.year, +d.m, 1); if (S.sheet.target === 'agenda') { S.agMonth = m; S.agMonthTouched = true; } else S.month = m; closeSheet(); render(); },
+  mpGo(d) { S.month = new Date(S.sheet.year, +d.m, 1); if (S.kalMode === 'daftar') S.agTab = 'bulan'; closeSheet(); render(); },
   pickDay(d) {
     S.sel = d.date; const dd = pd(d.date);
     if (dd.getMonth() !== S.month.getMonth()) { dd.setDate(1); S.month = dd; }
@@ -2010,7 +2088,11 @@ const A = {
     if (!window.matchMedia('(min-width:1100px)').matches) scrollWithin($('#main'), $('.aside'), 12);
   },
   quick() { openSheet('quick', { text: '', parsed: null }); },
-  qaEx(d) { const ta = $('#qa-text'); ta.value = d.t; S.sheet.forceType = null; quickInput(); },
+  qaRow(d) { qaSync(); const o = S.sheet.open || (S.sheet.open = {}); o[d.r] = !o[d.r]; const box = $(`.qrow[data-row="${d.r}"]`); if (box) { box.classList.toggle('open', o[d.r]); box.querySelector('.qrow-b').hidden = !o[d.r]; box.querySelector('.qrow-h').setAttribute('aria-expanded', o[d.r]); if (o[d.r]) { const st = box.querySelector('.dstrip .on'); if (st) centerX(box.querySelector('.dstrip'), st); scrollWithin(box.closest('.sheet'), box, 12); } } },
+  qaDate(d) { qaSync(); S.sheet.parsed.date = d.d; renderSheet(); const st = $('.dstrip .on'); if (st) centerX($('.dstrip'), st); },
+  qaTime(d) { qaSync(); S.sheet.parsed.time = d.t; renderSheet(); },
+  qaAuto() { qaSync(); S.sheet.auto = !S.sheet.auto; renderSheet(); if (S.sheet.auto) { const t = $('#qa-text'); t && t.focus(); } },
+  qaEx(d) { const ta = $('#qa-text'); ta.value = d.t; S.sheet.forceType = null; S.sheet.parsed = null; quickInput(); },
   newEvent(d) { openSheet('quick', { text: '', parsed: null, date: d.date || '', person: d.person || '' }); },
   openEvent(d) { openSheet('event', { id: d.id }); },
   async editEvent(d) {
@@ -2118,10 +2200,7 @@ function fieldSet(id) {
   if (lab) lab.textContent = v ? (inp.name === 'date' ? fmtDMY(v) : fmtTime(v)) : (inp.name === 'date' ? 'DD/MM/YYYY' : '--.--');
   if (btn) { btn.classList.toggle('unset', !v); btn.classList.remove('bad'); }
   const p = S.sheet && S.sheet.kind === 'quick' && S.sheet.parsed;
-  if (p && (id === 'qa-date' || id === 'qa-time')) {
-    p[inp.name] = v;
-    const w = $('#qa-when'); if (w && id === 'qa-date') w.textContent = v ? fmtLong(v) + ' · ' + rel(v) : 'Tanggal belum terbaca — pilih tanggalnya.';
-  }
+  if (S.sheet && S.sheet.kind === 'quick' && (id === 'qa-date' || id === 'qa-time')) { qaSync(); renderSheet(); }
 }
 const CHG = {
   remOff(el) { if (S.sheet && S.sheet.kind === 'event') return CHG.remEv(el); },
@@ -2137,7 +2216,7 @@ const CHG = {
   mode(el) { lsSet('ingetin:mode', el.value); applyTheme(); render(); },
   repeatPick(el) {
     const f = el.form; const by = f && f.querySelector('.by-field'); if (by) by.hidden = el.value !== 'yearly';
-    const p = S.sheet && S.sheet.kind === 'quick' && S.sheet.parsed; if (p) { p.repeat = el.value; S.sheet.rem = null; const q = $('#qa-text'); S.sheet.text = q ? q.value : S.sheet.text; renderSheet(); }
+    if (S.sheet && S.sheet.kind === 'quick') { qaSync(); S.sheet.parsed.repeat = el.value; S.sheet.rem = null; const q = $('#qa-text'); S.sheet.text = q ? q.value : S.sheet.text; renderSheet(); }
   },
   theme(el) { if (el.value === 'custom') { const c = $('#th-custom'); el.value = 'custom:' + (c ? c.value : '#2F5BEA'); } lsSet('ingetin:theme', el.value); applyTheme(el.value); render(); toast('Tema ' + themeOf(el.value).n + ' dipakai'); },
   holToggle(el) { lsSet('ingetin:showHol', el.checked); render(); },
@@ -2149,14 +2228,14 @@ const CHG = {
     await saveChecklist(e, list);
     toast(list.every((x) => x.done) ? 'Persiapan “' + e.title + '” beres semua!' : 'Dicentang', { label: 'Batalkan', fn: () => { const cur = getEv(e.id); saveChecklist(cur, (cur.checklist || []).map((x, i) => (i === k ? { ...x, done: false } : x))); } });
   },
-  agTab(el) { S.agTab = el.value; if (el.value === 'bulan') { const d = todayD(); d.setDate(1); if (!S.agMonthTouched) S.agMonth = d; } render(); },
+  agTab(el) { S.agTab = el.value; render(); },
   personPick(el) {
     const f = el.form; const box = f && f.querySelector('.pnew'); if (box) box.hidden = el.value !== '__other';
     const p = S.sheet && S.sheet.kind === 'quick' && S.sheet.parsed; if (p) p.sel = el.value;
     if (S.sheet && S.sheet.kind === 'quick' && !S.sheet.parsed) S.sheet.parsed = { type: 'event', title: '', date: '', time: '', personId: '', newName: '', noteText: '', sel: el.value };
   },
   authTab(el) { S.authTab = el.value; render(); },
-  qaType(el) { S.sheet.forceType = el.value; if (!S.sheet.parsed) S.sheet.parsed = { type: el.value, title: '', date: '', time: '', personId: S.sheet.person || '', newName: '', noteText: S.sheet.text || '' }; S.sheet.parsed.type = el.value; const q = $('#qa-text'); S.sheet.text = q ? q.value : S.sheet.text; renderSheet(); },
+  qaType(el) { qaSync(); const p = S.sheet.parsed; S.sheet.forceType = el.value; p.type = el.value === 'note' ? 'note' : 'event'; if (el.value === 'bday') { p.repeat = 'yearly'; } else if (p.repeat === 'yearly' && el.value === 'event') p.repeat = ''; if (el.value === 'note' && !p.noteText) p.noteText = p.title || ''; if (el.value !== 'note' && !p.title && p.noteText) p.title = p.noteText; S.sheet.rem = null; renderSheet(); },
   async check(el) {
     const e = getEv(S.sheet.id); if (!e) return;
     const list = (e.checklist || []).map((x, i) => (i === +el.dataset.i ? { ...x, done: el.checked } : x));
@@ -2192,21 +2271,24 @@ const FORMS = {
   async quick(f) {
     const fd = new FormData(f), type = fd.get('type'), err = $('#qa-err');
     const r = S.sheet.parsed || {};
+    const need = (k, msg) => { (S.sheet.open || (S.sheet.open = {}))[k] = true; qaSync(); renderSheet(); const e2 = $('#qa-err'); if (e2) e2.textContent = msg; flagField(`.qrow[data-row="${k}"]`); };
     if (type === 'note') {
       const text = (fd.get('noteText') || '').trim();
       if (!text) { err.textContent = 'Isi catatannya dulu.'; return; }
       const pid = await ensurePerson(fd.get('person'), r.newName || '', fd.get('personNew'));
-      if (!pid) { err.textContent = fd.get('person') === '__other' ? 'Tulis nama teman barunya.' : 'Pilih teman yang dicatat.'; return; }
+      if (!pid) { need('person', fd.get('person') === '__other' ? 'Tulis nama teman barunya.' : 'Pilih teman yang dicatat.'); return; }
       await save('notes', { id: uid(), person_id: pid, text, kind: fd.get('kind') || 'ingat' });
       closeSheet(); toast('Catatan tersimpan'); return;
     }
-    const title = (fd.get('title') || '').trim(), date = fd.get('date');
-    if (!title) { err.textContent = 'Judulnya belum ada.'; flagField('#qa-title'); return; }
-    if (!date) { err.textContent = 'Pilih tanggalnya dulu.'; flagField('[data-for=qa-date]'); return; }
-    if (fd.get('person') === '__other' && !(fd.get('personNew') || '').trim()) { err.textContent = 'Tulis nama teman barunya.'; flagField('#qa-person-new'); return; }
+    const isBday = type === 'bday', date = fd.get('date');
+    let title = (fd.get('title') || '').trim();
+    if (!title && !isBday) { err.textContent = 'Judulnya belum ada.'; flagField('#qa-title'); return; }
+    if (!date) { need('date', 'Pilih tanggalnya dulu.'); return; }
+    if (fd.get('person') === '__other' && !(fd.get('personNew') || '').trim()) { need('person', 'Tulis nama teman barunya.'); return; }
     const pid = await ensurePerson(fd.get('person'), r.newName || '', fd.get('personNew'));
-    const rep = fd.get('repeat') || null, by = parseInt(fd.get('birthYear'), 10);
-    const kind = rep === 'yearly' && /\b(ultah|ulang\s*tahun|birthday|bday)\b/i.test(title) ? 'ultah' : null;
+    if (isBday && !title) { const p = pid && personById(pid); if (!p) { need('person', 'Ulang tahun siapa? Pilih temannya atau isi judul.'); return; } title = 'Ultah ' + p.name; }
+    const rep = isBday ? 'yearly' : fd.get('repeat') || null, by = parseInt(fd.get('birthYear'), 10);
+    const kind = isBday || (rep === 'yearly' && /\b(ultah|ulang\s*tahun|birthday|bday)\b/i.test(title)) ? 'ultah' : null;
     const ev = await save('events', { id: uid(), title, date, time: fd.get('time') || null, person_id: pid, location: (fd.get('location') || '').trim() || null, notes: (fd.get('notes') || '').trim() || null, ...shareFromForm(fd), checklist: [], reminders: remFromForm(fd), repeat: rep, birth_year: rep === 'yearly' && by > 1900 ? by : null, occ: {}, kind });
     closeSheet();
     S.sel = date; const m = pd(date); m.setDate(1); S.month = m; S.view = 'kalender'; render();
@@ -2295,7 +2377,7 @@ document.addEventListener('click', (ev) => {
   ev.preventDefault(); if (el.dataset.busy) return;
   fn(el.dataset, el);
 });
-document.addEventListener('change', (ev) => { const el = ev.target; if (el.dataset && el.dataset.chg && CHG[el.dataset.chg]) CHG[el.dataset.chg](el); });
+document.addEventListener('change', (ev) => { const el = ev.target; if (el.dataset && el.dataset.chg && CHG[el.dataset.chg]) CHG[el.dataset.chg](el); if (el.form && el.form.dataset.form === 'quick' && !(el.dataset && (el.dataset.chg === 'qaType' || el.dataset.chg === 'repeatPick'))) qaSync(); });
 document.addEventListener('submit', async (ev) => {
   const f = ev.target; const fn = FORMS[f.dataset.form]; if (!fn) return;
   ev.preventDefault(); if (f.dataset.busy) return;
@@ -2305,6 +2387,7 @@ document.addEventListener('submit', async (ev) => {
 });
 let qaTimer;
 document.addEventListener('input', (ev) => {
+  if (ev.target.form && ev.target.form.dataset.form === 'quick' && ev.target.id !== 'qa-text') qaSync();
   if (ev.target.id === 'srch' && S.sheet && S.sheet.kind === 'search') { S.sheet.q = ev.target.value; const r = $('#srch-res'); if (r) r.innerHTML = searchResults(S.sheet); }
   if (ev.target.id === 'cari') { S.q = ev.target.value; const l = $('#frlist'); if (l) l.innerHTML = friendList(); }
   if (ev.target.id === 'pp-custom' || (ev.target.name === 'color' && ev.target.closest('[data-form=person]'))) {
@@ -2395,7 +2478,7 @@ async function boot() {
   const inv = qs.get('undang'), aksi = qs.get('aksi'), vw = qs.get('view');
   if (aksi || vw) history.replaceState(history.state, '', location.pathname);
   if (vw && VIEWS[vw]) S.view = vw;
-  if (vw === 'bulan') { S.view = 'minggu'; S.agTab = 'bulan'; }
+  if (vw === 'bulan') { S.view = 'kalender'; S.kalMode = 'daftar'; S.agTab = 'bulan'; }
   if (inv) { lsSet(IKEY, inv); history.replaceState(null, '', location.pathname); }
   S.data = Local.load(); render();
   if (aksi === 'tambah') openSheet('quick', { text: '', parsed: null });
@@ -2418,10 +2501,10 @@ async function boot() {
 // Chrome Android melewati entri riwayat yang dibuat tanpa ketukan pengguna,
 // jadi entri selalu dibuat di dalam handler ketukan (click).
 const NAV = [];
-function navPush() { NAV.push({ view: S.view, personId: S.personId, agTab: S.agTab, setPage: S.setPage || null, scroll: $('#main') ? $('#main').scrollTop : 0 }); if (NAV.length > 40) NAV.shift(); pushEntry(); }
+function navPush() { NAV.push({ view: S.view, kalMode: S.kalMode, personId: S.personId, agTab: S.agTab, setPage: S.setPage || null, scroll: $('#main') ? $('#main').scrollTop : 0 }); if (NAV.length > 40) NAV.shift(); pushEntry(); }
 function navBack() {
   const p = NAV.pop(); if (!p) return false;
-  S.view = p.view; S.personId = p.personId; S.setPage = p.setPage || null; if (p.agTab) S.agTab = p.agTab; render();
+  S.view = p.view; S.personId = p.personId; S.setPage = p.setPage || null; if (p.agTab) S.agTab = p.agTab; if (p.kalMode) S.kalMode = p.kalMode; render();
   const m = $('#main'); if (m) m.scrollTop = p.scroll || 0; return true;
 }
 const hDepth = () => (history.state && history.state.ingetin) || 0;

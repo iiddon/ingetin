@@ -49,8 +49,8 @@
       ]
     },
     {
-      "name": "Agenda minggu ini",
-      "short_name": "Agenda",
+      "name": "Daftar acara",
+      "short_name": "Daftar",
       "url": "./?view=minggu",
       "icons": [
         {
@@ -61,7 +61,7 @@
       ]
     },
     {
-      "name": "Agenda bulan ini",
+      "name": "Daftar sebulan",
       "short_name": "Bulan ini",
       "url": "./?view=bulan",
       "icons": [
