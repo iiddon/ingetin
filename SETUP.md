@@ -38,3 +38,20 @@ Untuk percobaan, kamu juga bisa mengisi URL dan key langsung di aplikasi lewat *
 3. Ketuk **Undang teman › Kirim lewat WhatsApp**. Setelah temanmu daftar lewat link itu, kalian otomatis terhubung.
 4. Saat membuat acara, nyalakan **Bagikan ke teman yang terhubung** supaya acara itu muncul di kalender mereka.
    Catatan tentang teman selalu pribadi dan tidak pernah dibagikan.
+
+## Notifikasi server (v3.1): pengingat tetap muncul walau aplikasi ditutup
+
+Cukup sekali per proyek Supabase. Panduan yang sama ada di aplikasi: Pengaturan › Notifikasi › **Panduan menyiapkan server** (lengkap dengan tombol salin).
+
+1. **Jalankan SQL**: Supabase › SQL Editor › New query › tempel isi `supabase-update-v3.1.sql` › Run.
+   Ini membuat tabel `push_subs`, `push_prefs`, `push_sent`, `push_vapid`, dan jadwal Cron `ingetin-push` yang berjalan tiap menit.
+2. **Buat Edge Function**: Supabase › Edge Functions › Deploy a new function › Via Editor.
+   Beri nama `push`, hapus contoh kode, tempel isi `supabase/functions/push/index.ts`, lalu Deploy.
+3. **Matikan Verify JWT**: buka fungsi `push` › Details › matikan *Enforce JWT Verification* › Save.
+   (Fungsi ini tidak memberi akses data; Cron dan aplikasi memanggilnya tanpa token.)
+4. **Nyalakan di aplikasi**: masuk ke akun, lalu Pengaturan › Notifikasi › nyalakan *Notifikasi walau aplikasi ditutup*. Notifikasi uji akan datang.
+
+Catatan:
+- Kunci VAPID dibuat otomatis oleh fungsi dan disimpan di tabel `push_vapid` yang hanya bisa dibaca server. Tidak ada kunci rahasia yang perlu disalin.
+- Nyalakan per HP. Kalau ganti HP atau menghapus data browser, nyalakan lagi.
+- Cek jadwal: SQL Editor › `select * from cron.job_run_details order by start_time desc limit 5;`

@@ -436,6 +436,12 @@ mark{background:var(--mark);color:inherit;border-radius:3px;padding:0 1px}
 .pend-t b{font-size:14px;word-break:break-word}.pend-t span{font-size:12px;color:var(--mu)}
 [data-mode=dark] .pend{border-color:#7F1D1D}[data-mode=dark] .pend-h{color:#FCA5A5}
 [data-mode=dark] .chk-due.late{background:#3A1A1A;border-color:#7F1D1D;color:#FCA5A5}
+.ps-list{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:14px}
+.ps-step{display:flex;gap:12px;align-items:flex-start}
+.ps-n{width:28px;height:28px;border-radius:50%;background:var(--p);color:#fff;display:grid;place-items:center;font-weight:800;font-size:14px;flex-shrink:0}
+.ps-t{display:flex;flex-direction:column;gap:4px;font-size:14px}.ps-t small{color:var(--mu);font-size:13px;line-height:1.45}
+.ps-btn{align-self:flex-start;min-height:38px;margin-top:4px}
+.ps-warn{display:flex;gap:8px;align-items:flex-start;padding:10px 12px;border-radius:12px;background:#FEF3C7;color:#92400E;font-size:14px}
 .tbar{display:flex;align-items:center;gap:8px;width:100%;min-height:48px;padding:0 10px 0 12px;margin-bottom:12px;border-radius:14px;border:1px solid var(--bd);background:var(--card);color:var(--tx);text-align:left;flex-shrink:0;transition:transform .12s}
 .tbar:active{transform:scale(.98)}
 .tbar b{flex:1;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -485,7 +491,7 @@ mark{background:var(--mark);color:inherit;border-radius:3px;padding:0 1px}
 
 <script type="module">
 /* ============ helpers ============ */
-const APP_VERSION = '3.0 (24 Nov 2026)';
+const APP_VERSION = '3.1 (24 Nov 2026)';
 const $ = (s, r = document) => r.querySelector(s);
 const h = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const pad = (n) => String(n).padStart(2, '0');
@@ -723,7 +729,7 @@ const defaultRem = (rep) => (rep === 'daily' ? ['hari-h'] : ['h-1', 'hari-h']);
 // pengingat yang berlaku untukku: milik sendiri dari acara; acara teman dari pengaturan pribadi (perangkat ini)
 function remindersOf(e) {
   if (isMine(e)) return e.reminders || [];
-  const f = lsGet(FKEY, {}); return f[e._base || e.id] || ['h-1', 'hari-h', 'off-60'];
+  const f = lsGet(FKEY, {}); return f[e._base || e.id] || ['h-1', 'hari-h'];
 }
 // semua waktu pengingat untuk satu pilihan. Hari H + jam acara = 1 jam sebelum DAN tepat waktu.
 function remTimes(e, k) {
@@ -868,12 +874,81 @@ async function testNotif() {
   const r = await showNote('Ingetin', { body: 'Notifikasi uji berhasil. Pengingat acara akan muncul seperti ini.', tag: 'ingetin-test-' + Date.now() });
   openSheet('notif', { st: r.ok ? 'tested' : 'testerr', err: r.err || '', listed: r.listed });
 }
+/* ---- notifikasi dari server (Web Push) ---- */
+const PUSHK = 'ingetin:push', FILES = {};
+const pushOk = () => 'serviceWorker' in navigator && 'PushManager' in window && 'Notification' in window;
+const pushOn = () => S.mode === 'cloud' && !!lsGet(PUSHK, '');
+const fnUrl = () => cfg().supabaseUrl.replace(/\/+$/, '') + '/functions/v1/push';
+const b64u = (s) => { const b = atob((s + '='.repeat((4 - (s.length % 4)) % 4)).replace(/-/g, '+').replace(/_/g, '/')); return Uint8Array.from(b, (c) => c.charCodeAt(0)); };
+async function fnCall(method, body) {
+  const ctl = new AbortController(); const t = setTimeout(() => ctl.abort(), 15000);
+  try {
+    const r = await fetch(fnUrl(), { method, signal: ctl.signal, headers: { apikey: cfg().supabaseAnonKey, 'Content-Type': 'application/json' }, body: body ? JSON.stringify(body) : undefined });
+    const j = await r.json().catch(() => ({})); if (!r.ok || j.ok === false) throw new Error(j.error || 'HTTP ' + r.status); return j;
+  } finally { clearTimeout(t); }
+}
+async function syncFriendRem() {
+  if (!pushOn()) return;
+  try { await S.sb.from('push_prefs').upsert({ user_id: myId(), friend_rem: lsGet(FKEY, {}), updated_at: new Date().toISOString() }, { onConflict: 'user_id' }); } catch {}
+}
+async function saveSub(sub) {
+  const { error } = await S.sb.rpc('save_push_sub', { p_endpoint: sub.endpoint, p_sub: sub.toJSON(), p_tz: -new Date().getTimezoneOffset(), p_ua: navigator.userAgent });
+  if (error) throw new Error(/save_push_sub|schema cache|does not exist/i.test(error.message) ? 'SQL' : error.message);
+}
+async function pushEnable() {
+  if (!pushOk()) throw new Error('Browser ini belum mendukung notifikasi dari server. Coba pakai Chrome.');
+  if (Notification.permission !== 'granted') throw new Error('PERM');
+  let key; try { key = (await fnCall('GET')).publicKey; } catch { throw new Error('SERVER'); }
+  if (!key) throw new Error('SERVER');
+  const reg = await Promise.race([navigator.serviceWorker.ready, new Promise((_, no) => setTimeout(() => no(new Error('Service worker belum siap. Tutup lalu buka lagi aplikasinya.')), 8000))]);
+  let sub = await reg.pushManager.getSubscription();
+  if (sub) { const cur = sub.options && sub.options.applicationServerKey; const k = b64u(key); if (!cur || new Uint8Array(cur).join() !== k.join()) { await sub.unsubscribe(); sub = null; } }
+  if (!sub) sub = await reg.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: b64u(key) });
+  await saveSub(sub);
+  lsSet(PUSHK, sub.endpoint);
+  await syncFriendRem();
+  await fnCall('POST', { test: true, endpoint: sub.endpoint });
+}
+async function pushDisable() {
+  const ep = lsGet(PUSHK, ''); lsSet(PUSHK, '');
+  try { const reg = await navigator.serviceWorker.ready; const sub = await reg.pushManager.getSubscription(); if (sub) await sub.unsubscribe(); } catch {}
+  if (ep && S.sb) { try { await S.sb.rpc('delete_push_sub', { p_endpoint: ep }); } catch {} }
+}
+// dipanggil saat aplikasi dibuka: pastikan langganan perangkat ini masih ada
+async function pushRefresh() {
+  if (!pushOn() || !pushOk()) return;
+  try {
+    const reg = await navigator.serviceWorker.ready; const sub = await reg.pushManager.getSubscription();
+    if (!sub) { lsSet(PUSHK, ''); render(); return; }
+    await saveSub(sub); lsSet(PUSHK, sub.endpoint);
+  } catch {}
+}
+// tandai pengingat sudah dikirim, supaya server tidak mengirim ulang (dan sebaliknya)
+async function claimKey(key) {
+  if (!pushOn()) return true;
+  try { const { error } = await S.sb.from('push_sent').insert({ user_id: myId(), key }); return !(error && (error.code === '23505' || /duplicate/i.test(error.message))); } catch { return true; }
+}
+function prefetchFiles() { for (const f of ['supabase-update-v3.1.sql', 'supabase/functions/push/index.ts']) if (!FILES[f]) fetch(f, { cache: 'no-cache' }).then((r) => (r.ok ? r.text() : null)).then((t) => { if (t) FILES[f] = t; }).catch(() => {}); }
+async function pushToggle(on) {
+  if (S.pushBusy) return;
+  S.pushBusy = true; render();
+  try {
+    if (on) { await pushEnable(); toast('Notifikasi server aktif. Notifikasi uji sedang dikirim.'); }
+    else { await pushDisable(); toast('Notifikasi server dimatikan di perangkat ini'); }
+  } catch (err) {
+    const m = err.message;
+    if (m === 'PERM') { S.pushBusy = false; A.askNotif(); toast('Izinkan notifikasi dulu, lalu nyalakan lagi'); return; }
+    if (m === 'SERVER' || m === 'SQL') { S.pushBusy = false; render(); openSheet('pushSetup', { why: m }); prefetchFiles(); return; }
+    toast('Gagal: ' + m);
+  } finally { S.pushBusy = false; render(); }
+}
 async function notifyDue() {
   if (!('Notification' in window) || Notification.permission !== 'granted') return;
   const sent = lsGet(NKEY, []);
   for (const { e, key, k, open } of dueReminders()) {
     if (sent.includes(key)) continue;
-    sent.push(key);
+    sent.push(key); lsSet(NKEY, sent.slice(-300));
+    if (!(await claimKey(key))) continue; // server sudah mengirimkannya
     const body = k === 'susulan' ? open + ' persiapan belum ditandai beres' : k === 'hari-h@0' ? 'Dimulai sekarang · ' + fmtTime(e.time) : k === 'hari-h' && e.time ? '1 jam lagi · ' + fmtTime(e.time) : rel(e.date) + ' · ' + fmtLong(e.date) + (e.time ? ' ' + fmtTime(e.time) : '');
     await showNote('Ingetin: ' + e.title, { body, icon: 'icon-192.png', badge: 'icon-192.png', tag: key });
   }
@@ -1056,7 +1131,7 @@ function renderSheet() {
   if (body === null) { closeSheet(); return; }
   const cur = $('#sh .sheet');
   if (cur && cur.dataset.kind === S.sheet.kind) { const st = cur.scrollTop; cur.innerHTML = body; cur.scrollTop = st; return; }
-  $('#sh').innerHTML = `<div class="backdrop" data-act="closeSheet"></div><div class="sheet" role="dialog" aria-modal="true" aria-label="${h({ quick: 'Tambah cepat', event: 'Detail acara', editEvent: 'Ubah acara', note: 'Catatan', person: 'Teman', invite: 'Undang teman', today: 'Hari ini', pin: 'PIN', search: 'Cari', monthPick: 'Pilih bulan', notif: 'Notifikasi' }[S.sheet.kind] || '')}" tabindex="-1" data-kind="${S.sheet.kind}">${body}</div>`;
+  $('#sh').innerHTML = `<div class="backdrop" data-act="closeSheet"></div><div class="sheet" role="dialog" aria-modal="true" aria-label="${h({ quick: 'Tambah cepat', event: 'Detail acara', editEvent: 'Ubah acara', note: 'Catatan', person: 'Teman', invite: 'Undang teman', today: 'Hari ini', pushSetup: 'Siapkan notifikasi server', pin: 'PIN', search: 'Cari', monthPick: 'Pilih bulan', notif: 'Notifikasi' }[S.sheet.kind] || '')}" tabindex="-1" data-kind="${S.sheet.kind}">${body}</div>`;
 }
 
 const avatar = (p, size = 44) => `<span class="av" style="width:${size}px;height:${size}px;font-size:${Math.round(size * 0.38)}px;${cs(p.color)}">${h((p.name || '?')[0].toUpperCase())}</span>`;
@@ -1089,6 +1164,14 @@ function renderShell() {
 }
 function todayCounts() { return { due: dueReminders(), pend: pendingItems(), brief: briefDue() && lsGet('ingetin:briefHide', '') !== todayS() }; }
 const greet = () => { const hr = new Date().getHours(); return 'Selamat ' + (hr < 11 ? 'pagi' : hr < 15 ? 'siang' : hr < 18 ? 'sore' : 'malam'); };
+function pushCard() {
+  const on = pushOn(), busy = S.pushBusy;
+  if (!hasCfg()) return `<b>Notifikasi walau aplikasi ditutup</b><p>Butuh server Supabase. Ikuti SETUP.md untuk menyambungkannya.</p>`;
+  if (S.mode !== 'cloud') return `<div class="item"><span><b>Notifikasi walau aplikasi ditutup</b><small class="muted" style="display:block">Masuk ke akunmu dulu supaya server bisa mengirim pengingat.</small></span><button type="button" class="btn ghost" data-act="goAkun">Masuk</button></div>`;
+  return `<label class="sw"><span><b>Notifikasi walau aplikasi ditutup</b><small>${busy ? 'Sedang menyiapkan…' : on ? 'Aktif di HP ini. Server mengirim pengingat tiap menit.' : 'Pengingat dikirim server, jadi tetap muncul walau Ingetin tidak dibuka.'}</small></span><input type="checkbox" role="switch" data-chg="pushSw" ${on ? 'checked' : ''} ${busy ? 'disabled' : ''}></label>
+    ${on ? `<div class="item"><span class="muted" style="font-size:13px">Belum muncul? Kirim uji dari server.</span><button type="button" class="btn ghost" data-act="pushTest">Kirim uji</button></div>` : ''}
+    <button type="button" class="btn ghost" style="align-self:flex-start;min-height:36px" data-act="pushSetup">${ic('info', 16)}Panduan menyiapkan server</button>`;
+}
 function topNotes() {
   let out = '';
   if (S.view === 'kalender' || S.view === 'minggu') {
@@ -1430,8 +1513,8 @@ function vPengaturan() {
       ${samsungTip(false)}
       ${perm === 'granted' ? `<div class="item"><span style="color:var(--ok);font-weight:700">${ic('check', 16, 2.4)} Notifikasi aktif</span><button type="button" class="btn ghost" data-act="testNotif">Kirim uji</button></div>`
         : `<button type="button" class="nf-cta" data-act="askNotif"><span class="nf-cta-i">${ic('bell', 24, 2)}</span><span class="nf-cta-t"><b>${perm === 'denied' ? 'Notifikasi diblokir' : 'Aktifkan notifikasi'}</b><small>${perm === 'denied' ? 'Ketuk untuk lihat cara membukanya' : 'Supaya pengingat muncul di HP'}</small></span>${ic('right', 20, 2.2)}</button>`}
-      <p>Pengingat acara: H-7, H-3, H-1 pukul 19.00 dan hari H pukul 07.00 (atur per acara).</p>
-      <p>Supaya pasti berbunyi walau aplikasi tertutup, buka acara lalu ketuk <b>Tambah ke Kalender HP</b>.</p></section></div>`;
+      <p>Pengingat acara: H-7, H-3, H-1 pukul 19.00. Hari H: 1 jam sebelum &amp; tepat di jam acara (tanpa jam: 07.00).</p></section>
+      <section class="card">${pushCard()}</section></div>`;
   if (pg === 'brief') return back('Ringkasan pagi') + `<div class="settings"><section class="card">
       <label class="sw"><span style="flex-direction:row;align-items:center;gap:12px"><span class="sun-i">${ic('sun', 22)}</span><span style="display:flex;flex-direction:column"><b>Ringkasan pagi</b><small>Satu notifikasi + kartu di Kalender</small></span></span><input type="checkbox" role="switch" data-chg="briefOpt" value="on" ${bc.on ? 'checked' : ''}></label>
       ${bc.on ? `<span class="flabel">Jam kirim</span><div class="brief-times">${['06:00', '07:00', '08:00'].map((t) => `<button type="button" class="${bc.time === t ? 'on' : ''}" data-act="briefTime" data-t="${t}" aria-pressed="${bc.time === t}">${fmtTime(t)}</button>`).join('')}<input type="hidden" id="bf-time" name="time" value="${bc.time}"><button type="button" class="${['06:00', '07:00', '08:00'].includes(bc.time) ? '' : 'on'}" data-act="pickTime" data-for="bf-time">${['06:00', '07:00', '08:00'].includes(bc.time) ? 'Lainnya' : fmtTime(bc.time)}</button></div>
@@ -1673,6 +1756,18 @@ const SHEETS = {
       <div id="srch-res">${searchResults(s)}</div></div>`;
   },
   today() { return todaySheetBody(); },
+  pushSetup(s) {
+    const step = (n, t, d, btn) => `<li class="ps-step"><span class="ps-n">${n}</span><span class="ps-t"><b>${t}</b><small>${d}</small>${btn || ''}</span></li>`;
+    return `<div class="sh-body"><div class="sh-top"><h2>Siapkan notifikasi server</h2><button type="button" class="icon-btn round" data-act="closeSheet" aria-label="Tutup">${ic('x', 18, 2.4)}</button></div>
+      ${s.why === 'SERVER' ? `<div class="ps-warn">${ic('info', 18)}<span>Server notifikasi belum ditemukan. Ikuti langkah 2 dan 3 dulu.</span></div>` : s.why === 'SQL' ? `<div class="ps-warn">${ic('info', 18)}<span>Tabel notifikasi belum ada. Jalankan langkah 1 dulu.</span></div>` : '<p class="muted" style="margin:0">Cukup sekali. Setelah itu semua akun di Ingetin bisa memakainya.</p>'}
+      <ol class="ps-list">
+        ${step(1, 'Jalankan SQL', 'Supabase › SQL Editor › New query › tempel › Run.', `<button type="button" class="btn ghost ps-btn" data-act="copyFile" data-f="supabase-update-v3.1.sql">${ic('copy', 16)}Salin SQL</button>`)}
+        ${step(2, 'Buat Edge Function "push"', 'Supabase › Edge Functions › Deploy a new function › Via Editor. Beri nama <b>push</b>, hapus contoh kodenya, tempel kode ini, lalu Deploy.', `<button type="button" class="btn ghost ps-btn" data-act="copyFile" data-f="supabase/functions/push/index.ts">${ic('copy', 16)}Salin kode fungsi</button>`)}
+        ${step(3, 'Matikan "Verify JWT"', 'Buka fungsi push › Details. Matikan <b>Enforce JWT Verification</b> (atau Verify JWT), lalu Save.')}
+        ${step(4, 'Nyalakan di sini', 'Kembali ke Pengaturan › Notifikasi, nyalakan <b>Notifikasi walau aplikasi ditutup</b>.')}
+      </ol>
+      <small class="muted">Kunci rahasia untuk mengirim notifikasi dibuat otomatis oleh server dan tidak pernah dikirim ke HP.</small></div>`;
+  },
   monthPick(s) {
     const ref = s.target === 'agenda' ? S.agMonth : S.month;
     const y = s.year, mo = ref.getMonth(), cy = ref.getFullYear(), t = todayD();
@@ -1820,6 +1915,14 @@ function renderPicker() {
 /* ============ actions ============ */
 const A = {
   openToday() { openSheet('today'); },
+  pushSetup() { openSheet('pushSetup', {}); prefetchFiles(); },
+  async pushTest() { try { await fnCall('POST', { test: true, endpoint: lsGet(PUSHK, '') }); toast('Terkirim. Tunggu beberapa detik.'); } catch (err) { toast(/terdaftar/.test(err.message) ? 'HP ini belum terdaftar. Matikan lalu nyalakan lagi.' : 'Gagal: ' + err.message); } },
+  async copyFile(d) {
+    try {
+      const txt = (FILES[d.f] = FILES[d.f] || (await (await fetch(d.f, { cache: 'no-cache' })).text()));
+      await navigator.clipboard.writeText(txt); toast('Tersalin. Tempel di Supabase.');
+    } catch { toast('Gagal menyalin. Buka file ' + d.f + ' di GitHub.'); }
+  },
   syncHide() { lsSet('ingetin:syncHide', true); render(); },
   dismissAll() { const l = lsGet(DKEY, []); for (const x of dueReminders()) l.push(x.key); lsSet(DKEY, l.slice(-500)); render(); },
   async itemDue(d) {
@@ -2060,13 +2163,14 @@ const CHG = {
     await saveChecklist(e, list);
     if (list.length && list.every((x) => x.done)) toast('Semua persiapan beres!');
   },
+  pushSw(el) { pushToggle(el.checked); },
   async remEv(el) {
     const inst = getEv(S.sheet.id); if (!inst) return;
     const sec = el.closest('section');
     const list = [...sec.querySelectorAll('input[data-chg=remEv][type=checkbox]:checked')].map((x) => x.value);
     const next = list;
     if (isMine(inst)) { const b = baseOf(inst); await save('events', { ...b, reminders: next }); }
-    else { const f = lsGet(FKEY, {}); f[inst._base || inst.id] = next; lsSet(FKEY, f); renderSheet(); render(); }
+    else { const f = lsGet(FKEY, {}); f[inst._base || inst.id] = next; lsSet(FKEY, f); syncFriendRem(); renderSheet(); render(); }
   },
   async rem(el) { return CHG.remEv(el);
   },
@@ -2305,6 +2409,8 @@ async function boot() {
       S.sb.auth.onAuthStateChange((evt, session) => { if (evt === 'SIGNED_IN' && S.mode !== 'cloud') onSession(session); if (evt === 'SIGNED_OUT') onSession(null); if (evt === 'TOKEN_REFRESHED') S.session = session; });
     } catch (err) { toast('Tidak bisa tersambung ke server. Memakai data di perangkat ini.'); }
   }
+  pushRefresh();
+  const evq = qs.get('ev'); if (evq) { history.replaceState(history.state, '', location.pathname); if (getEv(evq)) openSheet('event', { id: evq }); }
   if (inv && S.mode !== 'cloud') { S.view = 'pengaturan'; S.setPage = 'akun'; S.authTab = 'daftar'; render(); toast('Kamu diundang! Daftar atau masuk untuk terhubung.'); }
   notifyDue();
 }
@@ -2350,6 +2456,7 @@ if ('serviceWorker' in navigator && location.protocol === 'https:') {
     reg.update().catch(() => {});
     document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') reg.update().catch(() => {}); });
   }).catch(() => {});
+  navigator.serviceWorker.addEventListener('message', (m) => { const id = m.data && m.data.openEv; if (id && getEv(id)) openSheet('event', { id }); });
   navigator.serviceWorker.addEventListener('controllerchange', () => { if (hadCtrl && !reloaded && !S.sheet) { reloaded = true; location.reload(); } });
 }
 boot();

@@ -1,4 +1,4 @@
-const CACHE = 'ingetin-v21';
+const CACHE = 'ingetin-v22';
 const SHELL = ['./', './index.html', './config.js', './manifest.json', './icon.svg', './icon-192.png', './apple-touch-icon.png', './holidays.json'];
 
 self.addEventListener('install', (e) => {
@@ -22,7 +22,21 @@ self.addEventListener('fetch', (e) => {
     }).catch(() => caches.match(req).then((r) => r || caches.match('./index.html')))
   );
 });
+// Notifikasi dari server (Web Push): muncul walau aplikasi ditutup.
+self.addEventListener('push', (e) => {
+  let d = {}; try { d = e.data ? e.data.json() : {}; } catch { d = { body: e.data && e.data.text() }; }
+  const title = d.title || 'Ingetin', tag = d.tag || 'ingetin-' + Date.now();
+  e.waitUntil(self.registration.getNotifications({ tag }).then((l) => {
+    if (l.length) return; // sudah tampil dari aplikasi
+    return self.registration.showNotification(title, { body: d.body || '', tag, renotify: true, icon: 'icon-192.png', badge: 'favicon-32.png', vibrate: [120, 60, 120], data: { ev: d.ev || '' } });
+  }));
+});
 self.addEventListener('notificationclick', (e) => {
   e.notification.close();
-  e.waitUntil(self.clients.matchAll({ type: 'window' }).then((cs) => (cs[0] ? cs[0].focus() : self.clients.openWindow('./'))));
+  const ev = (e.notification.data && e.notification.data.ev) || '';
+  e.waitUntil(self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then((cs) => {
+    const c = cs[0];
+    if (c) { if (ev) c.postMessage({ openEv: ev }); return c.focus(); }
+    return self.clients.openWindow(ev ? './?ev=' + encodeURIComponent(ev) : './');
+  }));
 });
