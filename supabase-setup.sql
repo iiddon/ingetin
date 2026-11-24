@@ -51,6 +51,12 @@ create table if not exists public.notes (
   created_at timestamptz not null default now()
 );
 
+-- acara berulang (v2.3): aman dijalankan ulang
+alter table public.events add column if not exists repeat text;
+alter table public.events add column if not exists birth_year int;
+alter table public.events add column if not exists occ jsonb not null default '{}'::jsonb;
+alter table public.events add column if not exists kind text;
+
 create index if not exists events_owner_date on public.events (owner_id, date);
 create index if not exists notes_owner on public.notes (owner_id);
 create index if not exists people_owner on public.people (owner_id);

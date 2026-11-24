@@ -279,7 +279,7 @@ textarea.inp{resize:vertical;line-height:1.45}
 .pnew{margin-top:10px}
 .pnew[hidden]{display:none}
 .pickbtn{display:flex;align-items:center;justify-content:space-between;gap:8px;text-align:left;font-weight:600;cursor:pointer}
-.pickbtn.empty{color:#6B7280;font-weight:500}
+.pickbtn.unset{color:#6B7280;font-weight:500}
 .pickbtn svg{color:var(--mu);flex-shrink:0}
 #pick .backdrop{z-index:64}
 .picker{position:fixed;z-index:65;left:50%;top:50%;transform:translate(-50%,-50%);width:min(380px,94vw);max-height:92dvh;overflow-y:auto;background:var(--card);border-radius:22px;padding:18px;display:flex;flex-direction:column;gap:12px;box-shadow:0 20px 50px rgba(0,0,0,.22);animation:pop .2s cubic-bezier(.2,.8,.2,1)}
@@ -342,6 +342,10 @@ textarea.inp{resize:vertical;line-height:1.45}
 .holrow.cuti{background:#FFF7ED;color:#9A3412}
 .holrow small{margin-left:auto;font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.5px;opacity:.8}
 @media (max-width:599px){.hol{font-size:0;padding:0;height:5px;border-radius:3px;background:#F87171}.hol.cuti{background:#FB923C}}
+.rec{display:inline-flex;vertical-align:-1px;margin-left:6px;color:var(--mu)}
+.rep-seg span{font-size:13px}
+.by-field[hidden]{display:none}
+.bday{display:inline-flex;align-items:center;gap:6px;font-size:13px;font-weight:700;color:var(--mu2)}
 .inp.bad{border-color:var(--danger);box-shadow:0 0 0 3px #FEE2E2}
 .chipbtn{min-height:34px;padding:0 12px;border-radius:999px;border:1px solid var(--bd);background:var(--bg);font-size:13px;color:var(--mu2)}
 .preview{border-radius:16px;background:var(--bg);padding:14px;display:flex;flex-direction:column;gap:12px}
@@ -379,7 +383,7 @@ textarea.inp{resize:vertical;line-height:1.45}
 
 <script type="module">
 /* ============ helpers ============ */
-const APP_VERSION = '2.2 (24 Nov 2026)';
+const APP_VERSION = '2.3 (24 Nov 2026)';
 const $ = (s, r = document) => r.querySelector(s);
 const h = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const pad = (n) => String(n).padStart(2, '0');
@@ -437,7 +441,7 @@ const P = {
   gear: '<circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/>',
   plus: '<path d="M12 5v14M5 12h14"/>',
   bell: '<path d="M6 16V11a6 6 0 0 1 12 0v5l2 2H4z"/><path d="M10 21h4"/>',
-  left: '<path d="M15 6l-6 6 6 6"/>', down: '<path d="M6 9l6 6 6-6"/>', right: '<path d="M9 6l6 6-6 6"/>',
+  left: '<path d="M15 6l-6 6 6 6"/>', repeat: '<path d="M17 2l4 4-4 4"/><path d="M3 11V9a3 3 0 0 1 3-3h15"/><path d="M7 22l-4-4 4-4"/><path d="M21 13v2a3 3 0 0 1-3 3H3"/>', cake: '<path d="M4 21h16v-8a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2z"/><path d="M4 16c2 1.3 4 1.3 6 0s4-1.3 6 0 3 1 4 .5M12 11V7M12 4.5c.7-.7.7-1.8 0-2.5-.7.7-.7 1.8 0 2.5z"/>', down: '<path d="M6 9l6 6 6-6"/>', right: '<path d="M9 6l6 6-6 6"/>',
   x: '<path d="M6 6l12 12M18 6L6 18"/>', check: '<path d="M5 12.5l4.5 4.5L19 7.5"/>',
   addUser: '<circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c.8-3.6 3.4-5.5 6.5-5.5s5.7 1.9 6.5 5.5"/><path d="M19 8v6M16 11h6"/>',
   link: '<path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1"/><path d="M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/>',
@@ -476,7 +480,7 @@ const isMine = (e) => e.owner_id === myId();
 /* ============ data layer ============ */
 const COLS = {
   people: ['id', 'owner_id', 'name', 'color', 'linked_user_id', 'created_at'],
-  events: ['id', 'owner_id', 'person_id', 'title', 'date', 'time', 'location', 'notes', 'shared', 'checklist', 'reminders', 'created_at', 'updated_at'],
+  events: ['id', 'owner_id', 'person_id', 'title', 'date', 'time', 'location', 'notes', 'shared', 'checklist', 'reminders', 'repeat', 'birth_year', 'occ', 'kind', 'created_at', 'updated_at'],
   notes: ['id', 'owner_id', 'person_id', 'text', 'kind', 'created_at']
 };
 const pick = (t, r) => { const o = {}; for (const c of COLS[t]) if (r[c] !== undefined) o[c] = r[c]; return o; };
@@ -549,10 +553,55 @@ function evInfo(e) {
   return { color: p ? p.color : 'gray', who: friendName(e.owner_id), person: p, from: friendName(e.owner_id) };
 }
 const sortEv = (a, b) => (a.date + (a.time || '99')).localeCompare(b.date + (b.time || '99'));
-const eventsOn = (d) => S.data.events.filter((e) => e.date === d).sort(sortEv);
-const eventsBetween = (a, b) => S.data.events.filter((e) => e.date >= a && e.date <= b).sort(sortEv);
+/* ---- acara berulang ---- */
+const REPEAT = { yearly: 'Setiap tahun', monthly: 'Setiap bulan', weekly: 'Setiap minggu' };
+const isRec = (e) => !!(e && e.repeat && REPEAT[e.repeat]);
+function occDates(b, a, z) {
+  const out = [], start = b.date; if (z < start) return out;
+  const sd = pd(start), A = pd(a > start ? a : start), skip = b.occ || {};
+  const push = (k) => { if (k >= a && k <= z && k >= start && !(skip[k] && skip[k].skip)) out.push(k); };
+  if (b.repeat === 'weekly') {
+    let d = addDays(sd, Math.max(0, Math.floor(diffDays(ymd(A), start) / 7)) * 7);
+    for (let i = 0; i < 600 && ymd(d) <= z; i++) { push(ymd(d)); d = addDays(d, 7); }
+  } else if (b.repeat === 'monthly') {
+    const day = sd.getDate(); let y = A.getFullYear(), m = A.getMonth();
+    for (let i = 0; i < 400; i++) { const k = ymd(new Date(y, m, Math.min(day, new Date(y, m + 1, 0).getDate()))); if (k > z) break; push(k); if (++m > 11) { m = 0; y++; } }
+  } else {
+    const mo = sd.getMonth(), day = sd.getDate();
+    for (let y = A.getFullYear(); y < A.getFullYear() + 120; y++) { const k = ymd(new Date(y, mo, Math.min(day, new Date(y, mo + 1, 0).getDate()))); if (k > z) break; push(k); }
+  }
+  return out;
+}
+function occList(b, d) { const o = (b.occ || {})[d]; return o && o.checklist ? o.checklist : (b.checklist || []).map((c) => ({ text: c.text, done: false })); }
+function instance(b, d) { if (!isRec(b)) return b; return { ...b, id: b.id + '@' + d, _base: b.id, date: d, checklist: occList(b, d) }; }
+function expand(a, z) {
+  const out = [];
+  for (const e of S.data.events) { if (!isRec(e)) { if (e.date >= a && e.date <= z) out.push(e); } else for (const d of occDates(e, a, z)) out.push(instance(e, d)); }
+  return out.sort(sortEv);
+}
+function getEv(id) {
+  if (!id) return null; const [bid, d] = String(id).split('@');
+  const b = S.data.events.find((x) => x.id === bid); if (!b) return null;
+  return isRec(b) ? instance(b, d || b.date) : b;
+}
+const bdayEvent = (pid) => S.data.events.find((e) => e.person_id === pid && e.kind === 'ultah' && e.repeat === 'yearly');
+function nextBday(pid) { const b = bdayEvent(pid); if (!b) return null; const l = occDates(b, todayS(), ymd(addDays(todayD(), 370))); return l.length ? instance(b, l[0]) : null; }
+const baseOf = (e) => (e && e._base ? S.data.events.find((x) => x.id === e._base) : S.data.events.find((x) => x.id === (e && e.id)));
+async function saveChecklist(inst, list) {
+  const b = baseOf(inst); if (!b) return;
+  if (!isRec(b)) return save('events', { ...b, checklist: list });
+  const occ = { ...(b.occ || {}) }; occ[inst.date] = { ...(occ[inst.date] || {}), checklist: list };
+  return save('events', { ...b, occ });
+}
+const ageOn = (e) => (e.repeat === 'yearly' && e.birth_year ? pd(e.date).getFullYear() - e.birth_year : 0);
+const recLabel = (e) => (isRec(e) ? REPEAT[e.repeat] : '');
+const eventsOn = (d) => expand(d, d);
+const eventsBetween = (a, b) => expand(a, b);
 const checkProg = (e) => { const c = e.checklist || []; return c.length ? c.filter((x) => x.done).length + '/' + c.length + ' siap' : ''; };
-const personEvents = (p) => S.data.events.filter((e) => e.date >= todayS() && (e.person_id === p.id || (p.linked_user_id && e.owner_id === p.linked_user_id))).sort(sortEv);
+const personEvents = (p) => {
+  const seen = new Set();
+  return expand(todayS(), ymd(addDays(todayD(), 400))).filter((e) => (e.person_id === p.id || (p.linked_user_id && e.owner_id === p.linked_user_id)) && !(e._base && seen.has(e._base)) && (e._base ? seen.add(e._base) : true));
+};
 
 /* ============ reminders ============ */
 function remindAt(e, k) {
@@ -567,7 +616,7 @@ function remindAt(e, k) {
 const remLabel = (e, k) => { const d = remindAt(e, k); return HARI[d.getDay()] + ', ' + d.getDate() + ' ' + BUL3[d.getMonth()] + ' · ' + pad(d.getHours()) + '.' + pad(d.getMinutes()); };
 function dueReminders() {
   const now = new Date(), dis = lsGet(DKEY, []), out = [];
-  for (const e of S.data.events) {
+  for (const e of expand(ymd(addDays(todayD(), -1)), ymd(addDays(todayD(), 8)))) {
     const end = addDays(pd(e.date), 1); if (now > end) continue;
     const rs = isMine(e) ? (e.reminders || []) : ['h-1', 'hari-h'];
     for (const k of rs) {
@@ -653,7 +702,7 @@ async function notifyDue() {
 const MONTHS = { januari: 1, jan: 1, februari: 2, feb: 2, pebruari: 2, maret: 3, mar: 3, april: 4, apr: 4, mei: 5, juni: 6, jun: 6, juli: 7, jul: 7, agustus: 8, agu: 8, agt: 8, aug: 8, ags: 8, september: 9, sept: 9, sep: 9, oktober: 10, okt: 10, oct: 10, november: 11, nov: 11, nop: 11, desember: 12, des: 12, dec: 12 };
 const MRE = Object.keys(MONTHS).sort((a, b) => b.length - a.length).join('|');
 const DAYS = { minggu: 0, senin: 1, selasa: 2, rabu: 3, kamis: 4, jumat: 5, "jum'at": 5, sabtu: 6 };
-const STOP = new Set(['ultah', 'ulang', 'nikahan', 'pernikahan', 'arisan', 'rapat', 'meeting', 'bayar', 'beli', 'kirim', 'jemput', 'ingat', 'besok', 'lusa', 'hari', 'jam', 'pukul', 'tanggal', 'tgl', 'nanti', 'acara', 'reuni', 'sidang', 'wisuda', 'lamaran', 'kondangan', 'nonton', 'makan', 'ketemu', 'kumpul', 'liburan', 'cuti', 'deadline', 'kerja', 'ke', 'di', 'dan', 'aku', 'saya', 'kita', 'kami', 'mau', 'harus', 'jangan', 'tolong', 'bulan', 'minggu', 'tahun', ...Object.keys(MONTHS), ...Object.keys(DAYS)]);
+const STOP = new Set(['ultah', 'ulang', 'nikahan', 'pernikahan', 'arisan', 'rapat', 'meeting', 'bayar', 'beli', 'kirim', 'jemput', 'ingat', 'besok', 'lusa', 'hari', 'jam', 'pukul', 'tanggal', 'tgl', 'nanti', 'acara', 'reuni', 'sidang', 'wisuda', 'lamaran', 'kondangan', 'nonton', 'makan', 'ketemu', 'kumpul', 'liburan', 'cuti', 'deadline', 'kerja', 'futsal', 'gym', 'fitness', 'badminton', 'renang', 'lari', 'jogging', 'senam', 'yoga', 'olahraga', 'latihan', 'les', 'kursus', 'kelas', 'kuliah', 'ujian', 'ngaji', 'pengajian', 'kajian', 'misa', 'ibadah', 'kebaktian', 'gereja', 'belanja', 'servis', 'service', 'cek', 'kontrol', 'periksa', 'dokter', 'potong', 'cukur', 'cuci', 'bersih', 'piket', 'setor', 'transfer', 'tagihan', 'cicilan', 'listrik', 'internet', 'pulsa', 'tiap', 'setiap', 'anniversary', 'anniv', 'birthday', 'syukuran', 'tahlilan', 'halalbihalal', 'buka', 'bukber', 'sahur', 'mudik', 'pulang', 'berangkat', 'jadwal', 'janji', 'ke', 'di', 'dan', 'aku', 'saya', 'kita', 'kami', 'mau', 'harus', 'jangan', 'tolong', 'bulan', 'minggu', 'tahun', ...Object.keys(MONTHS), ...Object.keys(DAYS)]);
 const escRe = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 function mkDate(y, m, d, explicitYear) {
   const t = todayD(); let dt = new Date(y ?? t.getFullYear(), m - 1, d);
@@ -716,6 +765,18 @@ function parseQuick(text) {
   let nt = text.trim();
   if (nm) nt = nt.replace(new RegExp(`^${escRe(nm)}\\s*[,:-]?\\s*`, 'iu'), '');
   out.noteText = nt ? nt[0].toUpperCase() + nt.slice(1) : '';
+  // berulang
+  if (/\b(ultah|ulang\s*tahun|ulangtahun|birthday|bday|anniversary|anniv|hari\s+jadi)\b/i.test(text) || /\b(tiap|setiap)\s+tahun\b/i.test(text)) out.repeat = 'yearly';
+  else if (/\b(tiap|setiap)\s+(bulan|tanggal|tgl)\b/i.test(text)) out.repeat = 'monthly';
+  else if (/\b(tiap|setiap)\s+(minggu|pekan|senin|selasa|rabu|kamis|jum'?at|sabtu)\b/i.test(text)) out.repeat = 'weekly';
+  else out.repeat = '';
+  out.title = out.title.replace(/\b(tiap|setiap)\s+(tahun|bulan|minggu|pekan)\b/gi, '').replace(/\b(tiap|setiap)\b/gi, '').replace(/\s+/g, ' ').trim();
+  if (out.title) out.title = out.title[0].toUpperCase() + out.title.slice(1);
+  out.birthYear = '';
+  const ym = text.match(/\b(19[2-9]\d|20[0-2]\d)\b/);
+  if (out.repeat === 'yearly' && ym && out.date && +ym[1] < todayD().getFullYear()) {
+    out.birthYear = ym[1]; const d0 = pd(out.date); out.date = mkDate(null, d0.getMonth() + 1, d0.getDate(), false);
+  }
   out.type = out.date ? 'event' : (out.personId || out.newName) && text.trim() ? 'note' : 'event';
   delete out._malam;
   return out;
@@ -723,7 +784,8 @@ function parseQuick(text) {
 window.__parseQuick = parseQuick;
 
 /* ============ ICS ============ */
-function downloadIcs(e) {
+function downloadIcs(inst) {
+  const b = baseOf(inst) || inst; const e = isRec(b) ? { ...b, checklist: inst.checklist } : inst;
   const esc = (s) => String(s || '').replace(/\\/g, '\\\\').replace(/;/g, '\\;').replace(/,/g, '\\,').replace(/\n/g, '\\n');
   const d = e.date.replace(/-/g, '');
   const stamp = new Date().toISOString().replace(/[-:]/g, '').replace(/\.\d+/, '');
@@ -739,6 +801,10 @@ function downloadIcs(e) {
   const info = evInfo(e);
   const desc = [e.notes, ...(e.checklist || []).map((c) => (c.done ? '[x] ' : '[ ] ') + c.text), 'Dari Ingetin' + (info.who ? ' · ' + info.who : '')].filter(Boolean).join('\n');
   const L = ['BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//Ingetin//ID', 'CALSCALE:GREGORIAN', 'BEGIN:VEVENT', 'UID:' + e.id + '@ingetin', 'DTSTAMP:' + stamp, startLine, endLine, 'SUMMARY:' + esc(e.title)];
+  if (isRec(e)) {
+    L.push('RRULE:FREQ=' + { yearly: 'YEARLY', monthly: 'MONTHLY', weekly: 'WEEKLY' }[e.repeat]);
+    for (const [k, o] of Object.entries(e.occ || {})) if (o && o.skip) L.push((e.time ? 'EXDATE:' + k.replace(/-/g, '') + 'T' + e.time.replace(':', '') + '00' : 'EXDATE;VALUE=DATE:' + k.replace(/-/g, '')));
+  }
   if (e.location) L.push('LOCATION:' + esc(e.location));
   L.push('DESCRIPTION:' + esc(desc));
   for (const k of (isMine(e) ? e.reminders || [] : ['h-1'])) {
@@ -782,6 +848,16 @@ function confirmBox(msg, ok = 'Ya', danger) {
     el.querySelector('[data-yes]').focus();
   });
 }
+function choiceBox(msg, choices) {
+  return new Promise((res) => {
+    const el = $('#dlg');
+    el.innerHTML = `<div class="backdrop" data-x></div><div class="dialog" role="alertdialog" aria-modal="true" aria-label="Pilihan"><p>${h(msg)}</p><div class="stack">${choices.map(([v, l, cls]) => `<button type="button" class="btn ${cls || ''}" data-v="${v}">${h(l)}</button>`).join('')}<button type="button" class="btn ghost" data-no>Batal</button></div></div>`;
+    const done = (v) => { el.innerHTML = ''; res(v); };
+    el.querySelector('[data-no]').onclick = () => done(null);
+    el.querySelector('[data-x]').onclick = () => done(null);
+    el.querySelectorAll('[data-v]').forEach((b) => (b.onclick = () => done(b.dataset.v)));
+  });
+}
 let lastFocus = null;
 function openSheet(kind, args = {}) {
   if (!S.sheet) { lastFocus = document.activeElement; pushEntry(); }
@@ -802,10 +878,11 @@ function renderSheet() {
 const avatar = (p, size = 44) => `<span class="av" style="width:${size}px;height:${size}px;font-size:${Math.round(size * 0.38)}px;${cs(p.color)}">${h((p.name || '?')[0].toUpperCase())}</span>`;
 function evRow(e, showDate = true) {
   const i = evInfo(e), d = pd(e.date), prog = checkProg(e);
-  const sub = [e.time ? fmtTime(e.time) : '', i.from ? 'Dari ' + i.from : (i.person ? i.person.name : ''), e.location || ''].filter(Boolean).join(' · ') || rel(e.date);
+  const age = ageOn(e);
+  const sub = [age > 0 ? 'Ke-' + age : '', e.time ? fmtTime(e.time) : '', i.from ? 'Dari ' + i.from : (i.person ? i.person.name : ''), e.location || ''].filter(Boolean).join(' · ') || rel(e.date);
   return `<button type="button" class="ev" data-act="openEvent" data-id="${h(e.id)}">
     ${showDate ? `<span class="dblock" style="${cs(i.color)}"><small>${HARI3[d.getDay()]}</small><b>${d.getDate()}</b></span>` : `<span class="dot" style="color:${pair(i.color)[1]};width:10px;height:10px"></span>`}
-    <span class="ev-t"><b>${h(e.title)}</b><span>${h(sub)}</span></span>
+    <span class="ev-t"><b>${h(e.title)}${isRec(e) ? `<span class="rec" title="${recLabel(e)}" aria-label="${recLabel(e)}">${ic('repeat', 13, 2.4)}</span>` : ''}</b><span>${h(sub)}</span></span>
     ${prog ? `<span class="tag">${prog}</span>` : (e.shared && isMine(e) ? `<span class="tag">Dibagikan</span>` : '')}
   </button>`;
 }
@@ -1001,6 +1078,7 @@ function personDetail(p, wide) {
   return `${wide ? '' : `<button type="button" class="btn ghost" style="align-self:flex-start" data-act="backList">${ic('left', 18, 2.2)}Semua teman</button>`}
   <div class="fr-head">${avatar(p, 72)}<div style="display:flex;flex-direction:column;gap:6px;flex:1;min-width:0"><h2>${h(p.name)}</h2>
     ${p.linked_user_id ? `<span class="pill" style="${cs('green')};align-self:flex-start">${ic('check', 14, 2.4)}Terhubung · saling berbagi kalender</span>` : `<span class="pill" style="${cs('gray')};align-self:flex-start">${ic('lock', 13, 2.2)}Catatan pribadi</span>`}
+    ${(() => { const nb = nextBday(p.id); if (!nb) return `<button type="button" class="btn ghost" style="align-self:flex-start;min-height:32px;padding:0" data-act="editPerson" data-id="${h(p.id)}">${ic('cake', 16)}&nbsp;Tambah ulang tahun</button>`; const d = pd(nb.date), n = diffDays(nb.date, todayS()), age = ageOn(nb); return `<span class="bday">${ic('cake', 16)}${d.getDate()} ${BULAN[d.getMonth()]}${age > 0 ? ' · ke-' + age : ''} · ${n === 0 ? 'hari ini!' : n === 1 ? 'besok' : n + ' hari lagi'}</span>`; })()}
   </div><button type="button" class="icon-btn" data-act="editPerson" data-id="${h(p.id)}" aria-label="Ubah ${h(p.name)}">${ic('edit', 18)}</button></div>
   <div style="display:flex;gap:10px;flex-wrap:wrap"><button type="button" class="btn pri" style="flex:1 1 200px" data-act="newNote" data-id="${h(p.id)}">+ Catat tentang ${h(p.name)}</button><button type="button" class="btn out" style="flex:0 1 auto" data-act="newEvent" data-person="${h(p.id)}">+ Event</button></div>
   <section class="card"><h3 style="font-size:16px;font-weight:800">Yang harus diingat</h3>
@@ -1094,13 +1172,20 @@ function personPicker(id, sel, opt = {}) {
   html += `</div><div class="pnew field" ${sel === '__other' ? '' : 'hidden'}><label for="${id}-new">Nama teman baru</label><input class="inp" id="${id}-new" name="personNew" autocomplete="off" placeholder="mis. Nisya"></div>`;
   return `<div class="field"><span class="flabel" id="${id}-l">${opt.label || 'Teman'}</span>${html}</div>`;
 }
+function repeatField(id, val, birthYear, opt = {}) {
+  const v = val || '';
+  return `<div class="field"><span class="flabel" id="${id}-l">Ulangi</span><div class="seg rep-seg" role="radiogroup" aria-labelledby="${id}-l">
+    ${[['', 'Tidak'], ['yearly', 'Tahunan'], ['monthly', 'Bulanan'], ['weekly', 'Mingguan']].map(([k, l]) => `<label><input type="radio" name="repeat" value="${k}" data-chg="repeatPick" ${v === k ? 'checked' : ''}><span>${l}</span></label>`).join('')}
+  </div></div>
+  <div class="field by-field" ${v === 'yearly' ? '' : 'hidden'}><label for="${id}-by">Tahun lahir / tahun mulai (opsional)</label><input class="inp" id="${id}-by" name="birthYear" inputmode="numeric" pattern="[0-9]{4}" maxlength="4" placeholder="mis. 1998" value="${h(birthYear || '')}" autocomplete="off"><small class="muted" style="font-size:12px">Untuk menampilkan “Ulang tahun ke-…”</small></div>`;
+}
 function dateField(id, label, val, required) {
   return `<div class="field"><span class="flabel" id="${id}-l">${label}</span><input type="hidden" id="${id}" name="date" value="${h(val || '')}">
-    <button type="button" class="inp pickbtn ${val ? '' : 'empty'}" data-act="pickDate" data-for="${id}" aria-labelledby="${id}-l ${id}-v"><span id="${id}-v">${val ? fmtDMY(val) : 'DD/MM/YYYY'}</span>${ic('cal', 18)}</button></div>`;
+    <button type="button" class="inp pickbtn ${val ? '' : 'unset'}" data-act="pickDate" data-for="${id}" aria-labelledby="${id}-l ${id}-v"><span id="${id}-v">${val ? fmtDMY(val) : 'DD/MM/YYYY'}</span>${ic('cal', 18)}</button></div>`;
 }
 function timeField(id, label, val) {
   return `<div class="field"><span class="flabel" id="${id}-l">${label}</span><input type="hidden" id="${id}" name="time" value="${h(val || '')}">
-    <button type="button" class="inp pickbtn ${val ? '' : 'empty'}" data-act="pickTime" data-for="${id}" aria-labelledby="${id}-l ${id}-v"><span id="${id}-v">${val ? fmtTime(val) : '--.--'}</span>${ic('clock', 18)}</button></div>`;
+    <button type="button" class="inp pickbtn ${val ? '' : 'unset'}" data-act="pickTime" data-for="${id}" aria-labelledby="${id}-l ${id}-v"><span id="${id}-v">${val ? fmtTime(val) : '--.--'}</span>${ic('clock', 18)}</button></div>`;
 }
 const personOptions = (sel, extra = '') => `<option value="">Kamu (tanpa teman)</option>${[...S.data.people].sort((a, b) => a.name.localeCompare(b.name)).map((p) => `<option value="${h(p.id)}" ${p.id === sel ? 'selected' : ''}>${h(p.name)}</option>`).join('')}${extra}`;
 const remChecks = (list) => REM.map((r) => `<label class="sw"><span><b>${r.label}</b><small>${r.days === 0 ? 'Pukul 07.00 di hari acara' : r.days + ' hari sebelum, pukul 19.00'}</small></span><input type="checkbox" name="rem" value="${r.k}" ${list.includes(r.k) ? 'checked' : ''}></label>`).join('');
@@ -1139,6 +1224,7 @@ const SHEETS = {
             <div class="field"><label for="qa-title">Judul</label><input id="qa-title" class="inp" name="title" value="${h(r.title)}"></div>
             <div class="row2">${dateField('qa-date', 'Tanggal', r.date)}${timeField('qa-time', 'Jam (opsional)', r.time)}</div>
             <p class="muted" style="margin:0;font-size:13px" id="qa-when">${r.date ? h(fmtLong(r.date)) + ' · ' + rel(r.date) : 'Tanggal belum terbaca — pilih tanggalnya.'}</p>
+            ${repeatField('qa-rep', r.repeat, r.birthYear)}
             <div class="flabel">Pengingat</div>
             <div style="display:flex;flex-wrap:wrap;gap:8px">${REM.map((x) => `<label class="pill" style="${cs('gray')};min-height:36px;padding:0 12px;cursor:pointer"><input type="checkbox" name="rem" value="${x.k}" ${['h-1', 'hari-h'].includes(x.k) ? 'checked' : ''} style="accent-color:var(--p)">${x.label}</label>`).join('')}</div>
             ${shareBox(false)}`}
@@ -1148,8 +1234,8 @@ const SHEETS = {
       </form></div>`;
   },
   event(s) {
-    const e = S.data.events.find((x) => x.id === s.id); if (!e) return null;
-    const i = evInfo(e), mine = isMine(e), c = pair(i.color);
+    const e = getEv(s.id); if (!e) return null;
+    const i = evInfo(e), mine = isMine(e), c = pair(i.color), age = ageOn(e);
     const list = e.checklist || [], done = list.filter((x) => x.done).length;
     const badge = mine ? (e.shared ? `<span class="pill" style="${cs(i.color)}">${ic('people', 14)}Dibagikan ke teman</span>` : `<span class="pill" style="${cs(i.color)}">${h(i.who)}</span>`) : `<span class="pill" style="${cs(i.color)}">Dibagikan ${h(i.from)}</span>`;
     return `<div class="sh-band" style="background:${c[1]}"></div><div class="sh-body">
@@ -1157,6 +1243,7 @@ const SHEETS = {
       <h2 class="sh-title">${h(e.title)}</h2>
       <div class="stack" style="gap:10px">
         <div class="meta">${ic('cal', 20)}<span>${h(fmtLong(e.date))}${e.time ? ' · ' + fmtTime(e.time) : ''} <span class="muted">(${rel(e.date)})</span></span></div>
+        ${isRec(e) ? `<div class="meta">${ic('repeat', 20)}<span>${recLabel(e)}${age > 0 ? ` · <b>Ulang tahun ke-${age}</b>` : ''}</span></div>` : ''}
         ${e.location ? `<div class="meta">${ic('pin', 20)}<span>${h(e.location)}</span></div>` : ''}
         ${e.notes ? `<div class="meta">${ic('note', 20)}<span style="white-space:pre-wrap">${h(e.notes)}</span></div>` : ''}
         ${i.person && mine ? `<div class="meta">${ic('people', 20)}<span>Terkait <button type="button" class="btn ghost" style="min-height:30px;padding:0 2px" data-act="openPerson" data-id="${h(i.person.id)}">${h(i.person.name)}</button></span></div>` : ''}
@@ -1177,18 +1264,20 @@ const SHEETS = {
       </div></div>`;
   },
   editEvent(s) {
-    const e = s.id ? S.data.events.find((x) => x.id === s.id) : { title: '', date: s.date || todayS(), time: '', person_id: s.person || '', location: '', notes: '', shared: false, reminders: ['h-1', 'hari-h'] };
-    if (!e) return null;
-    return `<div class="sh-body"><div class="sh-top"><h2>${s.id ? 'Ubah acara' : 'Acara baru'}</h2><button type="button" class="icon-btn round" data-act="closeSheet" aria-label="Tutup">${ic('x', 18, 2.4)}</button></div>
+    const src = s.single ? getEv(s.single) : (s.id ? S.data.events.find((x) => x.id === s.id) : null);
+    const e = src || { title: '', date: s.date || todayS(), time: '', person_id: s.person || '', location: '', notes: '', shared: false, reminders: ['h-1', 'hari-h'], repeat: s.repeat || '' };
+    if ((s.id || s.single) && !src) return null;
+    return `<div class="sh-body"><div class="sh-top"><h2>${s.single ? 'Ubah tanggal ini saja' : s.id ? (isRec(e) ? 'Ubah semua kejadian' : 'Ubah acara') : 'Acara baru'}</h2><button type="button" class="icon-btn round" data-act="closeSheet" aria-label="Tutup">${ic('x', 18, 2.4)}</button></div>
       <form class="stack" data-form="editEvent" style="gap:14px">
         <div class="field"><label for="ee-title">Judul</label><input id="ee-title" class="inp" name="title" required value="${h(e.title)}"></div>
         <div class="row2">${dateField('ee-date', 'Tanggal', e.date)}${timeField('ee-time', 'Jam (opsional)', e.time)}</div>
+        ${s.single ? `<p class="muted" style="margin:0;font-size:13px">Perubahan hanya untuk ${h(fmtLong(e.date))}. Kejadian lain tetap.</p>` : repeatField('ee-rep', e.repeat, e.birth_year)}
         ${personPicker('ee-person', e.person_id || '')}
         <div class="field"><label for="ee-loc">Lokasi (opsional)</label><input id="ee-loc" class="inp" name="location" value="${h(e.location || '')}"></div>
         <div class="field"><label for="ee-notes">Catatan (opsional)</label><textarea id="ee-notes" class="inp" name="notes" rows="2" placeholder="mis. Dress code batik">${h(e.notes || '')}</textarea></div>
         <div><div class="flabel">Pengingat</div>${remChecks(e.reminders || [])}</div>
         ${shareBox(e.shared)}
-        <div class="row2"><button type="button" class="btn" data-act="${s.id ? 'backToEvent' : 'closeSheet'}">Batal</button><button type="submit" class="btn pri">Simpan</button></div>
+        <div class="row2"><button type="button" class="btn" data-act="${s.id || s.single ? 'backToEvent' : 'closeSheet'}">Batal</button><button type="submit" class="btn pri">Simpan</button></div>
       </form></div>`;
   },
   note(s) {
@@ -1211,6 +1300,7 @@ const SHEETS = {
     return `<div class="sh-body"><div class="sh-top"><h2>${s.id ? 'Ubah teman' : 'Tambah teman'}</h2><button type="button" class="icon-btn round" data-act="closeSheet" aria-label="Tutup">${ic('x', 18, 2.4)}</button></div>
       <form class="stack" data-form="person" style="gap:14px">
         <div class="field"><label for="pp-name">Nama</label><input id="pp-name" class="inp" name="name" required value="${h(p.name)}" autocomplete="off"></div>
+        ${(() => { const be = s.id ? bdayEvent(s.id) : null; return `<div class="row2">${dateField('pp-bday', 'Tanggal ulang tahun', be ? be.date : '')}<div class="field"><label for="pp-by">Tahun lahir (opsional)</label><input class="inp" id="pp-by" name="birthYear" inputmode="numeric" maxlength="4" placeholder="mis. 1998" value="${h(be && be.birth_year ? be.birth_year : '')}" autocomplete="off"></div></div><small class="muted" style="font-size:12px;margin-top:-6px">Otomatis jadi acara ulang tahun setiap tahun. Tahun pada tanggal diabaikan.</small>`; })()}
         <fieldset style="border:none;padding:0;margin:0" class="field"><legend class="flabel" style="margin-bottom:8px">Warna di kalender</legend>
           <div class="swatches">${PASTEL.map((k, n) => `<label><input type="radio" name="color" value="${k}" ${p.color === k ? 'checked' : ''} aria-label="Warna pastel ${n + 1}"><span style="background:${k};box-shadow:inset 0 0 0 1px rgba(0,0,0,.08)"></span></label>`).join('')}
             <label title="Warna sendiri"><input type="radio" name="color" value="custom" id="pp-custom-r" ${PASTEL.includes(p.color) ? '' : 'checked'} aria-label="Warna sendiri"><span id="pp-custom-sw" style="background:${PASTEL.includes(p.color) ? 'conic-gradient(#FFD6E0,#FFF1B8,#CFF2DC,#D3E9FF,#E7DAFF,#FFD6E0)' : pair(p.color)[0]}"></span></label>
@@ -1392,26 +1482,40 @@ const A = {
   qaEx(d) { const ta = $('#qa-text'); ta.value = d.t; S.sheet.forceType = null; quickInput(); },
   newEvent(d) { openSheet('editEvent', { id: null, date: d.date || S.sel, person: d.person || '' }); },
   openEvent(d) { openSheet('event', { id: d.id }); },
-  editEvent(d) { openSheet('editEvent', { id: d.id }); },
-  backToEvent() { S.sheet.id ? openSheet('event', { id: S.sheet.id }) : closeSheet(); },
+  async editEvent(d) {
+    const e = getEv(d.id); if (!e) return; const b = baseOf(e);
+    if (isRec(b)) {
+      const c = await choiceBox(`“${e.title}” berulang (${recLabel(b).toLowerCase()}). Ubah yang mana?`, [['one', 'Hanya ' + fmtShort(e.date)], ['all', 'Semua kejadian']]);
+      if (!c) return;
+      if (c === 'one') { openSheet('editEvent', { single: e.id, back: e.id }); return; }
+    }
+    openSheet('editEvent', { id: b.id, back: e.id });
+  },
+  backToEvent() { const k = S.sheet.back || S.sheet.id; k ? openSheet('event', { id: k }) : closeSheet(); },
   async delEvent(d) {
-    const e = S.data.events.find((x) => x.id === d.id); if (!e) return;
+    const e = getEv(d.id); if (!e) return; const b = baseOf(e);
+    if (isRec(b)) {
+      const c = await choiceBox(`Hapus “${e.title}”? Acara ini berulang (${recLabel(b).toLowerCase()}).`, [['one', 'Hanya ' + fmtShort(e.date)], ['all', 'Semua kejadian', 'danger']]);
+      if (!c) return; closeSheet();
+      if (c === 'one') { const before = b.occ || {}; const occ = { ...before }; occ[e.date] = { ...(occ[e.date] || {}), skip: true }; await save('events', { ...b, occ }); toast('Dihapus untuk ' + fmtShort(e.date), { label: 'Batalkan', fn: () => { const cur = S.data.events.find((x) => x.id === b.id); const o2 = { ...(cur.occ || {}) }; if (o2[e.date]) { delete o2[e.date].skip; } save('events', { ...cur, occ: o2 }); } }); return; }
+      const old = await remove('events', b.id); toast('Semua kejadian dihapus', { label: 'Batalkan', fn: () => save('events', old) }); return;
+    }
     if (!(await confirmBox(`Hapus “${e.title}”?${e.shared ? ' Acara ini juga hilang dari kalender teman.' : ''}`, 'Hapus', true))) return;
-    closeSheet(); const old = await remove('events', d.id);
+    closeSheet(); const old = await remove('events', b.id);
     toast('Acara dihapus', { label: 'Batalkan', fn: () => save('events', old) });
   },
   async copyEvent(d) {
-    const e = S.data.events.find((x) => x.id === d.id); if (!e) return;
+    const e = getEv(d.id); if (!e) return;
     const i = evInfo(e);
     const row = await save('events', { id: uid(), title: e.title, date: e.date, time: e.time || null, location: e.location || null, notes: e.notes || null, person_id: i.person ? i.person.id : null, shared: false, checklist: [], reminders: ['h-1', 'hari-h'], owner_id: myId() });
     toast('Disalin ke kalendermu'); openSheet('event', { id: row.id });
   },
-  ics() { const e = S.data.events.find((x) => x.id === S.sheet.id); if (e) downloadIcs(e); },
+  ics() { const e = getEv(S.sheet.id); if (e) downloadIcs(e); },
   async delCheck(d) {
-    const e = S.data.events.find((x) => x.id === S.sheet.id); if (!e) return;
+    const e = getEv(S.sheet.id); if (!e) return;
     const list = [...(e.checklist || [])]; const [old] = list.splice(+d.i, 1);
-    await save('events', { ...e, checklist: list });
-    toast('Item dihapus', { label: 'Batalkan', fn: () => { const cur = S.data.events.find((x) => x.id === e.id); const l2 = [...(cur.checklist || [])]; l2.splice(+d.i, 0, old); save('events', { ...cur, checklist: l2 }); } });
+    await saveChecklist(e, list);
+    toast('Item dihapus', { label: 'Batalkan', fn: () => { const cur = getEv(e.id); const l2 = [...(cur.checklist || [])]; l2.splice(+d.i, 0, old); saveChecklist(cur, l2); } });
   },
   openPerson(d) { if (!d.id) return; if (S.view !== 'teman' || !matchMedia('(min-width:760px)').matches) navPush(); S.personId = d.id; S.view = 'teman'; closeSheet(); render(); $('#main').scrollTop = 0; },
   backList() { if (NAV.length && NAV[NAV.length - 1].view === 'teman' && !NAV[NAV.length - 1].personId) { history.back(); return; } S.personId = null; render(); },
@@ -1422,7 +1526,7 @@ const A = {
     if (!(await confirmBox(`Hapus ${p.name} beserta semua catatannya?${p.linked_user_id ? ' Hubungan kalender kalian juga diputus.' : ''}`, 'Hapus', true))) return;
     closeSheet();
     for (const n of S.data.notes.filter((n) => n.person_id === p.id)) await remove('notes', n.id);
-    for (const e of S.data.events.filter((e) => e.person_id === p.id && isMine(e))) await save('events', { ...e, person_id: null });
+    for (const e of S.data.events.filter((e) => e.person_id === p.id && isMine(e))) { if (e.kind === 'ultah') await remove('events', e.id); else await save('events', { ...e, person_id: null }); }
     if (p.linked_user_id && S.mode === 'cloud') { try { await S.sb.rpc('remove_friend', { fid: p.linked_user_id }); } catch {} S.data.friends = S.data.friends.filter((f) => f.id !== p.linked_user_id); S.data.events = S.data.events.filter((e) => e.owner_id !== p.linked_user_id); }
     await remove('people', p.id); S.personId = null; render(); toast(p.name + ' dihapus');
   },
@@ -1471,7 +1575,7 @@ function fieldSet(id) {
   const inp = $('#' + id); if (!inp) return; const v = inp.value;
   const btn = $(`[data-for="${id}"]`), lab = $('#' + id + '-v');
   if (lab) lab.textContent = v ? (inp.name === 'date' ? fmtDMY(v) : fmtTime(v)) : (inp.name === 'date' ? 'DD/MM/YYYY' : '--.--');
-  if (btn) { btn.classList.toggle('empty', !v); btn.classList.remove('bad'); }
+  if (btn) { btn.classList.toggle('unset', !v); btn.classList.remove('bad'); }
   const p = S.sheet && S.sheet.kind === 'quick' && S.sheet.parsed;
   if (p && (id === 'qa-date' || id === 'qa-time')) {
     p[inp.name] = v;
@@ -1479,15 +1583,19 @@ function fieldSet(id) {
   }
 }
 const CHG = {
+  repeatPick(el) {
+    const f = el.form; const by = f && f.querySelector('.by-field'); if (by) by.hidden = el.value !== 'yearly';
+    const p = S.sheet && S.sheet.kind === 'quick' && S.sheet.parsed; if (p) p.repeat = el.value;
+  },
   theme(el) { lsSet('ingetin:theme', el.value); applyTheme(el.value); render(); toast('Tema ' + THEMES[el.value].n + ' dipakai'); },
   holToggle(el) { lsSet('ingetin:showHol', el.checked); render(); },
   async prepCheck(el) {
-    const e = S.data.events.find((x) => x.id === el.dataset.id); if (!e) return;
+    const e = getEv(el.dataset.id); if (!e) return;
     const k = +el.dataset.i, list = (e.checklist || []).map((x, i) => (i === k ? { ...x, done: true } : x));
     const row = el.closest('.chk'); if (row) row.classList.add('done');
     await new Promise((r) => setTimeout(r, 350));
-    await save('events', { ...e, checklist: list });
-    toast(list.every((x) => x.done) ? 'Persiapan “' + e.title + '” beres semua!' : 'Dicentang', { label: 'Batalkan', fn: () => { const cur = S.data.events.find((x) => x.id === e.id); save('events', { ...cur, checklist: (cur.checklist || []).map((x, i) => (i === k ? { ...x, done: false } : x)) }); } });
+    await saveChecklist(e, list);
+    toast(list.every((x) => x.done) ? 'Persiapan “' + e.title + '” beres semua!' : 'Dicentang', { label: 'Batalkan', fn: () => { const cur = getEv(e.id); saveChecklist(cur, (cur.checklist || []).map((x, i) => (i === k ? { ...x, done: false } : x))); } });
   },
   agTab(el) { S.agTab = el.value; if (el.value === 'bulan') { const d = todayD(); d.setDate(1); if (!S.agMonthTouched) S.agMonth = d; } render(); },
   personPick(el) {
@@ -1498,13 +1606,13 @@ const CHG = {
   authTab(el) { S.authTab = el.value; render(); },
   qaType(el) { S.sheet.forceType = el.value; if (!S.sheet.parsed) S.sheet.parsed = { type: el.value, title: '', date: '', time: '', personId: S.sheet.person || '', newName: '', noteText: S.sheet.text || '' }; S.sheet.parsed.type = el.value; const q = $('#qa-text'); S.sheet.text = q ? q.value : S.sheet.text; renderSheet(); },
   async check(el) {
-    const e = S.data.events.find((x) => x.id === S.sheet.id); if (!e) return;
+    const e = getEv(S.sheet.id); if (!e) return;
     const list = (e.checklist || []).map((x, i) => (i === +el.dataset.i ? { ...x, done: el.checked } : x));
-    await save('events', { ...e, checklist: list });
+    await saveChecklist(e, list);
     if (list.length && list.every((x) => x.done)) toast('Semua persiapan beres!');
   },
   async rem(el) {
-    const e = S.data.events.find((x) => x.id === S.sheet.id); if (!e) return;
+    const e = baseOf(getEv(S.sheet.id)); if (!e) return;
     const set = new Set(e.reminders || []); el.checked ? set.add(el.value) : set.delete(el.value);
     await save('events', { ...e, reminders: REM.map((r) => r.k).filter((k) => set.has(k)) });
   },
@@ -1539,25 +1647,43 @@ const FORMS = {
     if (!date) { err.textContent = 'Pilih tanggalnya dulu.'; flagField('[data-for=qa-date]'); return; }
     if (fd.get('person') === '__other' && !(fd.get('personNew') || '').trim()) { err.textContent = 'Tulis nama teman barunya.'; flagField('#qa-person-new'); return; }
     const pid = await ensurePerson(fd.get('person'), r.newName || '', fd.get('personNew'));
-    const ev = await save('events', { id: uid(), title, date, time: fd.get('time') || null, person_id: pid, location: null, notes: null, shared: fd.get('shared') === 'on', checklist: [], reminders: fd.getAll('rem') });
+    const rep = fd.get('repeat') || null, by = parseInt(fd.get('birthYear'), 10);
+    const kind = rep === 'yearly' && /\b(ultah|ulang\s*tahun|birthday|bday)\b/i.test(title) ? 'ultah' : null;
+    const ev = await save('events', { id: uid(), title, date, time: fd.get('time') || null, person_id: pid, location: null, notes: null, shared: fd.get('shared') === 'on', checklist: [], reminders: fd.getAll('rem'), repeat: rep, birth_year: rep === 'yearly' && by > 1900 ? by : null, occ: {}, kind });
     closeSheet();
     S.sel = date; const m = pd(date); m.setDate(1); S.month = m; S.view = 'kalender'; render();
     toast('Tersimpan: ' + title, { label: 'Lihat', fn: () => openSheet('event', { id: ev.id }) });
   },
   async editEvent(f) {
     const fd = new FormData(f), s = S.sheet;
-    const base = s.id ? S.data.events.find((x) => x.id === s.id) : { id: uid(), checklist: [] };
+    if (s.single) {
+      const inst = getEv(s.single), b = baseOf(inst); if (!inst || !b) return;
+      if (fd.get('person') === '__other' && !(fd.get('personNew') || '').trim()) { toast('Tulis nama teman barunya.'); flagField('#ee-person-new'); return; }
+      const pid1 = await ensurePerson(fd.get('person'), '', fd.get('personNew'));
+      const occ = { ...(b.occ || {}) }; occ[inst.date] = { ...(occ[inst.date] || {}), skip: true };
+      await save('events', { ...b, occ });
+      const row1 = await save('events', { id: uid(), title: fd.get('title').trim(), date: fd.get('date') || inst.date, time: fd.get('time') || null, person_id: pid1, location: fd.get('location').trim() || null, notes: fd.get('notes').trim() || null, reminders: fd.getAll('rem'), shared: fd.get('shared') === 'on', checklist: inst.checklist || [], repeat: null, birth_year: null, occ: {}, kind: null });
+      toast('Tanggal ini diubah'); openSheet('event', { id: row1.id }); return;
+    }
+    const base = s.id ? S.data.events.find((x) => x.id === s.id) : { id: uid(), checklist: [], occ: {} };
     if (!fd.get('date')) { toast('Pilih tanggalnya dulu.'); flagField('[data-for=ee-date]'); return; }
     if (fd.get('person') === '__other' && !(fd.get('personNew') || '').trim()) { toast('Tulis nama teman barunya.'); flagField('#ee-person-new'); return; }
     const pid = await ensurePerson(fd.get('person'), '', fd.get('personNew'));
-    const row = { ...base, title: fd.get('title').trim(), date: fd.get('date'), time: fd.get('time') || null, person_id: pid, location: fd.get('location').trim() || null, notes: fd.get('notes').trim() || null, reminders: fd.getAll('rem'), shared: fd.get('shared') === 'on' };
-    await save('events', row); toast('Acara tersimpan'); openSheet('event', { id: row.id });
+    const rep = fd.get('repeat') || null, by = parseInt(fd.get('birthYear'), 10);
+    const row = { ...base, title: fd.get('title').trim(), date: fd.get('date'), time: fd.get('time') || null, person_id: pid, location: fd.get('location').trim() || null, notes: fd.get('notes').trim() || null, reminders: fd.getAll('rem'), shared: fd.get('shared') === 'on', repeat: rep, birth_year: rep === 'yearly' && by > 1900 ? by : null };
+    await save('events', row); toast('Acara tersimpan');
+    const back = s.back && s.back.includes('@') && isRec(row) ? row.id + '@' + s.back.split('@')[1] : row.id;
+    openSheet('event', { id: getEv(back) ? back : row.id });
   },
   async addCheck(f) {
     const typed = document.activeElement && document.activeElement.id === 'ck-new';
     const t = new FormData(f).get('t').trim(); if (!t) return;
-    const e = S.data.events.find((x) => x.id === S.sheet.id); if (!e) return;
-    await save('events', { ...e, checklist: [...(e.checklist || []), { text: t, done: false }] });
+    const e = getEv(S.sheet.id); if (!e) return;
+    const b = baseOf(e);
+    if (isRec(b)) {
+      const occ = { ...(b.occ || {}) }; occ[e.date] = { ...(occ[e.date] || {}), checklist: [...(e.checklist || []), { text: t, done: false }] };
+      await save('events', { ...b, checklist: [...(b.checklist || []), { text: t, done: false }], occ });
+    } else await save('events', { ...b, checklist: [...(b.checklist || []), { text: t, done: false }] });
     const inp = $('#ck-new'); if (inp && typed) inp.focus();
   },
   async note(f) {
@@ -1573,6 +1699,11 @@ const FORMS = {
     const base = s.id ? personById(s.id) : { id: uid(), linked_user_id: null };
     const col = fd.get('color') === 'custom' ? fd.get('customColor') : (fd.get('color') || PASTEL[0]);
     const row = await save('people', { ...base, name: fd.get('name').trim(), color: col });
+    const bd = fd.get('date'), by = parseInt(fd.get('birthYear'), 10), be = bdayEvent(row.id);
+    if (bd) {
+      const d0 = pd(bd), anchor = ymd(new Date(todayD().getFullYear(), d0.getMonth(), d0.getDate()));
+      await save('events', { ...(be || { id: uid(), checklist: [], occ: {}, reminders: ['h-7', 'h-1', 'hari-h'], shared: false, location: null, notes: null, time: null }), title: 'Ultah ' + row.name, date: be && be.date.slice(5) === anchor.slice(5) ? be.date : anchor, person_id: row.id, repeat: 'yearly', kind: 'ultah', birth_year: by > 1900 ? by : null });
+    } else if (be) await remove('events', be.id);
     S.personId = row.id; S.view = 'teman'; closeSheet(); render();
   },
   cfg(f) {
