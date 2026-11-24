@@ -354,7 +354,8 @@ textarea.inp{resize:vertical;line-height:1.45}
 .dialog p{margin:0;font-size:15px;line-height:1.5}
 .dialog .bd2{position:fixed;inset:0}
 #dlg .backdrop{z-index:60}
-.toast{position:fixed;left:50%;bottom:calc(150px + var(--sab));transform:translateX(-50%);z-index:70;width:min(420px,calc(100vw - 32px));box-sizing:border-box;background:var(--card);color:var(--tx);border:1px solid var(--bd);border-radius:16px;padding:10px 10px 10px 12px;display:flex;align-items:center;gap:12px;font-size:14px;font-weight:600;line-height:1.4;box-shadow:0 12px 32px rgba(17,24,39,.16);animation:up .22s ease}
+.toast{position:fixed;left:50%;bottom:calc(150px + var(--sab));transform:translateX(-50%);z-index:70;width:min(420px,calc(100vw - 32px));box-sizing:border-box;background:var(--card);color:var(--tx);border:1px solid var(--bd);border-radius:16px;padding:10px 10px 10px 12px;display:flex;align-items:center;gap:12px;font-size:14px;font-weight:600;line-height:1.4;box-shadow:0 12px 32px rgba(17,24,39,.16);animation:toastIn .24s cubic-bezier(.2,.8,.2,1)}
+@keyframes toastIn{from{transform:translate(-50%,24px);opacity:0}to{transform:translate(-50%,0);opacity:1}}
 .toast-i{width:32px;height:32px;border-radius:10px;background:var(--p-l);color:var(--p);display:flex;align-items:center;justify-content:center;flex-shrink:0}
 .toast-t{flex:1;min-width:0;text-align:left;word-break:break-word}
 .toast button{flex-shrink:0;border:none;background:var(--p);color:#fff;font-weight:800;font-size:13px;min-height:36px;padding:0 14px;border-radius:10px}
@@ -378,7 +379,7 @@ textarea.inp{resize:vertical;line-height:1.45}
 
 <script type="module">
 /* ============ helpers ============ */
-const APP_VERSION = '2.0 (24 Nov 2026)';
+const APP_VERSION = '2.1 (24 Nov 2026)';
 const $ = (s, r = document) => r.querySelector(s);
 const h = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const pad = (n) => String(n).padStart(2, '0');
