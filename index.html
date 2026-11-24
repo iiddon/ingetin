@@ -420,6 +420,9 @@ mark{background:var(--mark);color:inherit;border-radius:3px;padding:0 1px}
 .set-l{flex:1;font-size:15px;font-weight:600}
 .set-v{font-size:13px;color:var(--mu);text-align:right;max-width:45%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .settings small.muted{font-size:12px;line-height:1.45}
+.share-box{display:flex;flex-direction:column;gap:8px;padding:12px 14px;border:1px solid var(--bd);border-radius:14px;background:var(--card)}
+.share-box .sec-h{align-items:center}
+.pchip.multi input:checked+span::after{content:'✓';margin-left:2px;font-weight:800}
 .inp.bad{border-color:var(--danger);box-shadow:0 0 0 3px #FEE2E2}
 .chipbtn{min-height:34px;padding:0 12px;border-radius:999px;border:1px solid var(--bd);background:var(--bg);font-size:13px;color:var(--mu2)}
 .preview{border-radius:16px;background:var(--bg);padding:14px;display:flex;flex-direction:column;gap:12px}
@@ -457,7 +460,7 @@ mark{background:var(--mark);color:inherit;border-radius:3px;padding:0 1px}
 
 <script type="module">
 /* ============ helpers ============ */
-const APP_VERSION = '2.7 (24 Nov 2026)';
+const APP_VERSION = '2.8 (24 Nov 2026)';
 const $ = (s, r = document) => r.querySelector(s);
 const h = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const pad = (n) => String(n).padStart(2, '0');
@@ -554,7 +557,7 @@ const isMine = (e) => e.owner_id === myId();
 /* ============ data layer ============ */
 const COLS = {
   people: ['id', 'owner_id', 'name', 'color', 'linked_user_id', 'created_at'],
-  events: ['id', 'owner_id', 'person_id', 'title', 'date', 'time', 'location', 'notes', 'shared', 'checklist', 'reminders', 'repeat', 'birth_year', 'occ', 'kind', 'created_at', 'updated_at'],
+  events: ['id', 'owner_id', 'person_id', 'title', 'date', 'time', 'location', 'notes', 'shared', 'checklist', 'reminders', 'repeat', 'birth_year', 'occ', 'kind', 'share_with', 'created_at', 'updated_at'],
   notes: ['id', 'owner_id', 'person_id', 'text', 'kind', 'created_at']
 };
 const pick = (t, r) => { const o = {}; for (const c of COLS[t]) if (r[c] !== undefined) o[c] = r[c]; return o; };
@@ -576,7 +579,15 @@ const Cloud = {
     if (ids.length) { const r = await sb.from('profiles').select('id,name').in('id', ids); if (r.error) throw r.error; friends = r.data; }
     return { people: p.data, events: e.data, notes: n.data, friends };
   },
-  async put(t, row) { const { error } = await S.sb.from(t).upsert(pick(t, row)); if (error) throw error; },
+  async put(t, row) {
+    let { error } = await S.sb.from(t).upsert(pick(t, row));
+    if (error && /share_with/.test(error.message || '')) {
+      // database belum diperbarui (kolom share_with belum ada): simpan tanpa kolom itu
+      const r = pick(t, row); delete r.share_with; ({ error } = await S.sb.from(t).upsert(r));
+      if (!error && !Cloud._warned) { Cloud._warned = 1; toast('Database perlu diperbarui supaya bisa memilih teman. Lihat Pengaturan › Akun'); }
+    }
+    if (error) throw error;
+  },
   async del(t, id) { const { error } = await S.sb.from(t).delete().eq('id', id); if (error) throw error; }
 };
 const store = () => (S.mode === 'cloud' ? Cloud : Local);
@@ -995,7 +1006,7 @@ function evRow(e, showDate = true) {
   return `<button type="button" class="ev" data-act="openEvent" data-id="${h(e.id)}">
     ${showDate ? `<span class="dblock" style="${cs(i.color)}"><small>${HARI3[d.getDay()]}</small><b>${d.getDate()}</b></span>` : `<span class="dot" style="color:${pair(i.color)[1]};width:10px;height:10px"></span>`}
     <span class="ev-t"><b>${h(e.title)}${isRec(e) ? `<span class="rec" title="${recLabel(e)}" aria-label="${recLabel(e)}">${ic('repeat', 13, 2.4)}</span>` : ''}</b><span>${h(sub)}</span></span>
-    ${prog ? `<span class="tag">${prog}</span>` : (e.shared && isMine(e) ? `<span class="tag">Dibagikan</span>` : '')}
+    ${prog ? `<span class="tag">${prog}</span>` : (e.shared && isMine(e) ? `<span class="tag" title="${h('Dibagikan ke ' + shareLabel(e))}">${ic('people', 12, 2.4)} ${sharedWith(e).length}</span>` : '')}
   </button>`;
 }
 
@@ -1412,9 +1423,24 @@ function timeField(id, label, val) {
 }
 const personOptions = (sel, extra = '') => `<option value="">Kamu (tanpa teman)</option>${[...S.data.people].sort((a, b) => a.name.localeCompare(b.name)).map((p) => `<option value="${h(p.id)}" ${p.id === sel ? 'selected' : ''}>${h(p.name)}</option>`).join('')}${extra}`;
 const remChecks = (list) => REM.map((r) => `<label class="sw"><span><b>${r.label}</b><small>${r.days === 0 ? 'Pukul 07.00 di hari acara' : r.days + ' hari sebelum, pukul 19.00'}</small></span><input type="checkbox" name="rem" value="${r.k}" ${list.includes(r.k) ? 'checked' : ''}></label>`).join('');
-const shareBox = (on, label) => S.mode === 'cloud'
-  ? `<label class="sw" style="padding:0 14px;border:1px solid var(--bd);border-radius:14px"><span><b>${h(label || 'Bagikan ke teman yang terhubung')}</b><small>Muncul juga di kalender mereka</small></span><input type="checkbox" role="switch" name="shared" ${on ? 'checked' : ''}></label>`
-  : `<p class="muted" style="font-size:13px;margin:0">${ic('lock', 13, 2.2)} Berbagi ke teman aktif setelah kamu masuk ke akun (Pengaturan).</p>`;
+// siapa saja yang boleh melihat acara: daftar id teman (kosong = hanya kamu)
+const sharedWith = (e) => (e && e.shared ? (Array.isArray(e.share_with) ? e.share_with : S.data.friends.map((f) => f.id)) : []);
+function shareLabel(e) {
+  const ids = sharedWith(e); if (!ids.length) return '';
+  const names = ids.map((id) => friendName(id)).filter(Boolean);
+  if (names.length && names.length === S.data.friends.length && S.data.friends.length > 2) return 'Semua teman terhubung';
+  return names.length > 2 ? names.slice(0, 2).join(', ') + ' +' + (names.length - 2) : names.join(' & ');
+}
+const shareBox = (ids) => {
+  if (S.mode !== 'cloud') return `<p class="muted" style="font-size:13px;margin:0">${ic('lock', 13, 2.2)} Berbagi ke teman aktif setelah kamu masuk ke akun (Pengaturan).</p>`;
+  const fr = S.data.friends;
+  if (!fr.length) return `<div class="share-box"><span class="flabel">Bagikan ke</span><p class="muted" style="margin:0;font-size:13px">Belum ada teman terhubung. <button type="button" class="btn ghost" style="min-height:30px;padding:0" data-act="invite">Undang teman</button></p></div>`;
+  const sel = new Set(ids || []);
+  return `<div class="share-box"><div class="sec-h"><span class="flabel">Bagikan ke <span class="muted" style="font-weight:600">(opsional)</span></span><button type="button" class="btn ghost" style="min-height:30px;padding:0" data-act="shareAll">${sel.size === fr.length ? 'Kosongkan' : 'Pilih semua'}</button></div>
+    <div class="pchips">${fr.map((f) => { const p = S.data.people.find((x) => x.linked_user_id === f.id) || { color: 'gray' }; return `<label class="pchip multi"><input type="checkbox" name="shareTo" value="${h(f.id)}" data-chg="shareTo" ${sel.has(f.id) ? 'checked' : ''}><span><i style="${cs(p.color)}">${h((f.name || '?')[0].toUpperCase())}</i>${h(f.name)}</span></label>`; }).join('')}</div>
+    <small class="muted share-hint">${sel.size ? 'Hanya teman yang dipilih yang bisa melihat acara ini.' : 'Tidak ada yang dipilih: acara ini hanya untukmu.'}</small></div>`;
+};
+const shareFromForm = (fd) => { const ids = fd.getAll('shareTo'); return { shared: ids.length > 0, share_with: ids }; };
 
 const SHEETS = {
   quick(s) {
@@ -1455,7 +1481,7 @@ const SHEETS = {
                 <div class="field"><label for="qa-loc">Lokasi</label><input id="qa-loc" class="inp" name="location" value="${h(r.location || '')}" autocomplete="off"></div>
                 <div class="field"><label for="qa-notes">Catatan acara</label><textarea id="qa-notes" class="inp" name="notes" rows="2" placeholder="mis. Dress code batik">${h(r.notes || '')}</textarea></div>
               </div></details>
-            ${shareBox(false)}`}
+            ${shareBox(S.sheet && S.sheet.shareTo)}`}
         </div>
         <p class="err" id="qa-err" role="alert"></p>
         <div class="row2"><button type="button" class="btn" data-act="closeSheet">Batal</button><button type="submit" class="btn pri">${isNote ? 'Simpan catatan' : 'Simpan ke kalender'}</button></div>
@@ -1465,7 +1491,7 @@ const SHEETS = {
     const e = getEv(s.id); if (!e) return null;
     const i = evInfo(e), mine = isMine(e), c = pair(i.color), age = ageOn(e);
     const list = e.checklist || [], done = list.filter((x) => x.done).length;
-    const badge = mine ? (e.shared ? `<span class="pill" style="${cs(i.color)}">${ic('people', 14)}Dibagikan ke teman</span>` : `<span class="pill" style="${cs(i.color)}">${h(i.who)}</span>`) : `<span class="pill" style="${cs(i.color)}">Dibagikan ${h(i.from)}</span>`;
+    const badge = mine ? (e.shared ? `<span class="pill" style="${cs(i.color)}">${ic('people', 14)}Dibagikan ke ${h(shareLabel(e))}</span>` : `<span class="pill" style="${cs(i.color)}">${h(i.who)}</span>`) : `<span class="pill" style="${cs(i.color)}">Dibagikan ${h(i.from)}</span>`;
     return `<div class="sh-band" style="background:${c[1]}"></div><div class="sh-body">
       <div class="sh-top"><div style="flex:1">${badge}</div><button type="button" class="icon-btn round" data-act="closeSheet" aria-label="Tutup">${ic('x', 18, 2.4)}</button></div>
       <h2 class="sh-title">${h(e.title)}</h2>
@@ -1504,7 +1530,7 @@ const SHEETS = {
         <div class="field"><label for="ee-loc">Lokasi (opsional)</label><input id="ee-loc" class="inp" name="location" value="${h(e.location || '')}"></div>
         <div class="field"><label for="ee-notes">Catatan (opsional)</label><textarea id="ee-notes" class="inp" name="notes" rows="2" placeholder="mis. Dress code batik">${h(e.notes || '')}</textarea></div>
         <div><div class="flabel">Pengingat</div>${remChecks(e.reminders || [])}</div>
-        ${shareBox(e.shared)}
+        ${s.single ? '' : shareBox(sharedWith(e))}
         <div class="row2"><button type="button" class="btn" data-act="${s.id || s.single ? 'backToEvent' : 'closeSheet'}">Batal</button><button type="submit" class="btn pri">Simpan</button></div>
       </form></div>`;
   },
@@ -1702,6 +1728,10 @@ function renderPicker() {
 
 /* ============ actions ============ */
 const A = {
+  shareAll(d, el) {
+    const f = el.closest('form'); if (!f) return; const boxes = [...f.querySelectorAll('input[name=shareTo]')];
+    const on = !boxes.every((b) => b.checked); boxes.forEach((b) => (b.checked = on)); CHG.shareTo(boxes[0]);
+  },
   goAkun() { navPush(); closeSheet(); S.view = 'pengaturan'; S.setPage = 'akun'; render(); const m = $('#main'); if (m) m.scrollTop = 0; },
   setPage(d) { navPush(); S.setPage = d.p; render(); const m = $('#main'); if (m) m.scrollTop = 0; },
   setBack() { if (NAV.length && NAV[NAV.length - 1].view === 'pengaturan' && !NAV[NAV.length - 1].setPage) history.back(); else { S.setPage = null; render(); } },
@@ -1876,6 +1906,12 @@ function fieldSet(id) {
   }
 }
 const CHG = {
+  shareTo(el) {
+    const f = el.form; const ids = [...f.querySelectorAll('input[name=shareTo]:checked')].map((x) => x.value);
+    if (S.sheet) S.sheet.shareTo = ids;
+    const hint = f.querySelector('.share-hint'); if (hint) hint.textContent = ids.length ? 'Hanya teman yang dipilih yang bisa melihat acara ini.' : 'Tidak ada yang dipilih: acara ini hanya untukmu.';
+    const all = f.querySelector('[data-act=shareAll]'); if (all) all.textContent = ids.length === S.data.friends.length ? 'Kosongkan' : 'Pilih semua';
+  },
   themeCustom(el) { lsSet('ingetin:theme', 'custom:' + el.value); applyTheme(); render(); },
   briefOpt(el) { const c = briefCfg(); c[el.value] = el.checked; lsSet('ingetin:brief', c); render(); },
   pinToggle(el) { if (el.checked) { el.checked = false; openSheet('pin', { mode: 'set', buf: '' }); } else { el.checked = true; openSheet('pin', { mode: 'verify', buf: '', next: 'off' }); } },
@@ -1946,7 +1982,7 @@ const FORMS = {
     const pid = await ensurePerson(fd.get('person'), r.newName || '', fd.get('personNew'));
     const rep = fd.get('repeat') || null, by = parseInt(fd.get('birthYear'), 10);
     const kind = rep === 'yearly' && /\b(ultah|ulang\s*tahun|birthday|bday)\b/i.test(title) ? 'ultah' : null;
-    const ev = await save('events', { id: uid(), title, date, time: fd.get('time') || null, person_id: pid, location: (fd.get('location') || '').trim() || null, notes: (fd.get('notes') || '').trim() || null, shared: fd.get('shared') === 'on', checklist: [], reminders: fd.getAll('rem'), repeat: rep, birth_year: rep === 'yearly' && by > 1900 ? by : null, occ: {}, kind });
+    const ev = await save('events', { id: uid(), title, date, time: fd.get('time') || null, person_id: pid, location: (fd.get('location') || '').trim() || null, notes: (fd.get('notes') || '').trim() || null, ...shareFromForm(fd), checklist: [], reminders: fd.getAll('rem'), repeat: rep, birth_year: rep === 'yearly' && by > 1900 ? by : null, occ: {}, kind });
     closeSheet();
     S.sel = date; const m = pd(date); m.setDate(1); S.month = m; S.view = 'kalender'; render();
     toast('Tersimpan: ' + title, { label: 'Lihat', fn: () => openSheet('event', { id: ev.id }) });
@@ -1959,7 +1995,7 @@ const FORMS = {
       const pid1 = await ensurePerson(fd.get('person'), '', fd.get('personNew'));
       const occ = { ...(b.occ || {}) }; occ[inst.date] = { ...(occ[inst.date] || {}), skip: true };
       await save('events', { ...b, occ });
-      const row1 = await save('events', { id: uid(), title: fd.get('title').trim(), date: fd.get('date') || inst.date, time: fd.get('time') || null, person_id: pid1, location: fd.get('location').trim() || null, notes: fd.get('notes').trim() || null, reminders: fd.getAll('rem'), shared: fd.get('shared') === 'on', checklist: inst.checklist || [], repeat: null, birth_year: null, occ: {}, kind: null });
+      const row1 = await save('events', { id: uid(), title: fd.get('title').trim(), date: fd.get('date') || inst.date, time: fd.get('time') || null, person_id: pid1, location: fd.get('location').trim() || null, notes: fd.get('notes').trim() || null, reminders: fd.getAll('rem'), shared: !!b.shared, share_with: b.share_with || null, checklist: inst.checklist || [], repeat: null, birth_year: null, occ: {}, kind: null });
       toast('Tanggal ini diubah'); openSheet('event', { id: row1.id }); return;
     }
     const base = s.id ? S.data.events.find((x) => x.id === s.id) : { id: uid(), checklist: [], occ: {} };
@@ -1967,7 +2003,7 @@ const FORMS = {
     if (fd.get('person') === '__other' && !(fd.get('personNew') || '').trim()) { toast('Tulis nama teman barunya.'); flagField('#ee-person-new'); return; }
     const pid = await ensurePerson(fd.get('person'), '', fd.get('personNew'));
     const rep = fd.get('repeat') || null, by = parseInt(fd.get('birthYear'), 10);
-    const row = { ...base, title: fd.get('title').trim(), date: fd.get('date'), time: fd.get('time') || null, person_id: pid, location: fd.get('location').trim() || null, notes: fd.get('notes').trim() || null, reminders: fd.getAll('rem'), shared: fd.get('shared') === 'on', repeat: rep, birth_year: rep === 'yearly' && by > 1900 ? by : null };
+    const row = { ...base, title: fd.get('title').trim(), date: fd.get('date'), time: fd.get('time') || null, person_id: pid, location: fd.get('location').trim() || null, notes: fd.get('notes').trim() || null, reminders: fd.getAll('rem'), ...shareFromForm(fd), repeat: rep, birth_year: rep === 'yearly' && by > 1900 ? by : null };
     await save('events', row); toast('Acara tersimpan');
     const back = s.back && s.back.includes('@') && isRec(row) ? row.id + '@' + s.back.split('@')[1] : row.id;
     openSheet('event', { id: getEv(back) ? back : row.id });

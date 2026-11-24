@@ -56,6 +56,8 @@ alter table public.events add column if not exists repeat text;
 alter table public.events add column if not exists birth_year int;
 alter table public.events add column if not exists occ jsonb not null default '{}'::jsonb;
 alter table public.events add column if not exists kind text;
+-- berbagi ke teman tertentu (v2.8): null = semua teman terhubung (data lama), daftar id = hanya mereka
+alter table public.events add column if not exists share_with uuid[];
 
 create index if not exists events_owner_date on public.events (owner_id, date);
 create index if not exists notes_owner on public.notes (owner_id);
@@ -93,7 +95,7 @@ create policy "notes own" on public.notes for all to authenticated using (owner_
 
 -- events: milik sendiri, atau acara teman yang dibagikan
 drop policy if exists "events read" on public.events;
-create policy "events read" on public.events for select to authenticated using (owner_id = auth.uid() or (shared and public.is_friend(owner_id)));
+create policy "events read" on public.events for select to authenticated using (owner_id = auth.uid() or (shared and public.is_friend(owner_id) and (share_with is null or auth.uid() = any(share_with))));
 drop policy if exists "events insert" on public.events;
 create policy "events insert" on public.events for insert to authenticated with check (owner_id = auth.uid());
 drop policy if exists "events update" on public.events;
