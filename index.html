@@ -51,8 +51,8 @@ h1,h2,h3{margin:0}
 /* ---------- shell ---------- */
 .app{display:grid;grid-template-columns:1fr;height:100dvh;padding-left:var(--sal);padding-right:var(--sar)}
 .side{display:none}
-main{overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;padding:calc(16px + var(--sat)) 16px calc(96px + var(--sab));min-width:0}
-.tabbar{position:fixed;left:0;right:0;bottom:0;z-index:20;display:flex;background:var(--bar);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border-top:1px solid var(--bd);padding:6px 8px calc(6px + var(--sab))}
+main{overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;overscroll-behavior-y:contain;padding:calc(16px + var(--sat)) 16px calc(168px + var(--sab));min-width:0}
+.tabbar{position:fixed;left:0;right:0;bottom:0;z-index:20;display:flex;background:var(--card);border-top:1px solid var(--bd);padding:6px 8px calc(6px + var(--sab))}
 .tab{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;min-height:50px;justify-content:center;border:none;background:none;color:var(--mu);font-size:11px;font-weight:700;border-radius:12px;transition:background .15s,color .15s,transform .15s}
 .tab.on{color:var(--p-d);background:var(--p-l)}
 .tab:active{transform:scale(.95)}
@@ -116,7 +116,7 @@ main{overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;padding:
 .month-btn svg{flex-shrink:0;color:var(--mu)}
 .month-btn:active{transform:scale(.97)}
 .cal-nav{display:flex;align-items:center;gap:6px;flex-shrink:0;margin-left:auto}
-@media (max-width:999px){.cal-nav [data-act=search],.page-h [data-act=search]{display:none}}
+
 .cal-nav .btn{min-height:44px}
 .mp-year{display:flex;align-items:center;justify-content:space-between;gap:10px}
 .mp-year b{font-size:24px;font-weight:800}
@@ -135,7 +135,7 @@ main{overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;padding:
 .dows,.grid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:6px}
 .dows span{font-size:12px;font-weight:700;color:var(--mu);text-align:center;text-transform:uppercase;letter-spacing:.6px}
 .grid{grid-auto-rows:minmax(96px,auto)}
-.cell{border:1px solid var(--bd);background:var(--card);border-radius:10px;padding:6px;display:flex;flex-direction:column;gap:4px;text-align:left;min-width:0;overflow:hidden;transition:transform .12s,box-shadow .15s,border-color .15s}
+.cell{contain:layout paint;touch-action:pan-y;border:1px solid var(--bd);background:var(--card);border-radius:10px;padding:6px;display:flex;flex-direction:column;gap:4px;text-align:left;min-width:0;overflow:hidden;transition:transform .12s,box-shadow .15s,border-color .15s}
 .cell:active{transform:scale(.97)}
 .cell.out{background:transparent;border-style:dashed;border-color:var(--out)}
 .cell.out .num{color:var(--outnum)}
@@ -441,7 +441,7 @@ mark{background:var(--mark);color:inherit;border-radius:3px;padding:0 1px}
 
 <script type="module">
 /* ============ helpers ============ */
-const APP_VERSION = '2.5 (24 Nov 2026)';
+const APP_VERSION = '2.6 (24 Nov 2026)';
 const $ = (s, r = document) => r.querySelector(s);
 const h = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const pad = (n) => String(n).padStart(2, '0');
@@ -969,12 +969,10 @@ function renderShell() {
   const side = `<nav class="side" aria-label="Menu utama">
     <div class="brand"><span class="logo">${ic('bell', 22)}</span><b>Ingetin</b></div>
     ${navItems().map(([k, l, i]) => `<button type="button" class="nav ${S.view === k ? 'on' : ''}" data-act="go" data-v="${k}" ${S.view === k ? 'aria-current="page"' : ''}>${ic(i)}${l}</button>`).join('')}
-    <button type="button" class="nav" data-act="search">${ic('search')}Cari</button>
     <div class="invite-card"><span>${S.mode === 'cloud' ? S.data.friends.length + ' teman terhubung. Ajak yang lain supaya event mereka ikut muncul.' : 'Hubungkan dengan teman supaya event kalian saling muncul.'}</span>
     <button type="button" class="btn out" style="padding:0 10px;font-size:14px;white-space:nowrap" data-act="invite">${ic('addUser', 18)}Undang teman</button></div>
   </nav>`;
   const tb = navItems().map(([k, l, i]) => `<button type="button" class="tab ${S.view === k ? 'on' : ''}" data-act="go" data-v="${k}" ${S.view === k ? 'aria-current="page"' : ''}>${ic(i, 22)}${l}</button>`);
-  tb.splice(2, 0, `<button type="button" class="tab" data-act="search">${ic('search', 22)}Cari</button>`);
   const tabs = `<nav class="tabbar" aria-label="Menu">${tb.join('')}</nav>
   <button type="button" class="fab" data-act="quick" aria-label="Tambah cepat">${ic('plus', 26, 2.4)}</button>`;
   return side + `<main id="main" class="${S.view === 'kalender' ? 'fit' : ''}">${topNotes()}${VIEWS[S.view]()}</main>` + tabs;
@@ -1022,7 +1020,6 @@ function vKalender() {
       <div class="cal-h">
         <h1><button type="button" class="month-btn" data-act="pickMonth" aria-label="Pilih bulan dan tahun, sekarang ${BULAN[mo]} ${y}"><span>${BULAN[mo]} ${y}</span>${ic('down', 18, 2.4)}</button></h1>
         <div class="cal-nav">
-          <button type="button" class="icon-btn" data-act="search" aria-label="Cari">${ic('search', 18, 2.2)}</button>
           <button type="button" class="icon-btn" data-act="month" data-n="-1" aria-label="Bulan sebelumnya">${ic('left', 18, 2.2)}</button>
           <button type="button" class="icon-btn" data-act="month" data-n="1" aria-label="Bulan berikutnya">${ic('right', 18, 2.2)}</button>
           <button type="button" class="btn" data-act="today">Hari ini</button>
@@ -1179,7 +1176,7 @@ function vMinggu() {
       ${list}`;
   }
   const notes = S.data.notes.filter((n) => n.kind !== 'cerita');
-  return `<div class="page-h"><h1>Agenda</h1><button type="button" class="icon-btn" data-act="search" aria-label="Cari">${ic('search', 18, 2.2)}</button><button type="button" class="btn pri quick-top" data-act="quick">${ic('plus', 18, 2.4)}Tambah cepat</button></div>
+  return `<div class="page-h"><h1>Agenda</h1><button type="button" class="btn pri quick-top" data-act="quick">${ic('plus', 18, 2.4)}Tambah cepat</button><button type="button" class="icon-btn" data-act="search" aria-label="Cari acara, persiapan, catatan, teman">${ic('search', 20, 2.2)}</button></div>
   ${seg}
   <div class="wk-layout">
     <section aria-label="${isMonth ? 'Agenda bulan ini' : 'Agenda 14 hari'}">${main}</section>
@@ -2016,11 +2013,12 @@ setTimeout(() => sendBrief(), 1500);
 setInterval(() => sendBrief(), 60000);
 let wasLocked = notesLocked();
 setInterval(() => { const l = notesLocked(); if (l !== wasLocked) { wasLocked = l; if (!S.sheet) render(); } }, 15000);
-let lastDay = todayS();
+let lastDay = todayS(), lastSig = '';
 setInterval(() => {
   notifyDue();
   const busy = S.sheet || $('#dlg').innerHTML || (document.activeElement && document.activeElement.matches('input,textarea,select'));
-  if (!busy && (dueReminders().length || todayS() !== lastDay)) { if (todayS() !== lastDay) { lastDay = todayS(); S.sel = lastDay; } render(); }
+  const sig = dueReminders().map((x) => x.key).join(',') + '|' + (briefDue() ? 1 : 0);
+  if (!busy && (sig !== lastSig || todayS() !== lastDay)) { lastSig = sig; if (todayS() !== lastDay) { lastDay = todayS(); S.sel = lastDay; } render(); }
 }, 60000);
 
 /* ============ cloud bootstrap ============ */
