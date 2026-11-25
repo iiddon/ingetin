@@ -135,6 +135,7 @@ main{overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;overscro
 .legend{display:flex;flex-wrap:wrap;gap:6px}
 .legend .pill{font-size:12px}
 .legend .pill .dot{width:14px;height:4px;border-radius:3px}
+.kbd-plus{display:inline-grid;place-items:center;width:20px;height:20px;border-radius:6px;background:var(--p);color:#fff;font-weight:800;font-size:14px;vertical-align:-3px}
 .dblock .dmon{font-size:10.5px;font-weight:800;opacity:.85;margin-top:1px}
 .evbar{width:5px;align-self:stretch;min-height:34px;border-radius:4px;flex-shrink:0}
 .vtog{display:flex;gap:2px;padding:3px;border-radius:12px;background:var(--bd)}
@@ -627,7 +628,7 @@ mark{background:var(--mark);color:inherit;border-radius:3px;padding:0 1px}
 
 <script type="module">
 /* ============ helpers ============ */
-const APP_VERSION = '3.9 (26 Nov 2026)';
+const APP_VERSION = '3.9.1 (26 Nov 2026)';
 const $ = (s, r = document) => r.querySelector(s);
 const h = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const pad = (n) => String(n).padStart(2, '0');
@@ -1580,9 +1581,7 @@ function vMinggu() {
       const k = ymd(addDays(t, i)), evs = eventsOn(k), hd = holOn(k), tb = tkBlock(k); if (!evs.length && !hd && !tb) continue;
       out += `<div class="day-group"><h2>${i === 0 ? 'Hari ini' : i === 1 ? 'Besok' : HARI[pd(k).getDay()]}<small>${fmtShort(k)}</small></h2>${holRow(k)}${evs.map((e) => evRow(e)).join('')}${tb}</div>`;
     }
-    const later = eventsBetween(ymd(addDays(t, 14)), ymd(addDays(t, 90)));
-    main = (out || `<div class="card"><div class="empty">${ic('cal', 32, 1.6)}<b>Belum ada acara dua minggu ke depan</b>Ketuk tombol <b style="font-size:inherit">+</b> lalu tulis seperti chat, misalnya “Budi ultah 14 Januari”.</div></div>`)
-      + (later.length ? `<div class="day-group"><h2>Setelahnya</h2>${later.slice(0, 8).map((e) => evRow(e)).join('')}</div>` : '');
+    main = out || `<div class="card"><div class="empty">${ic('cal', 32, 1.6)}<b>Belum ada acara dua minggu ke depan</b><span>Ketuk tombol <span class="kbd-plus">+</span> untuk menambah acara.</span></div></div>`;
   } else {
     const m = S.month, y = m.getFullYear(), mo = m.getMonth();
     const a = ymd(new Date(y, mo, 1)), z = ymd(new Date(y, mo + 1, 0)), today = todayS();
