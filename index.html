@@ -221,7 +221,8 @@ main{overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;overscro
 .day-group h2 small{font-weight:600;color:var(--mu);margin-left:6px}
 
 /* ---------- friends ---------- */
-.fr-layout{display:grid;gap:16px}
+.fr-layout{display:grid;gap:16px;grid-template-columns:minmax(0,1fr)}
+.fr-list,.fr-detail{min-width:0}
 @media (min-width:760px){.fr-layout{grid-template-columns:340px minmax(0,1fr)}}
 .fr-list{display:flex;flex-direction:column;gap:8px}
 .search{display:flex;align-items:center;gap:8px;height:46px;padding:0 12px;border-radius:12px;background:var(--card);border:1px solid var(--bd);color:var(--mu)}
@@ -656,7 +657,7 @@ mark{background:var(--mark);color:inherit;border-radius:3px;padding:0 1px}
 
 <script type="module">
 /* ============ helpers ============ */
-const APP_VERSION = '4.0 (26 Nov 2026)';
+const APP_VERSION = '4.0.1 (26 Nov 2026)';
 const $ = (s, r = document) => r.querySelector(s);
 const h = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const pad = (n) => String(n).padStart(2, '0');
@@ -1676,12 +1677,9 @@ function frInfo(p) {
 }
 function frTop() {
   const cloud = S.mode === 'cloud', all = S.data.people;
-  const up = all.map((p) => ({ p, i: frInfo(p) })).filter((x) => x.i.nb).sort((a, b) => a.i.days - b.i.days).slice(0, 10);
   const nL = all.filter((p) => p.linked_user_id).length, f = S.frFilter || 'all';
   const chip = (k, l, n) => `<button type="button" role="radio" aria-checked="${f === k}" class="tchip2 ${f === k ? 'on' : ''}" data-act="frFilter" data-f="${k}">${l} <span class="fc-n">${n}</span></button>`;
-  return `${up.length ? `<div class="fr-up"><div class="fr-up-h"><b>🎂 Ulang tahun terdekat</b></div>
-      <div class="fr-car">${up.map(({ p, i }) => `<button type="button" class="fr-ci" data-act="openPerson" data-id="${h(p.id)}" style="--sc:${pair(p.color)[2]}"><span class="fr-ring">${avatar(p, 46)}</span><b>${h(p.name)}</b><span class="fr-cd">${i.days === 0 ? 'Hari ini 🎉' : i.days === 1 ? 'Besok' : 'H-' + i.days}</span></button>`).join('')}</div></div>` : ''}
-    ${cloud ? `<div class="tk-chips" role="radiogroup" aria-label="Saring teman">${chip('all', 'Semua', all.length)}${chip('linked', 'Terhubung', nL)}${chip('manual', 'Belum gabung', all.length - nL)}</div>` : ''}`;
+  return `${cloud ? `<div class="tk-chips" role="radiogroup" aria-label="Saring teman">${chip('all', 'Semua', all.length)}${chip('linked', 'Terhubung', nL)}${chip('manual', 'Belum gabung', all.length - nL)}</div>` : ''}`;
 }
 function friendList() {
   const f = S.mode === 'cloud' ? S.frFilter || 'all' : 'all';
@@ -1690,11 +1688,9 @@ function friendList() {
   return list.map((p) => {
     const i = frInfo(p), col = pair(p.color)[2];
     const line = i.nb ? `🎂 ${h(i.nb.title)} · <b style="color:${col}">${i.days === 0 ? 'hari ini 🎉' : i.days === 1 ? 'besok' : i.days + ' hari lagi'}</b>` : i.nx ? `📅 ${h(i.nx.title)} · ${h(rel(i.nx.date).toLowerCase())}` : 'Belum ada ulang tahun';
-    const pct = i.nb ? Math.max(4, Math.round(100 - (i.days / 365) * 100)) : 0;
     const st = S.mode === 'cloud' ? (p.linked_user_id ? `<span class="fr-st ok">Terhubung</span>` : `<span class="fr-st">Belum gabung</span>`) : '';
     return `<button type="button" class="frc ${p.id === S.personId ? 'on' : ''}" data-act="openPerson" data-id="${h(p.id)}">
       <span class="frc-top"><span class="tk-avw ${S.mode === 'cloud' && !p.linked_user_id ? 'wait' : ''}">${avatar(p, 46)}</span><span class="frc-t"><span class="frc-n"><b>${h(p.name)}</b>${st}</span><span class="frc-l">${line}</span></span>${ic('right', 18, 2.2)}</span>
-      ${i.nb ? `<span class="frc-bar"><i style="width:${pct}%;background:${col}"></i></span>` : ''}
       <span class="frc-s"><span>${ic('note', 13, 2.2)}${i.nn} catatan</span><span>${ic('tasks', 13, 2.2)}${i.nt} tugas</span><span>${ic('cal', 13, 2.2)}${i.ne} acara</span></span>
     </button>`;
   }).join('');
