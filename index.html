@@ -589,7 +589,7 @@ mark{background:var(--mark);color:inherit;border-radius:3px;padding:0 1px}
 
 <script type="module">
 /* ============ helpers ============ */
-const APP_VERSION = '3.3 (25 Nov 2026)';
+const APP_VERSION = '3.4 (25 Nov 2026)';
 const $ = (s, r = document) => r.querySelector(s);
 const h = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const pad = (n) => String(n).padStart(2, '0');
@@ -1334,7 +1334,7 @@ function calHead() {
   return `<div class="cal-h">
         <h1><button type="button" class="month-btn" data-act="pickMonth" aria-label="Pilih bulan dan tahun, sekarang ${BULAN[mo]} ${y}"><span><span class="m-long">${BULAN[mo]}</span><span class="m-short">${BUL3[mo]}</span> ${y}</span>${ic('down', 18, 2.4)}</button></h1>
         <div class="cal-nav">
-          <button type="button" class="icon-btn" data-act="search" aria-label="Cari acara, persiapan, catatan, teman">${ic('search', 19, 2.2)}</button>
+          <button type="button" class="icon-btn" data-act="search" aria-label="Cari acara, tugas, catatan, teman">${ic('search', 19, 2.2)}</button>
           <div class="vtog" role="radiogroup" aria-label="Tampilan">
             <button type="button" role="radio" aria-checked="${!list}" class="${list ? '' : 'on'}" data-act="kalMode" data-m="bulan" aria-label="Tampilan bulan">${ic('cal', 17, 2.2)}</button>
             <button type="button" role="radio" aria-checked="${list}" class="${list ? 'on' : ''}" data-act="kalMode" data-m="daftar" aria-label="Tampilan daftar">${ic('list', 17, 2.2)}</button>
@@ -1391,7 +1391,9 @@ function searchResults(s) {
   if (q.length < 2) return `<p class="muted" style="text-align:center;font-size:14px;margin:18px 0">Ketik minimal 2 huruf. Contoh: <b>kado</b>, <b>alergi</b>, nama teman.</p>`;
   const has = (x) => String(x || '').toLowerCase().includes(q);
   const today = todayS();
-  const evs = [], preps = [], notes = [], people = [];
+  const evs = [], preps = [], notes = [], people = [], tasks = [];
+  for (const x of taskItems()) if (x.src === 'task' && (has(x.title) || has(x.t.notes))) tasks.push(x);
+  tasks.sort((a, b) => a.done - b.done || byDue(a, b));
   for (const b of S.data.events) {
     const inst = isRec(b) ? (getEv(b.id + '@' + (occDates(b, today, ymd(addDays(todayD(), 400)))[0] || b.date))) : b;
     if (has(b.title) || has(b.notes) || has(b.location) || (b.checklist || []).some((c) => has(c.text))) evs.push(inst);
@@ -1400,13 +1402,14 @@ function searchResults(s) {
   evs.sort((a, b) => (a.date >= today) - (b.date >= today) || sortEv(a, b)).reverse();
   if (!notesLocked()) for (const n of S.data.notes) if (has(n.text)) notes.push(n);
   for (const p of S.data.people) if (has(p.name)) people.push(p);
-  const cnt = { all: evs.length + preps.length + notes.length + people.length, ev: evs.length, prep: preps.length, note: notes.length, ppl: people.length };
+  const cnt = { all: evs.length + tasks.length + preps.length + notes.length + people.length, ev: evs.length, task: tasks.length + preps.length, note: notes.length, ppl: people.length };
   const chip = (k, l) => `<button type="button" class="srch-chip ${f === k ? 'on' : ''}" data-act="srchF" data-f="${k}">${l} ${cnt[k]}</button>`;
   const row = (icon, style, title, sub, act, id) => `<button type="button" class="srch-row" data-act="${act}" data-id="${h(id)}"><span class="srch-i" style="${style}">${ic(icon, 18)}</span><span class="ev-t"><b>${title}</b><span>${sub}</span></span></button>`;
   const sec = (t, html) => (html ? `<div class="srch-sec">${t}</div>${html}` : '');
-  let out = `<div class="srch-chips">${chip('all', 'Semua')}${chip('ev', 'Acara')}${chip('prep', 'Persiapan')}${chip('note', 'Catatan')}${chip('ppl', 'Teman')}</div>`;
+  let out = `<div class="srch-chips">${chip('all', 'Semua')}${chip('ev', 'Acara')}${chip('task', 'Tugas')}${chip('note', 'Catatan')}${chip('ppl', 'Teman')}</div>`;
   if (f === 'all' || f === 'ev') out += sec('Acara', evs.slice(0, 30).map((e) => { const i = evInfo(e), c = (e.checklist || []).find((x) => has(x.text)); return row('cal', cs(i.color), hl(e.title, q), h(fmtShort(e.date) + (e.date < today ? ' · sudah lewat' : ' · ' + rel(e.date))) + (c ? ' · ' + hl(c.text, q) : (has(e.notes) ? ' · ' + hl(e.notes, q) : has(e.location) ? ' · ' + hl(e.location, q) : '')), 'openEvent', e.id); }).join(''));
-  if (f === 'all' || f === 'prep') out += sec('Persiapan belum beres', preps.slice(0, 30).map(({ e, c }) => row('check', cs('blue'), hl(c.text, q), h(e.title + ' · ' + rel(e.date)), 'openEvent', e.id)).join(''));
+  if (f === 'all' || f === 'task') out += sec('Tugas', tasks.slice(0, 30).map((x) => `<button type="button" class="srch-row" data-act="srchTask" data-k="${h(x.k)}"><span class="srch-i" style="${cs('blue')}">${ic('tasks', 18)}</span><span class="ev-t"><b>${x.done ? '<s>' + hl(x.title, q) + '</s>' : hl(x.title, q)}</b><span>${h(x.done ? 'Sudah beres' : x.due ? fmtShort(x.due) + ' · ' + rel(x.due) : 'Tanpa tanggal')}${x.who === 'dari' ? ' · dari ' + h(userName(x.t.owner_id)) : x.who === 'titip' ? ' · dititipkan ke ' + h(userName(x.t.assignee)) : ''}</span></span></button>`).join(''));
+  if (f === 'all' || f === 'task') out += sec('Persiapan belum beres', preps.slice(0, 30).map(({ e, c }) => row('check', cs('blue'), hl(c.text, q), h(e.title + ' · ' + rel(e.date)), 'openEvent', e.id)).join(''));
   if (f === 'all' || f === 'note') out += notesLocked() ? `<div class="srch-sec">Catatan teman</div><div class="note-row" style="justify-content:space-between;align-items:center"><span class="muted">${ic('lock', 14)} Catatan terkunci, tidak ikut dicari</span><button type="button" class="btn ghost" data-act="unlock">Buka</button></div>` : sec('Catatan teman', notes.slice(0, 30).map((n) => { const p = personById(n.person_id) || { name: '?', color: 'gray' }; return row('note', cs(p.color), h(p.name), hl(n.text, q), 'openPerson', n.person_id); }).join(''));
   if (f === 'all' || f === 'ppl') out += sec('Teman', people.map((p) => row('people', cs(p.color), hl(p.name, q), h(S.data.notes.filter((n) => n.person_id === p.id).length + ' catatan'), 'openPerson', p.id)).join(''));
   if (!cnt.all) out += `<div class="empty">${ic('search', 30, 1.6)}<b>Tidak ada yang cocok dengan “${h(s.q)}”</b>Coba kata lain atau nama teman.</div>`;
@@ -1527,20 +1530,16 @@ function vTeman() {
   const wide = window.matchMedia('(min-width:760px)').matches;
   if (!S.personId || !personById(S.personId)) S.personId = wide ? people[0].id : null;
   const showList = wide || !S.personId, showDetail = !!S.personId;
-  return `<div class="page-h"><h1>Teman</h1><button type="button" class="btn out" data-act="invite">${ic('addUser', 18)}Undang</button><button type="button" class="btn pri" data-act="newPerson">+ Teman</button></div>
+  return `<div class="page-h"><h1>Teman</h1><button type="button" class="icon-btn" data-act="search" aria-label="Cari acara, tugas, catatan, teman">${ic('search', 19, 2.2)}</button><button type="button" class="btn out" data-act="invite">${ic('addUser', 18)}Undang</button><button type="button" class="btn pri" data-act="newPerson">+ Teman</button></div>
   <div class="fr-layout" style="align-items:start">
     ${showList ? `<div class="fr-list">
-      <label for="cari" class="sr">Cari teman atau catatan</label>
-      <div class="search">${ic('search', 18)}<input id="cari" type="search" placeholder="Cari teman atau catatan…" value="${h(S.q)}" autocomplete="off"></div>
       <div class="stack" id="frlist">${friendList()}</div>
     </div>` : ''}
     ${showDetail ? `<div class="fr-detail">${personDetail(personById(S.personId), wide)}</div>` : ''}
   </div>`;
 }
 function friendList() {
-  const q = S.q.trim().toLowerCase();
-  const list = [...S.data.people].sort((a, b) => a.name.localeCompare(b.name)).filter((p) => !q || p.name.toLowerCase().includes(q) || !notesLocked() && S.data.notes.some((n) => n.person_id === p.id && n.text.toLowerCase().includes(q)));
-  if (!list.length) return `<p class="muted" style="font-size:14px;padding:8px">Tidak ada yang cocok dengan “${h(S.q)}”.</p>`;
+  const list = [...S.data.people].sort((a, b) => a.name.localeCompare(b.name));
   return list.map((p) => {
     const nn = S.data.notes.filter((n) => n.person_id === p.id).length, nx = personEvents(p)[0];
     const sub = [nx ? nx.title + ' · ' + rel(nx.date) : '', nn ? nn + ' catatan' : ''].filter(Boolean).join(' · ') || (p.linked_user_id ? 'Terhubung' : 'Belum ada catatan');
@@ -1735,7 +1734,7 @@ function vTugas() {
   const chips = [['semua', 'Semua'], ['punyaku', 'Punyaku']].concat(cloud && friendPeople().length ? [['titip', 'Dititipkan'], ['dari', 'Dari teman']] : []);
   const empty = !g.late.length && !g.today.length && !g.later.length && !g.someday.length;
   return `<div class="tk-page">
-    <div class="tk-head"><h1>Tugas</h1>${todayAll.length ? `<span class="muted tk-prog">${doneN} dari ${todayAll.length} beres</span>` : ''}<button type="button" class="icon-btn" data-act="search" aria-label="Cari">${ic('search', 19, 2.2)}</button></div>
+    <div class="tk-head"><h1>Tugas</h1>${todayAll.length ? `<span class="muted tk-prog">${doneN} dari ${todayAll.length} beres</span>` : ''}<button type="button" class="icon-btn" data-act="search" aria-label="Cari acara, tugas, catatan, teman">${ic('search', 19, 2.2)}</button></div>
     <form class="tk-add" data-form="taskAdd" autocomplete="off"><span class="tk-add-i">${ic('plus', 20, 2.4)}</span><label class="sr" for="tk-q">Tambah tugas</label><input id="tk-q" name="q" placeholder="Tambah tugas… mis. bayar listrik besok" enterkeyhint="done" autocomplete="off"><button type="submit" class="tk-send" aria-label="Simpan tugas">${ic('send', 17, 2.2)}</button></form>
     <div class="tk-chips" role="radiogroup" aria-label="Saring tugas">${chips.map(([k, l]) => `<button type="button" role="radio" aria-checked="${f === k}" class="tchip2 ${f === k ? 'on' : ''}" data-act="tFilter" data-f="${k}">${l}</button>`).join('')}</div>
     ${S.mode === 'cloud' && S.noTasks ? `<div class="ps-warn">${ic('info', 18)}<span>Tugas belum bisa tersimpan online. Jalankan <b>supabase-update-v3.3.sql</b> (Pengaturan › Notifikasi › Panduan).</span></div>` : ''}
@@ -1757,12 +1756,11 @@ function taskFields(t, s, ro) {
   if (t.due && !days.includes(t.due)) days.unshift(t.due);
   const strip = `<div class="dstrip" role="radiogroup" aria-label="Pilih tenggat"><button type="button" class="dchip ${!t.due ? 'on' : ''}" data-act="tkDate" data-d=""><small>Tanpa</small><b>–</b><small>tanggal</small></button>${days.map((k) => { const d = pd(k); return `<button type="button" role="radio" aria-checked="${k === t.due}" class="dchip ${k === t.due ? 'on' : ''} ${d.getDay() === 0 ? 'red' : ''}" data-act="tkDate" data-d="${k}" aria-label="${h(fmtLong(k))}"><small>${k === todayS() ? 'Hari ini' : HARI3[d.getDay()]}</small><b>${d.getDate()}</b><small>${BUL3[d.getMonth()]}</small></button>`; }).join('')}</div>
       <button type="button" class="chipbtn qa-more" data-act="pickDate" data-for="tk-due">${ic('cal', 15)} Kalender penuh</button>`;
-  const TIMES = ['', '07:00', '09:00', '12:00', '15:00', '19:00', '20:00'];
-  const times = `<div class="qchips">${TIMES.map((x) => `<button type="button" class="tchip2 ${(t.time || '') === x ? 'on' : ''}" data-act="tkTime" data-t="${x}">${x ? fmtTime(x) : 'Tanpa jam'}</button>`).join('')}<button type="button" class="tchip2" data-act="pickTime" data-for="tk-time">${ic('clock', 15)} Jam lain</button></div>`;
-  const evs = expand(ymd(addDays(base, -1)), ymd(addDays(base, 90))).filter((e) => e.repeat !== 'daily').slice(0, 40);
+  const times = `<div class="qchips"><button type="button" class="tchip2 ${!t.time ? 'on' : ''}" data-act="tkTime" data-t="">Tanpa jam</button><button type="button" class="tchip2 ${t.time ? 'on' : ''}" data-act="pickTime" data-for="tk-time">${ic('clock', 15)}${t.time ? 'Jam ' + fmtTime(t.time) + ' · ubah' : 'Tentukan jam'}</button></div>`;
+  const seenB = new Set(), evs = expand(ymd(addDays(base, -1)), ymd(addDays(base, 90))).filter((e) => { if (e.repeat === 'daily') return false; const k = e._base || e.id; if (seenB.has(k)) return false; seenB.add(k); return true; }).slice(0, 40);
   const evSel = t.ev_key || '';
-  if (evSel && !evs.some((e) => e.id === evSel)) { const e = getEv(evSel); if (e) evs.unshift(e); }
-  const evList = `<div class="tk-evl">${[`<label class="tk-evo"><input type="radio" name="tev" value="" ${!evSel ? 'checked' : ''}><span>Tidak terkait acara</span></label>`].concat(evs.map((e) => `<label class="tk-evo"><input type="radio" name="tev" value="${h(e.id)}" ${evSel === e.id ? 'checked' : ''}><span>${evEmoji(e)} ${h(e.title)} <small>· ${h(fmtShort(e.date))}</small></span></label>`)).join('')}</div>
+  if (evSel && !evs.some((e) => e.id === evSel)) { const e = getEv(evSel); if (e) { const k = e._base || e.id; const i = evs.findIndex((x) => (x._base || x.id) === k); if (i >= 0) evs.splice(i, 1); evs.unshift(e); } }
+  const evList = `<div class="tk-evl">${[`<label class="tk-evo"><input type="radio" name="tev" value="" ${!evSel ? 'checked' : ''}><span>Tidak terkait acara</span></label>`].concat(evs.map((e) => `<label class="tk-evo"><input type="radio" name="tev" value="${h(e.id)}" ${evSel === e.id ? 'checked' : ''}><span>${evEmoji(e)} ${h(e.title)} <small>· ${h(fmtShort(e.date))}${isRec(baseOf(e)) ? ' · ' + h(REPL[baseOf(e).repeat] ? REPL[baseOf(e).repeat].toLowerCase() : 'berulang') : ''}</small></span></label>`)).join('')}</div>
       <small class="muted" style="font-size:12px">Tanpa titip: tugas masuk ke daftar persiapan acaranya.</small>`;
   const fr = friendPeople();
   const tto = t.assignee || '';
@@ -1908,8 +1906,7 @@ const SHEETS = {
     const strip = `<div class="dstrip" role="radiogroup" aria-label="Pilih tanggal">${days.map((k) => { const d = pd(k), hd = holOn(k); return `<button type="button" role="radio" aria-checked="${k === r.date}" class="dchip ${k === r.date ? 'on' : ''} ${(hd && hd.t === 'libur') || d.getDay() === 0 ? 'red' : ''}" data-act="qaDate" data-d="${k}" aria-label="${h(fmtLong(k))}"><small>${k === todayS() ? 'Hari ini' : HARI3[d.getDay()]}</small><b>${d.getDate()}</b><small>${BUL3[d.getMonth()]}</small></button>`; }).join('')}</div>
       <button type="button" class="chipbtn qa-more" data-act="pickDate" data-for="qa-date">${ic('cal', 15)} Kalender penuh</button>
       ${isBday ? `<div class="field"><label for="qa-by">Tahun lahir (opsional)</label><input class="inp" id="qa-by" name="birthYear" inputmode="numeric" pattern="[0-9]{4}" maxlength="4" placeholder="mis. 1998" value="${h(r.birthYear || '')}" autocomplete="off"><small class="muted" style="font-size:12px">Untuk menampilkan “Ulang tahun ke-…”</small></div>` : ''}`;
-    const TIMES = ['', '07:00', '09:00', '12:00', '15:00', '19:00', '20:00'];
-    const times = `<div class="qchips">${TIMES.map((t) => `<button type="button" class="tchip2 ${(r.time || '') === t ? 'on' : ''}" data-act="qaTime" data-t="${t}">${t ? fmtTime(t) : 'Tanpa jam'}</button>`).join('')}<button type="button" class="tchip2" data-act="pickTime" data-for="qa-time">${ic('clock', 15)} Jam lain</button></div>`;
+    const times = `<div class="qchips"><button type="button" class="tchip2 ${!r.time ? 'on' : ''}" data-act="qaTime" data-t="">Tanpa jam</button><button type="button" class="tchip2 ${r.time ? 'on' : ''}" data-act="pickTime" data-for="qa-time">${ic('clock', 15)}${r.time ? 'Jam ' + fmtTime(r.time) + ' · ubah' : 'Tentukan jam'}</button></div>`;
     const types = [['event', 'Acara'], ['bday', 'Ultah'], ['note', 'Catatan'], ['task', 'Tugas']];
     if (kind === 'task' && !s.tk) s.tk = { title: r.title || r.noteText || '', due: r.date || '', time: r.time || '', remind: true };
     return `<div class="sh-body">
@@ -2040,7 +2037,7 @@ const SHEETS = {
       ${s.mode === 'unlock' ? `<p class="muted" style="margin:0;text-align:center;font-size:12px">Tetap terbuka ${PIN_MIN} menit setelah dibuka</p>` : ''}</div>`;
   },
   search(s) {
-    return `<div class="sh-body srch-body"><div class="sh-top"><label for="srch" class="srch-box">${ic('search', 18)}<input id="srch" type="search" placeholder="Cari acara, persiapan, catatan, teman…" value="${h(s.q || '')}" autocomplete="off" enterkeyhint="search"></label><button type="button" class="btn ghost" data-act="closeSheet">Tutup</button></div>
+    return `<div class="sh-body srch-body"><div class="sh-top"><label for="srch" class="srch-box">${ic('search', 18)}<input id="srch" type="search" placeholder="Cari acara, tugas, catatan, teman…" value="${h(s.q || '')}" autocomplete="off" enterkeyhint="search"></label><button type="button" class="btn ghost" data-act="closeSheet">Tutup</button></div>
       <div id="srch-res">${searchResults(s)}</div></div>`;
   },
   today() { return todaySheetBody(); },
@@ -2304,6 +2301,7 @@ const A = {
   briefTest() { sendBrief(true); },
   briefTime(d) { const c = briefCfg(); c.time = d.t; lsSet('ingetin:brief', c); syncFriendRem(); render(); },
   search() { openSheet('search', { q: '', f: 'all' }); },
+  srchTask(d) { closeSheet(); A.tOpen({ k: d.k }); },
   srchF(d) { S.sheet.f = d.f; const r = $('#srch-res'); if (r) r.innerHTML = searchResults(S.sheet); },
   unlock() { openSheet('pin', { mode: 'unlock', buf: '' }); },
   lockNow() { S.unlockedUntil = 0; render(); toast('Catatan dikunci'); },
@@ -2683,7 +2681,6 @@ document.addEventListener('input', (ev) => {
   if (ev.target.form && ev.target.form.dataset.form === 'quick' && ev.target.id !== 'qa-text') { qaSync(); tkSync(); }
   if (ev.target.form && ev.target.form.dataset.form === 'task') tkSync();
   if (ev.target.id === 'srch' && S.sheet && S.sheet.kind === 'search') { S.sheet.q = ev.target.value; const r = $('#srch-res'); if (r) r.innerHTML = searchResults(S.sheet); }
-  if (ev.target.id === 'cari') { S.q = ev.target.value; const l = $('#frlist'); if (l) l.innerHTML = friendList(); }
   if (ev.target.id === 'pp-custom' || (ev.target.name === 'color' && ev.target.closest('[data-form=person]'))) {
     const f = ev.target.form; if (ev.target.id === 'pp-custom') { const r = $('#pp-custom-r'); if (r) r.checked = true; }
     const sel = f.querySelector('input[name=color]:checked'); const v = !sel || sel.value === 'custom' ? $('#pp-custom').value : sel.value;
