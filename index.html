@@ -520,6 +520,17 @@ mark{background:var(--mark);color:inherit;border-radius:3px;padding:0 1px}
 .cm-form{display:flex;gap:8px;align-items:flex-end}
 .cm-form textarea{flex:1;min-height:44px;max-height:120px;resize:none;border:1.5px solid var(--bd);border-radius:14px;padding:11px 12px;font:inherit;font-size:16px;background:var(--card);color:var(--tx);outline:none}
 .cm-form textarea:focus{border-color:var(--p)}
+.tk-avw{position:relative;display:inline-flex}.tk-avw.wait::after{content:'⏳';position:absolute;right:-4px;bottom:-4px;font-size:10px;line-height:1;background:var(--card);border-radius:50%;padding:1px}
+.tk-avw.wait .av{opacity:.7}
+.tk-wait{font-style:normal;font-size:10.5px;font-weight:700;color:var(--mu);background:var(--bd);border-radius:999px;padding:1px 6px;margin-left:4px}
+.link-cta{display:flex;align-items:center;gap:12px;text-align:left;width:100%;padding:14px;border-radius:16px;border:1.5px dashed var(--p);background:var(--p-l);color:var(--tx);font:inherit}
+.link-cta>svg:first-child{color:var(--p);flex-shrink:0}.link-cta span{flex:1;display:flex;flex-direction:column;gap:2px}.link-cta small{color:var(--mu);font-size:12.5px;line-height:1.4}
+.link-sum{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:14px;border-radius:16px;background:var(--bg);border:1px solid var(--bd)}
+.link-sum>div{display:flex;align-items:center;gap:10px;min-width:0}.link-sum span{display:flex;flex-direction:column}.link-sum small{font-size:12px;color:var(--mu)}
+.link-sum>svg{color:var(--mu);flex-shrink:0}
+.link-ok{width:44px;height:44px;border-radius:50%;background:#DCFCE7;color:#16A34A;display:grid!important;place-items:center}
+.link-list{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px;font-size:14px}
+.link-list li{display:flex;gap:8px;align-items:flex-start}.link-list svg{color:var(--p);flex-shrink:0;margin-top:2px}
 .ps-list{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:14px}
 .ps-step{display:flex;gap:12px;align-items:flex-start}
 .ps-n{width:28px;height:28px;border-radius:50%;background:var(--p);color:#fff;display:grid;place-items:center;font-weight:800;font-size:14px;flex-shrink:0}
@@ -615,7 +626,7 @@ mark{background:var(--mark);color:inherit;border-radius:3px;padding:0 1px}
 
 <script type="module">
 /* ============ helpers ============ */
-const APP_VERSION = '3.7 (25 Nov 2026)';
+const APP_VERSION = '3.8 (25 Nov 2026)';
 const $ = (s, r = document) => r.querySelector(s);
 const h = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const pad = (n) => String(n).padStart(2, '0');
@@ -717,7 +728,7 @@ const COLS = {
   people: ['id', 'owner_id', 'name', 'color', 'linked_user_id', 'created_at'],
   events: ['id', 'owner_id', 'person_id', 'title', 'date', 'time', 'location', 'notes', 'shared', 'checklist', 'reminders', 'repeat', 'birth_year', 'occ', 'kind', 'share_with', 'created_at', 'updated_at'],
   notes: ['id', 'owner_id', 'person_id', 'text', 'kind', 'created_at'],
-  tasks: ['id', 'owner_id', 'title', 'due', 'time', 'notes', 'done', 'done_at', 'done_by', 'event_id', 'event_date', 'assignee', 'assignees', 'remind', 'created_at', 'updated_at']
+  tasks: ['id', 'owner_id', 'title', 'due', 'time', 'notes', 'done', 'done_at', 'done_by', 'event_id', 'event_date', 'assignee', 'assignees', 'people_ids', 'remind', 'created_at', 'updated_at']
 };
 const pick = (t, r) => { const o = {}; for (const c of COLS[t]) if (r[c] !== undefined) o[c] = r[c]; return o; };
 const Local = {
@@ -749,6 +760,10 @@ const Cloud = {
       // database belum diperbarui (kolom share_with belum ada): simpan tanpa kolom itu
       const r = pick(t, row); delete r.share_with; ({ error } = await S.sb.from(t).upsert(r));
       if (!error && !Cloud._warned) { Cloud._warned = 1; toast('Database perlu diperbarui supaya bisa memilih teman. Lihat Pengaturan › Akun'); }
+    }
+    if (error && t === 'tasks' && /people_ids/.test(error.message || '')) {
+      const r = pick(t, row); delete r.people_ids; ({ error } = await S.sb.from(t).upsert(r));
+      if (!error && !Cloud._warn38) { Cloud._warn38 = 1; toast('Jalankan supabase-update-v3.8.sql supaya titipan ke teman manual tersimpan online'); }
     }
     if (error && t === 'tasks' && /assignees/.test(error.message || '')) {
       // database belum v3.7: simpan dengan satu penerima saja
@@ -785,8 +800,15 @@ async function loadData() {
   } catch (err) { toast('Gagal memuat data: ' + (err.message || err)); }
   render();
 }
+const normName = (n) => String(n || '').toLowerCase().normalize('NFKD').replace(/[^a-z0-9 ]/g, '').trim();
+const similar = (a, b) => { a = normName(a); b = normName(b); if (!a || !b) return false; return a === b || a.split(' ')[0] === b.split(' ')[0]; };
 async function linkFriends() {
+  const asked = lsGet('ingetin:mergeAsked', []);
   for (const f of S.data.friends) {
+    if (!S.data.people.some((p) => p.linked_user_id === f.id) && !asked.includes(f.id)) {
+      const cand = S.data.people.find((p) => !p.linked_user_id && similar(p.name, f.name));
+      if (cand) { asked.push(f.id); lsSet('ingetin:mergeAsked', asked); setTimeout(() => openSheet('link', { pid: cand.id, fid: f.id, auto: true }), 600); continue; }
+    }
     if (!S.data.people.some((p) => p.linked_user_id === f.id)) {
       const row = { id: uid(), name: f.name, color: FRIEND_COLORS[S.data.people.length % FRIEND_COLORS.length], linked_user_id: f.id };
       row.owner_id = myId(); row.created_at = new Date().toISOString();
@@ -794,6 +816,31 @@ async function linkFriends() {
       try { await Cloud.put('people', row); } catch {}
     }
   }
+}
+
+// sambungkan kontak manual ke akun teman: pindahkan semuanya, titipan jadi sungguhan
+async function linkPerson(pid, fid, shareEv) {
+  const p = personById(pid); if (!p) return;
+  const dup = S.data.people.find((x) => x.linked_user_id === fid && x.id !== pid);
+  if (dup) {
+    for (const e of S.data.events.filter((e) => e.person_id === dup.id && isMine(e))) await save('events', { ...e, person_id: pid }, true);
+    for (const n of S.data.notes.filter((n) => n.person_id === dup.id)) await save('notes', { ...n, person_id: pid }, true);
+    await remove('people', dup.id);
+  }
+  await save('people', { ...p, linked_user_id: fid });
+  let nt = 0;
+  for (const t of S.data.tasks.filter((t) => t.owner_id === myId() && (t.people_ids || []).includes(pid))) {
+    const ag = [...new Set([...asgOf(t), fid])];
+    await save('tasks', { ...t, people_ids: (t.people_ids || []).filter((x) => x !== pid), assignees: ag, assignee: ag[0] }, true); nt++;
+  }
+  let ne = 0;
+  if (shareEv) for (const e of S.data.events.filter((e) => e.person_id === pid && isMine(e) && e.date >= ymd(addDays(todayD(), -1)) || (e.person_id === pid && isMine(e) && isRec(e)))) {
+    if (e.shared && !e.share_with) continue; // sudah dibagikan ke semua teman
+    const sw = e.shared ? [...new Set([...(e.share_with || []), fid])] : [fid];
+    await save('events', { ...e, shared: true, share_with: sw }, true); ne++;
+  }
+  S.personId = pid; render();
+  toast(p.name + ' terhubung' + (nt ? ` · ${nt} tugas dititipkan` : '') + (ne ? ` · ${ne} acara dibagikan` : ''));
 }
 
 /* ============ derived ============ */
@@ -1081,7 +1128,7 @@ async function claimKey(key) {
   if (!pushOn()) return true;
   try { const { error } = await S.sb.from('push_sent').insert({ user_id: myId(), key }); return !(error && (error.code === '23505' || /duplicate/i.test(error.message))); } catch { return true; }
 }
-function prefetchFiles() { for (const f of ['supabase-update-v3.1.sql', 'supabase-update-v3.3.sql', 'supabase-update-v3.7.sql', 'supabase/functions/push/index.ts']) if (!FILES[f]) fetch(f, { cache: 'no-cache' }).then((r) => (r.ok ? r.text() : null)).then((t) => { if (t) FILES[f] = t; }).catch(() => {}); }
+function prefetchFiles() { for (const f of ['supabase-update-v3.1.sql', 'supabase-update-v3.3.sql', 'supabase-update-v3.7.sql', 'supabase-update-v3.8.sql', 'supabase/functions/push/index.ts']) if (!FILES[f]) fetch(f, { cache: 'no-cache' }).then((r) => (r.ok ? r.text() : null)).then((t) => { if (t) FILES[f] = t; }).catch(() => {}); }
 async function pushToggle(on) {
   if (S.pushBusy) return;
   S.pushBusy = true; render();
@@ -1299,7 +1346,7 @@ function renderSheet() {
   if (body === null) { closeSheet(); return; }
   const cur = $('#sh .sheet');
   if (cur && cur.dataset.kind === S.sheet.kind) { const st = cur.scrollTop; cur.innerHTML = body; cur.scrollTop = st; return; }
-  $('#sh').innerHTML = `<div class="backdrop" data-act="closeSheet"></div><div class="sheet" role="dialog" aria-modal="true" aria-label="${h({ quick: 'Tambah cepat', event: 'Detail acara', editEvent: 'Ubah acara', note: 'Catatan', person: 'Teman', invite: 'Undang teman', today: 'Hari ini', task: 'Tugas', pushSetup: 'Siapkan notifikasi server', pin: 'PIN', search: 'Cari', monthPick: 'Pilih bulan', notif: 'Notifikasi' }[S.sheet.kind] || '')}" tabindex="-1" data-kind="${S.sheet.kind}">${body}</div>`;
+  $('#sh').innerHTML = `<div class="backdrop" data-act="closeSheet"></div><div class="sheet" role="dialog" aria-modal="true" aria-label="${h({ quick: 'Tambah cepat', event: 'Detail acara', editEvent: 'Ubah acara', note: 'Catatan', person: 'Teman', invite: 'Undang teman', link: 'Hubungkan teman', today: 'Hari ini', task: 'Tugas', pushSetup: 'Siapkan notifikasi server', pin: 'PIN', search: 'Cari', monthPick: 'Pilih bulan', notif: 'Notifikasi' }[S.sheet.kind] || '')}" tabindex="-1" data-kind="${S.sheet.kind}">${body}</div>`;
 }
 
 const avatar = (p, size = 44) => `<span class="av" style="width:${size}px;height:${size}px;font-size:${Math.round(size * 0.38)}px;${cs(p.color)}">${h((p.name || '?')[0].toUpperCase())}</span>`;
@@ -1601,12 +1648,15 @@ function personDetail(p, wide) {
   const cerita = notes.filter((n) => n.kind === 'cerita').sort((a, b) => (b.created_at || '').localeCompare(a.created_at || ''));
   const evs = personEvents(p);
   const c = pair(p.color);
+  const ptk = taskItems().filter((x) => x.src === 'task' && !x.done && ((p.linked_user_id && asgOf(x.t).includes(p.linked_user_id)) || pplOf(x.t).includes(p.id) || (x.who === 'dari' && x.t.owner_id === p.linked_user_id))).sort(byDue);
   return `${wide ? '' : `<button type="button" class="btn ghost" style="align-self:flex-start" data-act="backList">${ic('left', 18, 2.2)}Semua teman</button>`}
   <div class="fr-head">${avatar(p, 72)}<div style="display:flex;flex-direction:column;gap:6px;flex:1;min-width:0"><h2>${h(p.name)}</h2>
     ${p.linked_user_id ? `<span class="pill" style="${cs('green')};align-self:flex-start">${ic('check', 14, 2.4)}Terhubung · saling berbagi kalender</span>` : `<span class="pill" style="${cs('gray')};align-self:flex-start">${ic('lock', 13, 2.2)}Catatan pribadi</span>`}
     ${(() => { const nb = nextBday(p.id); if (!nb) return `<button type="button" class="btn ghost" style="align-self:flex-start;min-height:32px;padding:0" data-act="editPerson" data-id="${h(p.id)}">${ic('cake', 16)}&nbsp;Tambah ulang tahun</button>`; const d = pd(nb.date), n = diffDays(nb.date, todayS()), age = ageOn(nb); return `<span class="bday">${ic('cake', 16)}${d.getDate()} ${BULAN[d.getMonth()]}${age > 0 ? ' · ke-' + age : ''} · ${n === 0 ? 'hari ini!' : n === 1 ? 'besok' : n + ' hari lagi'}</span>`; })()}
   </div><button type="button" class="icon-btn" data-act="editPerson" data-id="${h(p.id)}" aria-label="Ubah ${h(p.name)}">${ic('edit', 18)}</button></div>
   <div style="display:flex;gap:10px;flex-wrap:wrap"><button type="button" class="btn pri" style="flex:1 1 200px" data-act="newNote" data-id="${h(p.id)}">+ Catat tentang ${h(p.name)}</button><button type="button" class="btn out" style="flex:0 1 auto" data-act="newEvent" data-person="${h(p.id)}">+ Event</button></div>
+  ${!p.linked_user_id && S.mode === 'cloud' && S.data.friends.length ? `<button type="button" class="link-cta" data-act="linkOpen" data-id="${h(p.id)}">${ic('addUser', 20)}<span><b>Hubungkan ke akun teman</b><small>${h(p.name)} sudah gabung di Ingetin? Sambungkan supaya tugas titipan terkirim & acara bisa dibagikan.</small></span>${ic('right', 18, 2.2)}</button>` : ''}
+  ${ptk.length ? `<section class="card"><div class="tk-gh"><h2 style="font-size:16px">Tugas ${p.linked_user_id ? 'bersama' : 'untuk'} ${h(p.name)}</h2><span class="tk-n">${ptk.length}</span></div><div class="stack" style="gap:8px;margin-top:10px">${ptk.map(taskRow).join('')}</div>${!p.linked_user_id ? `<small class="muted" style="font-size:12px;display:block;margin-top:8px">⏳ ${h(p.name)} belum gabung, jadi belum dapat notifikasi.</small>` : ''}</section>` : ''}
   ${notesLocked() ? `<section class="card">${lockedCard(ingat.length + ' catatan “Yang harus diingat” dan ' + cerita.length + ' “Pernah cerita” disembunyikan.')}</section>` : ''}
   ${notesLocked() ? '' : `<section class="card"><h3 style="font-size:16px;font-weight:800">Yang harus diingat</h3>
     ${ingat.length ? ingat.map((n) => `<div class="item"><span>${h(n.text)}</span><button type="button" class="mini" data-act="editNote" data-id="${h(n.id)}" aria-label="Ubah catatan">${ic('edit', 16)}</button><button type="button" class="mini" data-act="delNote" data-id="${h(n.id)}" aria-label="Hapus catatan">${ic('trash', 16)}</button></div>`).join('') : `<p class="muted" style="margin:0;font-size:14px">Belum ada. Misalnya alergi, makanan favorit, nama anggota keluarga.</p>`}
@@ -1715,7 +1765,9 @@ function vPengaturan() {
 }
 /* ============ Tugas (to-do) ============ */
 const asgOf = (t) => (t && t.assignees && t.assignees.length ? t.assignees : t && t.assignee ? [t.assignee] : []);
-const asgNames = (t) => asgOf(t).map(userName).join(', ');
+const pplOf = (t) => ((t && t.people_ids) || []).filter((id) => personById(id));
+const asgNames = (t) => [...asgOf(t).map(userName), ...pplOf(t).map((id) => (personById(id) || { name: 'Teman' }).name)].join(', ');
+const hasWho = (t) => asgOf(t).length + pplOf(t).length > 0;
 const chatOf = (tid) => (S.data.comments || []).filter((c) => c.task_id === tid);
 const READK = 'ingetin:tkRead';
 const chatUnread = (tid) => { const r = lsGet(READK, {})[tid] || ''; return chatOf(tid).filter((c) => c.kind !== 'sys' && c.author !== myId() && c.created_at > r).length; };
@@ -1789,7 +1841,7 @@ function taskItems() {
   for (const t of S.data.tasks || []) {
     const ag = asgOf(t);
     if (t.owner_id !== me && !ag.includes(me)) continue;
-    const who = t.owner_id === me ? (ag.length ? 'titip' : 'mine') : 'dari';
+    const who = t.owner_id === me ? (hasWho(t) ? 'titip' : 'mine') : 'dari';
     out.push({ k: 't:' + t.id, src: 'task', t, title: t.title, due: t.due || '', time: t.time || '', done: !!t.done, ev: taskEvent(t), who });
   }
   for (const e of expand(ymd(addDays(todayD(), -30)), ymd(addDays(todayD(), 90)))) {
@@ -1828,14 +1880,14 @@ function taskRow(x) {
   if (x.ev) { const c = evInfo(x.ev).color; meta.push(`<span class="tk-ev" style="${cs(c)}">${evEmoji(x.ev)} ${h(x.ev.title)}</span>`); }
   if (x.who === 'dari') meta.push(`<span>dari ${h(userName(x.t.owner_id))}</span>`);
   if (x.src === 'task' && x.done && x.t.done_by && x.t.done_by !== myId()) meta.push(`<span>dikerjakan ${h(userName(x.t.done_by))}</span>`);
-  const avs = x.who === 'titip' ? asgOf(x.t).map((u) => personOfUser(u) || { name: userName(u), color: 'gray' }) : x.who === 'dari' ? [personOfUser(x.t.owner_id) || { name: userName(x.t.owner_id), color: 'gray' }] : [];
+  const avs = x.who === 'titip' ? [...asgOf(x.t).map((u) => personOfUser(u) || { name: userName(u), color: 'gray' }), ...pplOf(x.t).map((id) => ({ ...(personById(id) || { name: '?', color: 'gray' }), _wait: true }))] : x.who === 'dari' ? [personOfUser(x.t.owner_id) || { name: userName(x.t.owner_id), color: 'gray' }] : [];
   const unread = x.src === 'task' ? chatUnread(x.t.id) : 0, nmsg = x.src === 'task' ? chatOf(x.t.id).filter((c) => c.kind !== 'sys').length : 0;
   if (nmsg) meta.push(`<span class="tk-chat ${unread ? 'on' : ''}">💬 ${unread || nmsg}${unread ? ' baru' : ''}</span>`);
   const isNew = x.who === 'dari' && !x.done && x.t.created_at && Date.now() - new Date(x.t.created_at).getTime() < 86400000;
   return `<div class="tk ${x.done ? 'done' : ''} ${isNew ? 'new' : ''}">
     <button type="button" class="tk-box" data-act="tDone" data-k="${h(x.k)}" role="checkbox" aria-checked="${x.done}" aria-label="${x.done ? 'Batal tandai beres' : 'Tandai beres'}: ${h(x.title)}">${x.done ? ic('check', 15, 3) : ''}</button>
     <button type="button" class="tk-body" data-act="tOpen" data-k="${h(x.k)}"><b>${h(x.title)}</b>${meta.length ? `<span class="tk-meta">${meta.join('')}</span>` : ''}</button>
-    ${isNew ? '<span class="tk-badge">Baru</span>' : ''}${avs.length ? `<span class="tk-av" title="${h(avs.map((p) => p.name).join(', '))}">${avs.slice(0, 3).map((p) => avatar(p, 26)).join('')}${avs.length > 3 ? `<span class="tk-more">+${avs.length - 3}</span>` : ''}</span>` : ''}
+    ${isNew ? '<span class="tk-badge">Baru</span>' : ''}${avs.length ? `<span class="tk-av" title="${h(avs.map((p) => p.name).join(', '))}">${avs.slice(0, 3).map((p) => `<span class="tk-avw ${p._wait ? 'wait' : ''}" ${p._wait ? `title="${h(p.name)} belum gabung"` : ''}>${avatar(p, 26)}</span>`).join('')}${avs.length > 3 ? `<span class="tk-more">+${avs.length - 3}</span>` : ''}</span>` : ''}
   </div>`;
 }
 function vTugas() {
@@ -1843,7 +1895,8 @@ function vTugas() {
   const todayAll = taskItems().filter((x) => x.due && x.due <= todayS());
   const doneN = todayAll.filter((x) => x.done).length;
   const grp = (k, t, list, cls = '') => (list.length ? `<section class="tk-grp ${cls}"><div class="tk-gh"><h2>${t}</h2><span class="tk-n">${list.length}</span></div><div class="stack" style="gap:8px">${list.map(taskRow).join('')}</div></section>` : '');
-  const chips = [['semua', 'Semua'], ['punyaku', 'Punyaku']].concat(cloud && friendPeople().length ? [['titip', 'Dititipkan'], ['dari', 'Dari teman']] : []);
+  const anyTitip = taskItems().some((x) => x.who === 'titip');
+  const chips = [['semua', 'Semua'], ['punyaku', 'Punyaku']].concat(anyTitip || (cloud && friendPeople().length) ? [['titip', 'Dititipkan']] : [], cloud && friendPeople().length ? [['dari', 'Dari teman']] : []);
   const empty = !g.late.length && !g.today.length && !g.later.length && !g.someday.length;
   return `<div class="tk-page">
     <div class="tk-head"><h1>Tugas</h1>${todayAll.length ? `<span class="muted tk-prog">${doneN} dari ${todayAll.length} beres</span>` : ''}<button type="button" class="icon-btn" data-act="search" aria-label="Cari acara, tugas, catatan, teman">${ic('search', 19, 2.2)}</button></div>
@@ -1873,10 +1926,11 @@ function taskFields(t, s, ro) {
   if (evSel && !evs.some((e) => e.id === evSel)) { const e = getEv(evSel); if (e) { const k = e._base || e.id; const i = evs.findIndex((x) => (x._base || x.id) === k); if (i >= 0) evs.splice(i, 1); evs.unshift(e); } }
   const evList = `<div class="tk-evl">${[`<label class="tk-evo"><input type="radio" name="tev" value="" ${!evSel ? 'checked' : ''}><span>Tidak terkait acara</span></label>`].concat(evs.map((e) => `<label class="tk-evo"><input type="radio" name="tev" value="${h(e.id)}" ${evSel === e.id ? 'checked' : ''}><span>${evEmoji(e)} ${h(e.title)} <small>· ${h(fmtShort(e.date))}${isRec(baseOf(e)) ? ' · ' + h(REPL[baseOf(e).repeat] ? REPL[baseOf(e).repeat].toLowerCase() : 'berulang') : ''}</small></span></label>`)).join('')}</div>
       <small class="muted" style="font-size:12px">Tanpa titip: tugas masuk ke daftar persiapan acaranya.</small>`;
-  const fr = friendPeople();
-  const tto = asgOf(t);
-  const toBody = `<div class="pchips">${fr.map((p) => `<label class="pchip"><input type="checkbox" name="tto" value="${h(p.linked_user_id)}" ${tto.includes(p.linked_user_id) ? 'checked' : ''} ${ro ? 'disabled' : ''}><span>${avatar(p, 24)}${h(p.name)}</span></label>`).join('')}</div>
-      <small class="muted" style="font-size:12px">Bisa pilih lebih dari satu. <b>Cukup salah satu</b> yang mengerjakan: begitu satu orang mencentang, tugas selesai untuk semua. Kosongkan kalau untuk dirimu sendiri.</small>`;
+  const fr = friendPeople(), manual = S.data.people.filter((p) => !p.linked_user_id || !fr.includes(p)).sort((a, b) => a.name.localeCompare(b.name));
+  const tto = asgOf(t), tpp = pplOf(t);
+  const chipP = (p, val, on, wait) => `<label class="pchip"><input type="checkbox" name="tto" value="${h(val)}" ${on ? 'checked' : ''} ${ro ? 'disabled' : ''}><span>${avatar(p, 24)}${h(p.name)}${wait ? '<em class="tk-wait">belum gabung</em>' : ''}</span></label>`;
+  const toBody = `<div class="pchips">${fr.map((p) => chipP(p, 'u:' + p.linked_user_id, tto.includes(p.linked_user_id), false)).join('')}${manual.map((p) => chipP(p, 'p:' + p.id, tpp.includes(p.id), true)).join('')}</div>
+      <small class="muted" style="font-size:12px">Bisa pilih lebih dari satu. <b>Cukup salah satu</b> yang mengerjakan. Teman yang <b>belum gabung</b> belum dapat notifikasi — tugasnya otomatis terkirim begitu kamu menghubungkannya ke akun mereka.</small>`;
   const v = tkVals(t);
   return `<input type="hidden" id="tk-due" name="due" value="${h(t.due || '')}"><input type="hidden" id="tk-time" name="ttime" value="${h(t.time || '')}">
     <div class="qrows">
@@ -1884,7 +1938,7 @@ function taskFields(t, s, ro) {
       ${row('ttime', 'clock', 'Jam', v.ttime, times)}
       <label class="qrow-h qrow-sw"><span class="qrow-i">${ic('bell', 17, 2.2)}</span><b>Pengingat</b><span class="qrow-v" id="qv-trem">${h(v.trem)}</span><input type="checkbox" role="switch" name="tremind" ${t.remind !== false ? 'checked' : ''} ${ro ? 'disabled' : ''}></label>
       ${row('tev', 'flag', 'Bagian dari acara', v.tev, evList)}
-      ${S.mode === 'cloud' && fr.length ? row('tto', 'people', 'Titip ke', v.tto, toBody) : ''}
+      ${fr.length || manual.length ? row('tto', 'people', 'Titip ke', v.tto, toBody) : ''}
       ${row('tnote', 'note', 'Catatan', v.tnote, `<textarea class="inp" name="tnotes" rows="2" placeholder="mis. yang 2 meter" ${ro ? 'readonly' : ''}>${h(t.notes || '')}</textarea>`)}
     </div>`;
 }
@@ -1892,21 +1946,21 @@ function tkVals(t) {
   const e = t.ev_key ? getEv(t.ev_key) : null;
   return { tdue: t.due ? qaDateLabel(t.due) : 'Tanpa tanggal', ttime: t.time ? fmtTime(t.time) : 'Tanpa jam',
     trem: t.remind === false ? 'Mati' : t.due ? (t.time ? 'Tepat waktu' : 'Pukul 07.00') : 'Perlu tenggat',
-    tev: e ? evEmoji(e) + ' ' + e.title : 'Tidak ada', tto: asgOf(t).length ? asgNames(t) : 'Aku sendiri', tnote: (t.notes || '').trim() ? 'Ada' : 'Tambah' };
+    tev: e ? evEmoji(e) + ' ' + e.title : 'Tidak ada', tto: hasWho(t) ? asgNames(t) : 'Aku sendiri', tnote: (t.notes || '').trim() ? 'Ada' : 'Tambah' };
 }
 function tkSync() {
   const f = $('form[data-form=task]') || $('form[data-form=quick]'); if (!f || !S.sheet || !S.sheet.tk) return;
   const fd = new FormData(f), t = S.sheet.tk;
   if (fd.has('title')) t.title = fd.get('title');
   t.due = fd.get('due') || ''; t.time = fd.get('ttime') || ''; t.remind = fd.has('tremind') ? true : (f.querySelector('[name=tremind]') ? false : t.remind);
-  if (fd.has('tev')) t.ev_key = fd.get('tev'); if (f.querySelector('[name=tto]')) { t.assignees = fd.getAll('tto'); t.assignee = t.assignees[0] || null; } if (fd.has('tnotes')) t.notes = fd.get('tnotes');
+  if (fd.has('tev')) t.ev_key = fd.get('tev'); if (f.querySelector('[name=tto]')) { const v = fd.getAll('tto'); t.assignees = v.filter((x) => x.startsWith('u:')).map((x) => x.slice(2)); t.people_ids = v.filter((x) => x.startsWith('p:')).map((x) => x.slice(2)); t.assignee = t.assignees[0] || null; } if (fd.has('tnotes')) t.notes = fd.get('tnotes');
   const v = tkVals(t);
   for (const k of Object.keys(v)) { const el = $('#qv-' + k); if (el) el.textContent = v[k]; }
 }
 async function saveTask(t, isNew) {
   const title = (t.title || '').trim();
   const ev = t.ev_key ? getEv(t.ev_key) : null;
-  if (isNew && ev && !asgOf(t).length && isMine(ev)) {
+  if (isNew && ev && !hasWho(t) && isMine(ev)) {
     // tanpa titip → jadi persiapan acara
     const item = { text: title, done: false }; if (t.due && t.due < ev.date) item.before = diffDays(ev.date, t.due);
     await saveChecklist(ev, [...(ev.checklist || []), item]);
@@ -1916,9 +1970,9 @@ async function saveTask(t, isNew) {
   const b = ev ? baseOf(ev) : null;
   const row = { ...(t.id ? (S.data.tasks.find((x) => x.id === t.id) || {}) : {}), id: t.id || uid(), title, due: t.due || null, time: t.due ? t.time || null : null,
     remind: t.remind !== false, notes: (t.notes || '').trim() || null, event_id: b ? b.id : null, event_date: b && isRec(b) ? ev.date : null,
-    assignees: S.mode === 'cloud' && asgOf(t).length ? asgOf(t) : null, assignee: S.mode === 'cloud' ? asgOf(t)[0] || null : null, done: !!t.done };
+    assignees: S.mode === 'cloud' && asgOf(t).length ? asgOf(t) : null, assignee: S.mode === 'cloud' ? asgOf(t)[0] || null : null, people_ids: pplOf(t).length ? pplOf(t) : null, done: !!t.done };
   await save('tasks', row);
-  if (isNew) toast(asgOf(row).length ? 'Dititipkan ke ' + asgNames(row) : 'Tugas ditambahkan');
+  if (isNew) toast(hasWho(row) ? 'Dititipkan ke ' + asgNames(row) : 'Tugas ditambahkan');
 }
 async function toggleTask(x) {
   const now = !x.done;
@@ -2152,6 +2206,31 @@ const SHEETS = {
       <div id="srch-res">${searchResults(s)}</div></div>`;
   },
   today() { return todaySheetBody(); },
+  link(s) {
+    const p = personById(s.pid); if (!p) return null;
+    const fids = S.data.friends;
+    const fid = s.fid || (fids.length === 1 ? fids[0].id : '');
+    const nev = S.data.events.filter((e) => e.person_id === p.id && isMine(e)).length, nno = S.data.notes.filter((n) => n.person_id === p.id).length;
+    const ntk = S.data.tasks.filter((t) => t.owner_id === myId() && (t.people_ids || []).includes(p.id) && !t.done).length;
+    const f = S.data.friends.find((x) => x.id === fid);
+    return `<div class="sh-body"><div class="sh-top"><h2>${s.auto ? h((f || {}).name || 'Teman') + ' sudah terhubung' : 'Hubungkan ke akun teman'}</h2><button type="button" class="icon-btn round" data-act="${s.auto ? 'linkSkip' : 'closeSheet'}" aria-label="Tutup">${ic('x', 18, 2.4)}</button></div>
+      <form class="stack" data-form="link" style="gap:14px">
+        ${s.auto ? `<p style="margin:0">Gabungkan dengan kontak <b>${h(p.name)}</b> yang sudah kamu buat sebelumnya?</p>` : `<p class="muted" style="margin:0">Pilih akun teman yang sama dengan <b>${h(p.name)}</b>.</p>
+        <div class="pchips">${S.data.friends.map((x) => `<label class="pchip"><input type="radio" name="fid" value="${h(x.id)}" ${x.id === fid ? 'checked' : ''} required><span>${avatar(personOfUser(x.id) || { name: x.name, color: 'gray' }, 24)}${h(x.name)}</span></label>`).join('')}</div>`}
+        ${s.auto ? `<input type="hidden" name="fid" value="${h(fid)}">` : ''}
+        <div class="link-sum">
+          <div>${avatar(p, 44)}<span><b>${h(p.name)}</b><small>Kontak manual</small></span></div>${ic('right', 20, 2.2)}<div><span class="link-ok">${ic('check', 18, 2.6)}</span><span><b>Terhubung</b><small>${h((f || {}).name || 'pilih akun')}</small></span></div>
+        </div>
+        <ul class="link-list">
+          <li>${ic('cal', 16)}<span>${nev} acara, ${nno} catatan &amp; ulang tahun tetap utuh</span></li>
+          <li>${ic('tasks', 16)}<span>${ntk ? `<b>${ntk} tugas titipan</b> langsung terkirim ke ${h(p.name)} (dapat notifikasi)` : 'Belum ada tugas yang dititipkan'}</span></li>
+          <li>${ic('people', 16)}<span>Kontak duplikat dari undangan dihapus</span></li>
+        </ul>
+        ${nev ? `<label class="sw"><span><b>Bagikan acara yang melibatkan ${h(p.name)}</b><small>Acaranya ikut muncul di kalender ${h(p.name)}</small></span><input type="checkbox" role="switch" name="share" checked></label>` : ''}
+        <p class="err" id="link-err" role="alert"></p>
+        <div class="row2"><button type="button" class="btn" data-act="${s.auto ? 'linkSkip' : 'closeSheet'}">${s.auto ? 'Biarkan terpisah' : 'Batal'}</button><button type="submit" class="btn pri">${s.auto ? 'Gabungkan' : 'Hubungkan'}</button></div>
+      </form></div>`;
+  },
   task(s) {
     const t = s.tk, mine = !t.owner_id || t.owner_id === myId();
     return `<div class="sh-body"><div class="sh-top"><h2>${s.isNew ? 'Tugas baru' : 'Detail tugas'}</h2><button type="button" class="icon-btn round" data-act="closeSheet" aria-label="Tutup">${ic('x', 18, 2.4)}</button></div>
@@ -2160,7 +2239,7 @@ const SHEETS = {
         <label class="sr" for="tk-title">Judul tugas</label><input id="tk-title" class="qtitle" name="title" value="${h(t.title || '')}" placeholder="Apa yang perlu dikerjakan?" autocomplete="off" ${mine ? '' : 'readonly'}></div>
         ${mine ? '' : `<div class="ps-warn" style="background:var(--p-l);color:var(--tx)">${ic('people', 18)}<span>Dititipkan oleh <b>${h(userName(t.owner_id))}</b>. Kamu bisa mencentangnya kalau sudah beres.</span></div>`}
         ${taskFields(t, s, !mine)}
-        ${!s.isNew ? `<div class="tk-hist"><b>Riwayat</b><span>Dibuat ${h(fmtShort((t.created_at || '').slice(0, 10) || todayS()))}${asgOf(t).length ? ' · dititipkan ke ' + h(asgNames(t)) : ''}${t.done && t.done_at ? ' · dicentang ' + h(userName(t.done_by || myId())) + ' ' + h(fmtShort(t.done_at.slice(0, 10))) : ''}</span></div>` : ''}
+        ${!s.isNew ? `<div class="tk-hist"><b>Riwayat</b><span>Dibuat ${h(fmtShort((t.created_at || '').slice(0, 10) || todayS()))}${hasWho(t) ? ' · dititipkan ke ' + h(asgNames(t)) : ''}${t.done && t.done_at ? ' · dicentang ' + h(userName(t.done_by || myId())) + ' ' + h(fmtShort(t.done_at.slice(0, 10))) : ''}</span></div>` : ''}
         ${!s.isNew && canChat(t) ? chatBox(t) : ''}
         <p class="err" id="tk-err" role="alert"></p>
         <div class="row2">${!s.isNew && mine ? `<button type="button" class="btn danger" data-act="tkDel">${ic('trash', 16)}Hapus</button>` : `<button type="button" class="btn" data-act="closeSheet">Tutup</button>`}${mine ? `<button type="submit" class="btn pri">Simpan</button>` : `<button type="button" class="btn pri" data-act="tkDone">${t.done ? 'Buka lagi' : 'Tandai beres'}</button>`}</div>
@@ -2171,7 +2250,7 @@ const SHEETS = {
     return `<div class="sh-body"><div class="sh-top"><h2>Siapkan notifikasi server</h2><button type="button" class="icon-btn round" data-act="closeSheet" aria-label="Tutup">${ic('x', 18, 2.4)}</button></div>
       ${s.why === 'SERVER' ? `<div class="ps-warn">${ic('info', 18)}<span>Server notifikasi belum ditemukan. Ikuti langkah 2 dan 3 dulu.</span></div>` : s.why === 'SQL' ? `<div class="ps-warn">${ic('info', 18)}<span>Tabel notifikasi belum ada. Jalankan langkah 1 dulu.</span></div>` : '<p class="muted" style="margin:0">Cukup sekali. Setelah itu semua akun di Ingetin bisa memakainya.</p>'}
       <ol class="ps-list">
-        ${step(1, 'Jalankan SQL', 'Supabase › SQL Editor › New query › tempel › Run. Jalankan berurutan file yang belum pernah kamu jalankan (v3.1 → v3.3 → v3.7).', `<div style="display:flex;gap:8px;flex-wrap:wrap"><button type="button" class="btn ghost ps-btn" data-act="copyFile" data-f="supabase-update-v3.1.sql">${ic('copy', 16)}SQL v3.1</button><button type="button" class="btn ghost ps-btn" data-act="copyFile" data-f="supabase-update-v3.3.sql">${ic('copy', 16)}SQL v3.3 (Tugas)</button><button type="button" class="btn ghost ps-btn" data-act="copyFile" data-f="supabase-update-v3.7.sql">${ic('copy', 16)}SQL v3.7 (Obrolan)</button></div>`)}
+        ${step(1, 'Jalankan SQL', 'Supabase › SQL Editor › New query › tempel › Run. Jalankan berurutan file yang belum pernah kamu jalankan (v3.1 → v3.3 → v3.7 → v3.8).', `<div style="display:flex;gap:8px;flex-wrap:wrap"><button type="button" class="btn ghost ps-btn" data-act="copyFile" data-f="supabase-update-v3.1.sql">${ic('copy', 16)}SQL v3.1</button><button type="button" class="btn ghost ps-btn" data-act="copyFile" data-f="supabase-update-v3.3.sql">${ic('copy', 16)}SQL v3.3 (Tugas)</button><button type="button" class="btn ghost ps-btn" data-act="copyFile" data-f="supabase-update-v3.7.sql">${ic('copy', 16)}SQL v3.7 (Obrolan)</button><button type="button" class="btn ghost ps-btn" data-act="copyFile" data-f="supabase-update-v3.8.sql">${ic('copy', 16)}SQL v3.8 (Teman manual)</button></div>`)}
         ${step(2, 'Buat / perbarui Edge Function "push"', 'Supabase › Edge Functions › Deploy a new function › Via Editor. Beri nama <b>push</b>, hapus contoh kodenya, tempel kode ini, lalu Deploy. Sudah ada? Buka fungsi push › Code, ganti seluruh isinya dengan kode terbaru, lalu Deploy.', `<button type="button" class="btn ghost ps-btn" data-act="copyFile" data-f="supabase/functions/push/index.ts">${ic('copy', 16)}Salin kode fungsi</button>`)}
         ${step(3, 'Matikan "Verify JWT"', 'Buka fungsi push › Details. Matikan <b>Enforce JWT Verification</b> (atau Verify JWT), lalu Save.')}
         ${step(4, 'Nyalakan di sini', 'Kembali ke Pengaturan › Notifikasi, nyalakan <b>Notifikasi walau aplikasi ditutup</b>.')}
@@ -2363,6 +2442,12 @@ function renderPicker() {
 
 /* ============ actions ============ */
 const A = {
+  linkOpen(d) { openSheet('link', { pid: d.id }); },
+  async linkSkip() {
+    const s = S.sheet; closeSheet(); if (!s || !s.fid) return;
+    const f = S.data.friends.find((x) => x.id === s.fid); if (!f || S.data.people.some((p) => p.linked_user_id === f.id)) return;
+    await save('people', { id: uid(), name: f.name, color: FRIEND_COLORS[S.data.people.length % FRIEND_COLORS.length], linked_user_id: f.id });
+  },
   tFilter(d) { S.tFilter = d.f; render(); },
   tkSend() { chatSend(); },
   tFold() { S.tDoneOpen = !S.tDoneOpen; render(); },
@@ -2662,6 +2747,11 @@ const CHG = {
   }
 };
 const FORMS = {
+  async link(f) {
+    const fd = new FormData(f), fid = fd.get('fid'), pid = S.sheet.pid;
+    if (!fid) { $('#link-err').textContent = 'Pilih akun temannya dulu.'; return; }
+    closeSheet(); await linkPerson(pid, fid, fd.has('share'));
+  },
   async taskAdd(f) {
     const inp = f.querySelector('input[name=q]'), text = inp.value.trim(); if (!text) { inp.focus(); return; }
     const r = parseQuick(text);

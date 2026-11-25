@@ -69,3 +69,7 @@ Panduan & tombol salin juga ada di aplikasi: Pengaturan › Notifikasi › Pandu
 
 1. SQL Editor › New query › tempel isi `supabase-update-v3.7.sql` › Run (setelah v3.3).
 2. Edge Functions › `push` › Code › ganti seluruh isinya dengan `supabase/functions/push/index.ts` terbaru › Deploy.
+
+## Update v3.8: titip tugas ke teman yang belum gabung
+
+SQL Editor › New query › tempel isi `supabase-update-v3.8.sql` › Run. (Fungsi `push` tidak perlu diubah.)
