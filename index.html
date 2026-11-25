@@ -98,7 +98,8 @@ main{overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;overscro
 .pill{display:inline-flex;align-items:center;gap:6px;padding:3px 10px;border-radius:999px;font-size:12px;font-weight:700;white-space:nowrap}
 .muted{color:var(--mu)}
 .empty{text-align:center;padding:24px 12px;color:var(--mu);font-size:14px;line-height:1.5;display:flex;flex-direction:column;align-items:center;gap:10px}
-.empty b{color:var(--tx);font-size:15px}
+.empty>b{color:var(--tx);font-size:15px}
+.empty span b{color:var(--tx)}
 .stack{display:flex;flex-direction:column;gap:8px}
 
 /* ---------- reminders banner ---------- */
@@ -628,7 +629,7 @@ mark{background:var(--mark);color:inherit;border-radius:3px;padding:0 1px}
 
 <script type="module">
 /* ============ helpers ============ */
-const APP_VERSION = '3.9.1 (26 Nov 2026)';
+const APP_VERSION = '3.9.2 (26 Nov 2026)';
 const $ = (s, r = document) => r.querySelector(s);
 const h = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const pad = (n) => String(n).padStart(2, '0');
@@ -1362,7 +1363,7 @@ function evRow(e, showDate = true) {
   const age = ageOn(e);
   const sub = [age > 0 ? 'Ke-' + age : '', e.time ? fmtTime(e.time) : '', i.from ? 'Dari ' + i.from : (i.person ? i.person.name : ''), e.location || ''].filter(Boolean).join(' · ') || rel(e.date);
   return `<button type="button" class="ev" data-act="openEvent" data-id="${h(e.id)}">
-    ${showDate ? `<span class="dblock" style="${cs(i.color)}"><small>${HARI3[d.getDay()]}</small><b>${d.getDate()}</b>${showDate === 'm' || diffDays(e.date, todayS()) > 13 ? `<small class="dmon">${BUL3[d.getMonth()]}${d.getFullYear() !== new Date().getFullYear() ? ' ' + String(d.getFullYear()).slice(2) : ''}</small>` : ''}</span>` : `<span class="evbar" style="background:${pair(i.color)[2]}"></span>`}
+    ${showDate ? `<span class="dblock" style="${cs(i.color)}"><small>${HARI3[d.getDay()]}</small><b>${d.getDate()}</b></span>` : `<span class="evbar" style="background:${pair(i.color)[2]}"></span>`}
     <span class="ev-t"><b>${h(e.title)}${isRec(e) ? `<span class="rec" title="${recLabel(e)}" aria-label="${recLabel(e)}">${ic('repeat', 13, 2.4)}</span>` : ''}</b><span>${h(sub)}</span></span>
     ${prog ? `<span class="tag">${prog}</span>` : (e.shared && isMine(e) ? `<span class="tag" title="${h('Dibagikan ke ' + shareLabel(e))}">${ic('people', 12, 2.4)} ${sharedWith(e).length}</span>` : '')}
   </button>`;
@@ -1597,7 +1598,7 @@ function vMinggu() {
       const days = [...new Set([...arr.map((e) => e.date), ...(withHol ? holBetween(a, z) : []), ...tkDays.filter((k) => !onlyNext || k >= today)])].sort();
       return days.map((k) => { const d = pd(k), es = arr.filter((e) => e.date === k); return `<div class="day-group ${k < today ? 'past' : ''}"><h2>${k === today ? 'Hari ini' : HARI[d.getDay()] + ', ' + d.getDate()}<small>${k < today ? 'Sudah lewat' : rel(k)}</small></h2>${withHol ? holRow(k) : ''}${es.map((e) => evRow(e)).join('')}${tkBlock(k)}</div>`; }).join('');
     };
-    const emptyBox = (title, text) => `<div class="card"><div class="empty">${ic('cal', 32, 1.6)}<b>${title}</b>${text}</div></div>`;
+    const emptyBox = (title, text) => `<div class="card"><div class="empty">${ic('cal', 32, 1.6)}<b>${title}</b><span>${text}</span></div></div>`;
     let list = '';
     if (f === 'next') list = groupList(next, false, true) || emptyBox('Tidak ada acara yang akan datang', `Semua acara di ${BULAN[mo]} sudah lewat.`);
     else if (f === 'prep') {
@@ -1609,7 +1610,7 @@ function vMinggu() {
       const arr = [...pmap.values()].sort((p, q) => q.n - p.n || p.name.localeCompare(q.name));
       list = arr.length ? `<div class="stack">${arr.map((p) => `<button type="button" class="fr" style="border-color:var(--bd)" ${p.id ? `data-act="openPerson" data-id="${h(p.id)}"` : 'disabled'}>${avatar({ name: p.name, color: p.color })}<span class="fr-t" style="flex:1"><b>${h(p.name)}</b><span>${p.n} acara${p.next ? ' · berikutnya ' + h(p.next.title) + ' (' + rel(p.next.date) + ')' : ''}</span></span>${p.id ? ic('right', 18, 2.2) : ''}</button>`).join('')}</div>`
         : emptyBox('Belum ada teman yang terlibat', `Acara di ${BULAN[mo]} belum dikaitkan dengan teman.`);
-    } else list = groupList(evs, true) || emptyBox(`Belum ada acara di ${BULAN[mo]}`, 'Ketuk tombol <b style="font-size:inherit">+</b> untuk menambah.');
+    } else list = groupList(evs, true) || emptyBox(`Belum ada acara di ${BULAN[mo]}`, 'Ketuk tombol <span class="kbd-plus">+</span> untuk menambah acara.');
     const FL = { next: 'Akan datang', prep: 'Persiapan belum beres', people: 'Teman terlibat' };
     const stat = (k, n, label) => `<button type="button" class="stat ${f === k ? 'on' : ''}" data-act="agFilter" data-f="${k}" aria-pressed="${f === k}"><b>${n}</b><span>${label}</span></button>`;
     main = `<div class="stats">${stat('all', evs.length, 'Acara')}${stat('next', next.length, 'Akan datang')}${stat('prep', open, 'Persiapan belum beres')}${stat('people', pmap.size, 'Teman terlibat')}</div>
@@ -1910,7 +1911,7 @@ function vTugas() {
       <div class="tk-col">${grp('late', 'Terlambat', g.late, 'late')}${grp('today', 'Hari ini', g.today)}</div>
       <div class="tk-col">${grp('later', 'Nanti', g.later)}${grp('someday', 'Kapan-kapan', g.someday)}</div>
     </div>
-    ${empty ? `<div class="empty">${ic('tasks', 34, 1.6)}<b>${f === 'dari' ? 'Belum ada titipan dari teman' : f === 'titip' ? 'Belum ada tugas yang kamu titipkan' : 'Belum ada tugas'}</b>Ketuk tombol <b style="font-size:inherit">+</b> untuk menambah tugas.</div>` : ''}
+    ${empty ? `<div class="empty">${ic('tasks', 34, 1.6)}<b>${f === 'dari' ? 'Belum ada titipan dari teman' : f === 'titip' ? 'Belum ada tugas yang kamu titipkan' : 'Belum ada tugas'}</b><span>Ketuk tombol <span class="kbd-plus">+</span> untuk menambah tugas.</span></div>` : ''}
     ${g.done.length ? `<section class="tk-grp"><button type="button" class="tk-gh tk-fold" data-act="tFold" aria-expanded="${!!S.tDoneOpen}"><h2 class="muted">Selesai</h2><span class="tk-n">${g.done.length}</span>${ic(S.tDoneOpen ? 'down' : 'right', 18, 2.2)}</button>${S.tDoneOpen ? `<div class="stack" style="gap:8px">${g.done.map(taskRow).join('')}</div>` : ''}</section>` : ''}
   </div>`;
 }
