@@ -222,7 +222,7 @@ main{overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;overscro
 
 /* ---------- friends ---------- */
 .fr-layout{display:grid;gap:16px}
-@media (min-width:760px){.fr-layout{grid-template-columns:280px minmax(0,1fr)}}
+@media (min-width:760px){.fr-layout{grid-template-columns:340px minmax(0,1fr)}}
 .fr-list{display:flex;flex-direction:column;gap:8px}
 .search{display:flex;align-items:center;gap:8px;height:46px;padding:0 12px;border-radius:12px;background:var(--card);border:1px solid var(--bd);color:var(--mu)}
 .search input{border:none;background:transparent;outline:none;font-size:15px;width:100%;color:var(--tx)}
@@ -534,6 +534,33 @@ mark{background:var(--mark);color:inherit;border-radius:3px;padding:0 1px}
 .link-ok{width:44px;height:44px;border-radius:50%;background:#DCFCE7;color:#16A34A;display:grid!important;place-items:center}
 .link-list{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px;font-size:14px}
 .link-list li{display:flex;gap:8px;align-items:flex-start}.link-list svg{color:var(--p);flex-shrink:0;margin-top:2px}
+.tk{border-left-width:5px}
+.tk.st-late{border-left-color:#DC2626}.tk.st-today{border-left-color:var(--p)}.tk.st-later{border-left-color:#94A3B8}.tk.st-some{border-left-color:var(--bd)}.tk.st-done{border-left-color:#16A34A}
+.tks{display:flex;align-items:center;gap:14px;padding:14px;border-radius:20px;background:var(--card);border:1px solid var(--bd)}
+.tks-ring{flex-shrink:0;color:var(--tx)}
+.tks-r{flex:1;min-width:0;display:flex;flex-direction:column;gap:8px}.tks-r>b{font-size:15px}
+.tks-cs{display:flex;gap:6px}
+.tks-c{flex:1;min-width:0;border:2px solid transparent;border-radius:12px;padding:6px 8px;text-align:left;display:flex;flex-direction:column;font:inherit;transition:transform .12s,border-color .15s}
+.tks-c b{font-size:19px;line-height:1.1}.tks-c span{font-size:11px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tks-c.bad{background:#FEE2E2;color:#B91C1C}.tks-c.pri{background:var(--p-l);color:var(--p)}.tks-c.pur{background:#EDE9FE;color:#6D28D9}
+.tks-c.on{border-color:currentColor}.tks-c:active{transform:scale(.96)}
+[data-mode=dark] .tks-c.bad{background:#3B1414;color:#FCA5A5}[data-mode=dark] .tks-c.pur{background:#2A2142;color:#C4B5FD}
+.fr-up{display:flex;flex-direction:column;gap:8px}.fr-up-h{font-size:15px}
+.fr-car{display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;padding:2px 2px 4px}.fr-car::-webkit-scrollbar{display:none}
+.fr-ci{flex:0 0 84px;display:flex;flex-direction:column;align-items:center;gap:6px;padding:10px 4px;border-radius:16px;background:var(--card);border:1px solid var(--bd);font:inherit;color:var(--tx)}
+.fr-ci b{font-size:13px;max-width:76px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.fr-ring{border-radius:50%;box-shadow:0 0 0 3px var(--card),0 0 0 5px var(--sc);display:flex}
+.fr-cd{font-size:11.5px;font-weight:800;color:var(--sc)}
+.fc-n{font-size:12px;opacity:.75;margin-left:2px}
+.frc{display:flex;flex-direction:column;gap:10px;width:100%;padding:12px 14px;border-radius:18px;background:var(--card);border:1px solid var(--bd);text-align:left;font:inherit;color:var(--tx);transition:transform .12s,border-color .15s}
+.frc:active{transform:scale(.985)}.frc.on{border-color:var(--p);box-shadow:0 0 0 1px var(--p)}
+.frc-top{display:flex;align-items:center;gap:12px}.frc-top>svg{color:#9AA1AD;flex-shrink:0}
+.frc-t{flex:1;min-width:0;display:flex;flex-direction:column;gap:3px}
+.frc-n{display:flex;align-items:center;gap:6px;flex-wrap:wrap}.frc-n b{font-size:16px}
+.fr-st{font-size:11px;font-weight:700;padding:2px 8px;border-radius:999px;background:var(--bd);color:var(--mu)}.fr-st.ok{background:#DCFCE7;color:#166534}
+.frc-l{font-size:12.5px;color:var(--mu);font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.frc-bar{height:5px;border-radius:9px;background:var(--bd);overflow:hidden;display:block}.frc-bar i{display:block;height:100%;border-radius:9px}
+.frc-s{display:flex;gap:14px;flex-wrap:wrap;font-size:12px;font-weight:700;color:var(--mu)}.frc-s span{display:inline-flex;align-items:center;gap:4px}
 .ps-list{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:14px}
 .ps-step{display:flex;gap:12px;align-items:flex-start}
 .ps-n{width:28px;height:28px;border-radius:50%;background:var(--p);color:#fff;display:grid;place-items:center;font-weight:800;font-size:14px;flex-shrink:0}
@@ -629,7 +656,7 @@ mark{background:var(--mark);color:inherit;border-radius:3px;padding:0 1px}
 
 <script type="module">
 /* ============ helpers ============ */
-const APP_VERSION = '3.9.2 (26 Nov 2026)';
+const APP_VERSION = '4.0 (26 Nov 2026)';
 const $ = (s, r = document) => r.querySelector(s);
 const h = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const pad = (n) => String(n).padStart(2, '0');
@@ -1632,20 +1659,44 @@ function vTeman() {
   const wide = window.matchMedia('(min-width:760px)').matches;
   if (!S.personId || !personById(S.personId)) S.personId = wide ? people[0].id : null;
   const showList = wide || !S.personId, showDetail = !!S.personId;
-  return `<div class="page-h"><h1>Teman</h1><button type="button" class="icon-btn" data-act="search" aria-label="Cari acara, tugas, catatan, teman">${ic('search', 19, 2.2)}</button><button type="button" class="btn out" data-act="invite">${ic('addUser', 18)}Undang</button><button type="button" class="btn pri" data-act="newPerson">+ Teman</button></div>
+  return `<div class="page-h"><h1>Teman</h1><button type="button" class="icon-btn" data-act="search" aria-label="Cari acara, tugas, catatan, teman">${ic('search', 19, 2.2)}</button><button type="button" class="btn out" data-act="invite">${ic('addUser', 18)}Undang</button><button type="button" class="btn pri wide-only" data-act="newPerson">+ Teman</button></div>
   <div class="fr-layout" style="align-items:start">
-    ${showList ? `<div class="fr-list">
-      <div class="stack" id="frlist">${friendList()}</div>
+    ${showList ? `<div class="fr-list">${frTop()}
+      <div class="stack" id="frlist" style="gap:10px">${friendList()}</div>
     </div>` : ''}
     ${showDetail ? `<div class="fr-detail">${personDetail(personById(S.personId), wide)}</div>` : ''}
   </div>`;
 }
+// info ringkas tiap teman: ultah berikutnya, jumlah catatan / tugas aktif / acara
+function frInfo(p) {
+  const nb = nextBday(p.id), evs = personEvents(p);
+  const nn = S.data.notes.filter((n) => n.person_id === p.id).length;
+  const nt = taskItems().filter((x) => x.src === 'task' && !x.done && ((p.linked_user_id && (asgOf(x.t).includes(p.linked_user_id) || x.t.owner_id === p.linked_user_id)) || pplOf(x.t).includes(p.id))).length;
+  return { nb, days: nb ? diffDays(nb.date, todayS()) : null, nx: evs[0] || null, nn, nt, ne: evs.length };
+}
+function frTop() {
+  const cloud = S.mode === 'cloud', all = S.data.people;
+  const up = all.map((p) => ({ p, i: frInfo(p) })).filter((x) => x.i.nb).sort((a, b) => a.i.days - b.i.days).slice(0, 10);
+  const nL = all.filter((p) => p.linked_user_id).length, f = S.frFilter || 'all';
+  const chip = (k, l, n) => `<button type="button" role="radio" aria-checked="${f === k}" class="tchip2 ${f === k ? 'on' : ''}" data-act="frFilter" data-f="${k}">${l} <span class="fc-n">${n}</span></button>`;
+  return `${up.length ? `<div class="fr-up"><div class="fr-up-h"><b>🎂 Ulang tahun terdekat</b></div>
+      <div class="fr-car">${up.map(({ p, i }) => `<button type="button" class="fr-ci" data-act="openPerson" data-id="${h(p.id)}" style="--sc:${pair(p.color)[2]}"><span class="fr-ring">${avatar(p, 46)}</span><b>${h(p.name)}</b><span class="fr-cd">${i.days === 0 ? 'Hari ini 🎉' : i.days === 1 ? 'Besok' : 'H-' + i.days}</span></button>`).join('')}</div></div>` : ''}
+    ${cloud ? `<div class="tk-chips" role="radiogroup" aria-label="Saring teman">${chip('all', 'Semua', all.length)}${chip('linked', 'Terhubung', nL)}${chip('manual', 'Belum gabung', all.length - nL)}</div>` : ''}`;
+}
 function friendList() {
-  const list = [...S.data.people].sort((a, b) => a.name.localeCompare(b.name));
+  const f = S.mode === 'cloud' ? S.frFilter || 'all' : 'all';
+  const list = [...S.data.people].sort((a, b) => a.name.localeCompare(b.name)).filter((p) => f === 'all' || (f === 'linked' ? p.linked_user_id : !p.linked_user_id));
+  if (!list.length) return `<p class="muted" style="font-size:14px;padding:8px">${f === 'linked' ? 'Belum ada teman yang terhubung. Ketuk Undang untuk mengajak teman.' : 'Semua temanmu sudah terhubung 🎉'}</p>`;
   return list.map((p) => {
-    const nn = S.data.notes.filter((n) => n.person_id === p.id).length, nx = personEvents(p)[0];
-    const sub = [nx ? nx.title + ' · ' + rel(nx.date) : '', nn ? nn + ' catatan' : ''].filter(Boolean).join(' · ') || (p.linked_user_id ? 'Terhubung' : 'Belum ada catatan');
-    return `<button type="button" class="fr ${p.id === S.personId ? 'on' : ''}" data-act="openPerson" data-id="${h(p.id)}">${avatar(p)}<span class="fr-t"><b>${h(p.name)}</b><span>${h(sub)}</span></span></button>`;
+    const i = frInfo(p), col = pair(p.color)[2];
+    const line = i.nb ? `🎂 ${h(i.nb.title)} · <b style="color:${col}">${i.days === 0 ? 'hari ini 🎉' : i.days === 1 ? 'besok' : i.days + ' hari lagi'}</b>` : i.nx ? `📅 ${h(i.nx.title)} · ${h(rel(i.nx.date).toLowerCase())}` : 'Belum ada ulang tahun';
+    const pct = i.nb ? Math.max(4, Math.round(100 - (i.days / 365) * 100)) : 0;
+    const st = S.mode === 'cloud' ? (p.linked_user_id ? `<span class="fr-st ok">Terhubung</span>` : `<span class="fr-st">Belum gabung</span>`) : '';
+    return `<button type="button" class="frc ${p.id === S.personId ? 'on' : ''}" data-act="openPerson" data-id="${h(p.id)}">
+      <span class="frc-top"><span class="tk-avw ${S.mode === 'cloud' && !p.linked_user_id ? 'wait' : ''}">${avatar(p, 46)}</span><span class="frc-t"><span class="frc-n"><b>${h(p.name)}</b>${st}</span><span class="frc-l">${line}</span></span>${ic('right', 18, 2.2)}</span>
+      ${i.nb ? `<span class="frc-bar"><i style="width:${pct}%;background:${col}"></i></span>` : ''}
+      <span class="frc-s"><span>${ic('note', 13, 2.2)}${i.nn} catatan</span><span>${ic('tasks', 13, 2.2)}${i.nt} tugas</span><span>${ic('cal', 13, 2.2)}${i.ne} acara</span></span>
+    </button>`;
   }).join('');
 }
 function personDetail(p, wide) {
@@ -1889,14 +1940,25 @@ function taskRow(x) {
   const unread = x.src === 'task' ? chatUnread(x.t.id) : 0, nmsg = x.src === 'task' ? chatOf(x.t.id).filter((c) => c.kind !== 'sys').length : 0;
   if (nmsg) meta.push(`<span class="tk-chat ${unread ? 'on' : ''}">💬 ${unread || nmsg}${unread ? ' baru' : ''}</span>`);
   const isNew = x.who === 'dari' && !x.done && x.t.created_at && Date.now() - new Date(x.t.created_at).getTime() < 86400000;
-  return `<div class="tk ${x.done ? 'done' : ''} ${isNew ? 'new' : ''}">
+  const stc = x.done ? 'st-done' : late ? 'st-late' : x.due === T ? 'st-today' : x.due ? 'st-later' : 'st-some';
+  return `<div class="tk ${stc} ${x.done ? 'done' : ''} ${isNew ? 'new' : ''}">
     <button type="button" class="tk-box" data-act="tDone" data-k="${h(x.k)}" role="checkbox" aria-checked="${x.done}" aria-label="${x.done ? 'Batal tandai beres' : 'Tandai beres'}: ${h(x.title)}">${x.done ? ic('check', 15, 3) : ''}</button>
     <button type="button" class="tk-body" data-act="tOpen" data-k="${h(x.k)}"><b>${h(x.title)}</b>${meta.length ? `<span class="tk-meta">${meta.join('')}</span>` : ''}</button>
     ${isNew ? '<span class="tk-badge">Baru</span>' : ''}${avs.length ? `<span class="tk-av" title="${h(avs.map((p) => p.name).join(', '))}">${avs.slice(0, 3).map((p) => `<span class="tk-avw ${p._wait ? 'wait' : ''}" ${p._wait ? `title="${h(p.name)} belum gabung"` : ''}>${avatar(p, 26)}</span>`).join('')}${avs.length > 3 ? `<span class="tk-more">+${avs.length - 3}</span>` : ''}</span>` : ''}
   </div>`;
 }
+function tkSummary(done, total, g) {
+  const pct = total ? Math.round((done / total) * 100) : 100, C = 97.4, f = S.tFilter;
+  const titip = g.all.filter((x) => !x.done && (x.who === 'titip' || x.who === 'dari')).length;
+  const cnt = (k, v, l, cls) => `<button type="button" class="tks-c ${cls} ${f === k ? 'on' : ''}" data-act="tFilter" data-f="${f === k ? 'semua' : k}" aria-pressed="${f === k}"><b>${v}</b><span>${l}</span></button>`;
+  return `<div class="tks">
+    <svg class="tks-ring" width="76" height="76" viewBox="0 0 36 36" aria-hidden="true"><circle cx="18" cy="18" r="15.5" fill="none" stroke="var(--bd)" stroke-width="4"/><circle cx="18" cy="18" r="15.5" fill="none" stroke="var(--p)" stroke-width="4" stroke-linecap="round" stroke-dasharray="${(pct / 100) * C} ${C}" transform="rotate(-90 18 18)"/><text x="18" y="21" text-anchor="middle" font-size="9" font-weight="800" fill="currentColor">${pct}%</text></svg>
+    <div class="tks-r"><b>${total ? `Hari ini ${done} dari ${total} beres` : 'Hari ini bebas tugas 🎉'}</b>
+      <div class="tks-cs">${cnt('late', g.late.length, 'Terlambat', 'bad')}${cnt('today', g.today.length, 'Hari ini', 'pri')}${cnt('titip', titip, 'Titipan', 'pur')}</div></div></div>`;
+}
 function vTugas() {
-  const f = S.tFilter, g = taskGroups(f), cloud = S.mode === 'cloud';
+  const f = S.tFilter, g0 = taskGroups('semua'), g = taskGroups(['late', 'today'].includes(f) ? 'semua' : f), cloud = S.mode === 'cloud';
+  if (f === 'late') { g.today = []; g.later = []; g.someday = []; } else if (f === 'today') { g.late = []; g.later = []; g.someday = []; }
   const todayAll = taskItems().filter((x) => x.due && x.due <= todayS());
   const doneN = todayAll.filter((x) => x.done).length;
   const grp = (k, t, list, cls = '') => (list.length ? `<section class="tk-grp ${cls}"><div class="tk-gh"><h2>${t}</h2><span class="tk-n">${list.length}</span></div><div class="stack" style="gap:8px">${list.map(taskRow).join('')}</div></section>` : '');
@@ -1904,7 +1966,8 @@ function vTugas() {
   const chips = [['semua', 'Semua'], ['punyaku', 'Punyaku']].concat(anyTitip || (cloud && friendPeople().length) ? [['titip', 'Dititipkan']] : [], cloud && friendPeople().length ? [['dari', 'Dari teman']] : []);
   const empty = !g.late.length && !g.today.length && !g.later.length && !g.someday.length;
   return `<div class="tk-page">
-    <div class="tk-head"><h1>Tugas</h1>${todayAll.length ? `<span class="muted tk-prog">${doneN} dari ${todayAll.length} beres</span>` : ''}<button type="button" class="icon-btn" data-act="search" aria-label="Cari acara, tugas, catatan, teman">${ic('search', 19, 2.2)}</button></div>
+    <div class="tk-head"><h1>Tugas</h1><button type="button" class="icon-btn" data-act="search" aria-label="Cari acara, tugas, catatan, teman">${ic('search', 19, 2.2)}</button></div>
+    ${tkSummary(doneN, todayAll.length, g0)}
     <div class="tk-chips" role="radiogroup" aria-label="Saring tugas">${chips.map(([k, l]) => `<button type="button" role="radio" aria-checked="${f === k}" class="tchip2 ${f === k ? 'on' : ''}" data-act="tFilter" data-f="${k}">${l}</button>`).join('')}</div>
     ${S.mode === 'cloud' && S.noTasks ? `<div class="ps-warn">${ic('info', 18)}<span>Tugas belum bisa tersimpan online. Jalankan <b>supabase-update-v3.3.sql</b> (Pengaturan › Notifikasi › Panduan).</span></div>` : ''}
     <div class="tk-cols">
@@ -2449,6 +2512,7 @@ function renderPicker() {
 
 /* ============ actions ============ */
 const A = {
+  frFilter(d) { S.frFilter = d.f; render(); },
   linkOpen(d) { openSheet('link', { pid: d.id }); },
   async linkSkip() {
     const s = S.sheet; closeSheet(); if (!s || !s.fid) return;
