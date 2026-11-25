@@ -55,3 +55,12 @@ Catatan:
 - Kunci VAPID dibuat otomatis oleh fungsi dan disimpan di tabel `push_vapid` yang hanya bisa dibaca server. Tidak ada kunci rahasia yang perlu disalin.
 - Nyalakan per HP. Kalau ganti HP atau menghapus data browser, nyalakan lagi.
 - Cek jadwal: SQL Editor › `select * from cron.job_run_details order by start_time desc limit 5;`
+
+## Update v3.3: Tugas, titip ke teman, ringkasan pagi dari server
+
+1. SQL Editor › New query › tempel isi `supabase-update-v3.3.sql` › Run.
+2. Edge Functions › `push` › Code › ganti seluruh isinya dengan `supabase/functions/push/index.ts` terbaru › Deploy.
+   (Pastikan *Enforce JWT Verification* tetap mati.)
+3. Buka Ingetin sekali supaya pengaturan Ringkasan pagi terkirim ke server.
+
+Panduan & tombol salin juga ada di aplikasi: Pengaturan › Notifikasi › Panduan menyiapkan server.

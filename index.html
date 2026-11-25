@@ -446,6 +446,60 @@ mark{background:var(--mark);color:inherit;border-radius:3px;padding:0 1px}
 .pend-t b{font-size:14px;word-break:break-word}.pend-t span{font-size:12px;color:var(--mu)}
 [data-mode=dark] .pend{border-color:#7F1D1D}[data-mode=dark] .pend-h{color:#FCA5A5}
 [data-mode=dark] .chk-due.late{background:#3A1A1A;border-color:#7F1D1D;color:#FCA5A5}
+.tk-page{display:flex;flex-direction:column;gap:12px;max-width:1100px}
+.tk-head{display:flex;align-items:center;gap:10px}.tk-head h1{margin:0;flex:1;font-size:28px;font-weight:800}
+.tk-prog{font-size:13px;font-weight:700}
+.tk-add{display:flex;align-items:center;gap:8px;min-height:54px;padding:0 6px 0 14px;border-radius:16px;background:var(--card);border:1.5px solid var(--bd);box-shadow:0 2px 8px rgba(17,24,39,.05);transition:border-color .15s,box-shadow .15s}
+.tk-add:focus-within{border-color:var(--p);box-shadow:0 0 0 4px var(--p-l)}
+.tk-add-i{color:var(--p);display:flex}
+.tk-add input{flex:1;min-width:0;border:0;background:transparent;font:inherit;font-size:16px;color:var(--tx);outline:none;height:50px}
+.tk-send{width:42px;height:42px;border-radius:12px;border:0;background:var(--p-l);color:var(--p);display:grid;place-items:center}
+.tk-send:active{transform:scale(.94)}
+.tk-chips{display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;padding:2px}
+.tk-chips::-webkit-scrollbar{display:none}
+.tk-chips .tchip2{flex-shrink:0}
+.tk-cols{display:flex;flex-direction:column;gap:12px}
+@media (min-width:1000px){.tk-cols{display:grid;grid-template-columns:1fr 1fr;align-items:start}}
+.tk-col{display:flex;flex-direction:column;gap:12px}
+.tk-grp{display:flex;flex-direction:column;gap:8px}
+.tk-gh{display:flex;align-items:center;gap:8px;border:0;background:none;padding:0;color:var(--tx);font:inherit;text-align:left}
+.tk-gh h2{margin:0;font-size:16px;font-weight:800}
+.tk-grp.late .tk-gh h2{color:#DC2626}
+.tk-n{font-size:12px;font-weight:800;color:var(--mu);background:var(--bd);border-radius:999px;padding:1px 8px}
+.tk-fold{min-height:40px}.tk-fold svg{color:var(--mu)}
+.tk{display:flex;align-items:center;gap:4px;padding:4px 10px 4px 4px;border-radius:14px;background:var(--card);border:1px solid var(--bd);transition:opacity .2s}
+.tk.new{background:var(--p-l);border-color:var(--p)}
+.tk-box{width:44px;height:44px;flex-shrink:0;border:0;background:none;display:grid;place-items:center;position:relative;color:#fff}
+.tk-box::before{content:'';position:absolute;width:24px;height:24px;border-radius:8px;border:2px solid #C2C8D3;background:var(--card);transition:all .15s}
+.tk-box svg{position:relative}
+.tk.done .tk-box::before,.tk-box.on::before{background:#16A34A;border-color:#16A34A}
+.tk-box:active::before{transform:scale(.88)}
+.tk-body{flex:1;min-width:0;border:0;background:none;text-align:left;padding:8px 0;display:flex;flex-direction:column;gap:4px;color:var(--tx);font:inherit}
+.tk-body b{font-size:14.5px;line-height:1.3}
+.tk.done .tk-body b{text-decoration:line-through;color:var(--mu)}
+.tk-meta{display:flex;flex-wrap:wrap;gap:4px 8px;align-items:center;font-size:12px;color:var(--mu);font-weight:600}
+.tk-meta>span{display:inline-flex;align-items:center;gap:3px}
+.tk-late{color:#DC2626}
+.tk-ev{padding:1px 8px;border-radius:999px;font-weight:700;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.tk-badge{font-size:11px;font-weight:800;padding:3px 8px;border-radius:999px;background:var(--p);color:#fff}
+.tk-av{display:flex;flex-shrink:0}
+.tk-title{display:flex;align-items:center;gap:4px}.tk-title .qtitle{flex:1}
+.tk-hist{display:flex;flex-direction:column;gap:2px;font-size:13px;color:var(--mu)}.tk-hist b{font-size:12px;letter-spacing:.04em;text-transform:uppercase}
+.tk-evl{display:flex;flex-direction:column;gap:6px;max-height:240px;overflow-y:auto}
+.tk-evo{display:flex;align-items:center;gap:10px;min-height:44px;padding:0 12px;border-radius:12px;background:var(--card);border:1.5px solid var(--bd);font-size:14px;font-weight:600;cursor:pointer}
+.tk-evo input{accent-color:var(--p);width:18px;height:18px}
+.tk-evo:has(input:checked){border-color:var(--p)}
+.tk-evo small{color:var(--mu);font-weight:600}
+.qrow-sw{cursor:pointer}.qrow-sw input{width:22px;height:22px;accent-color:var(--p);flex-shrink:0}
+.qrow+.qrow-sw,.qrow-sw+.qrow{border-top:1px solid var(--bd)}
+.tline{display:flex;width:100%;align-items:center;gap:2px;padding:0 2px}
+.tline::before{content:'';width:7px;height:7px;border:1.5px solid var(--mu);border-radius:2px;flex-shrink:0}
+.tline i{flex:1;height:0;border-top:2px dotted var(--mu)}
+.tk-leg{background:transparent!important;color:var(--mu)!important}
+.tk-leg .tbox{width:10px;height:10px;border:1.5px solid var(--mu);border-radius:3px}
+#sh.docked .backdrop{display:none}
+#sh.docked .sheet{left:auto;right:20px;top:20px;bottom:20px;transform:none;width:400px;max-height:none;border:1px solid var(--bd);box-shadow:0 12px 40px rgba(17,24,39,.12);animation:none}
+@media (min-width:1100px){body.has-dock main{padding-right:440px}}
 .ps-list{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:14px}
 .ps-step{display:flex;gap:12px;align-items:flex-start}
 .ps-n{width:28px;height:28px;border-radius:50%;background:var(--p);color:#fff;display:grid;place-items:center;font-weight:800;font-size:14px;flex-shrink:0}
@@ -535,7 +589,7 @@ mark{background:var(--mark);color:inherit;border-radius:3px;padding:0 1px}
 
 <script type="module">
 /* ============ helpers ============ */
-const APP_VERSION = '3.2 (25 Nov 2026)';
+const APP_VERSION = '3.3 (25 Nov 2026)';
 const $ = (s, r = document) => r.querySelector(s);
 const h = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const pad = (n) => String(n).padStart(2, '0');
@@ -609,7 +663,10 @@ const P = {
   clock: '<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>',
   dl: '<path d="M12 4v11M7 10l5 5 5-5"/><path d="M5 20h14"/>',
   copy: '<rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V5a1 1 0 0 0-1-1H5a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h3"/>',
-  cloud: '<path d="M7 18a5 5 0 0 1-.6-10A6 6 0 0 1 18 9a4.5 4.5 0 0 1-.5 9z"/>'
+  cloud: '<path d="M7 18a5 5 0 0 1-.6-10A6 6 0 0 1 18 9a4.5 4.5 0 0 1-.5 9z"/>',
+  tasks: '<rect x="3" y="3" width="18" height="18" rx="5"/><path d="M8 12l3 3 5-6"/>',
+  flag: '<path d="M5 21V4M5 4h11l-2 4 2 4H5"/>',
+  send: '<path d="M21 3L10 14M21 3l-7 18-4-7-7-4z"/>'
 };
 const ic = (n, s = 20, w = 2) => `<svg aria-hidden="true" width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="${w}" stroke-linecap="round" stroke-linejoin="round">${P[n]}</svg>`;
 
@@ -618,7 +675,7 @@ const LKEY = 'ingetin:data', CKEY = 'ingetin:cfg', DKEY = 'ingetin:dismissed', N
 const S = {
   view: 'kalender', month: (() => { const d = todayD(); d.setDate(1); return d; })(), sel: todayS(),
   personId: null, q: '', authTab: 'masuk',
-  data: { people: [], events: [], notes: [], friends: [] },
+  data: { people: [], events: [], notes: [], friends: [], tasks: [] }, tFilter: 'semua',
   agTab: 'minggu', kalMode: (() => { try { return JSON.parse(localStorage.getItem('ingetin:kalMode')) === 'daftar' ? 'daftar' : 'bulan'; } catch { return 'bulan'; } })(),
   mode: 'local', sb: null, session: null, me: null, sheet: null, busy: false
 };
@@ -633,12 +690,13 @@ const isMine = (e) => e.owner_id === myId();
 const COLS = {
   people: ['id', 'owner_id', 'name', 'color', 'linked_user_id', 'created_at'],
   events: ['id', 'owner_id', 'person_id', 'title', 'date', 'time', 'location', 'notes', 'shared', 'checklist', 'reminders', 'repeat', 'birth_year', 'occ', 'kind', 'share_with', 'created_at', 'updated_at'],
-  notes: ['id', 'owner_id', 'person_id', 'text', 'kind', 'created_at']
+  notes: ['id', 'owner_id', 'person_id', 'text', 'kind', 'created_at'],
+  tasks: ['id', 'owner_id', 'title', 'due', 'time', 'notes', 'done', 'done_at', 'done_by', 'event_id', 'event_date', 'assignee', 'remind', 'created_at', 'updated_at']
 };
 const pick = (t, r) => { const o = {}; for (const c of COLS[t]) if (r[c] !== undefined) o[c] = r[c]; return o; };
 const Local = {
-  load() { const d = lsGet(LKEY, null) || { people: [], events: [], notes: [] }; return { people: d.people || [], events: d.events || [], notes: d.notes || [], friends: [] }; },
-  persist() { const { people, events, notes } = S.data; lsSet(LKEY, { people, events, notes }); },
+  load() { const d = lsGet(LKEY, null) || { people: [], events: [], notes: [] }; return { people: d.people || [], events: d.events || [], notes: d.notes || [], tasks: d.tasks || [], friends: [] }; },
+  persist() { const { people, events, notes, tasks } = S.data; lsSet(LKEY, { people, events, notes, tasks }); },
   async put() { this.persist(); }, async del() { this.persist(); }
 };
 const Cloud = {
@@ -652,7 +710,10 @@ const Cloud = {
     let friends = [];
     const ids = f.data.map((x) => x.friend_id);
     if (ids.length) { const r = await sb.from('profiles').select('id,name').in('id', ids); if (r.error) throw r.error; friends = r.data; }
-    return { people: p.data, events: e.data, notes: n.data, friends };
+    let tasks = [];
+    const t = await sb.from('tasks').select('*');
+    if (t.error) { S.noTasks = true; } else { S.noTasks = false; tasks = t.data; }
+    return { people: p.data, events: e.data, notes: n.data, friends, tasks };
   },
   async put(t, row) {
     let { error } = await S.sb.from(t).upsert(pick(t, row));
@@ -670,7 +731,8 @@ const store = () => (S.mode === 'cloud' ? Cloud : Local);
 async function save(t, row, quiet) {
   row.owner_id = row.owner_id || myId();
   row.created_at = row.created_at || new Date().toISOString();
-  if (t === 'events') row.updated_at = new Date().toISOString();
+  if (t === 'events' || t === 'tasks') row.updated_at = new Date().toISOString();
+  if (t === 'tasks' && S.mode === 'cloud' && S.noTasks) { toast('Jalankan supabase-update-v3.3.sql dulu supaya Tugas tersimpan online (Pengaturan › Notifikasi › Panduan).'); }
   const arr = S.data[t]; const i = arr.findIndex((x) => x.id === row.id);
   if (i >= 0) arr[i] = row; else arr.push(row);
   render();
@@ -806,6 +868,16 @@ function dueReminders() {
     const key = e.id + '|susulan'; if (dis.includes(key)) continue;
     out.push({ e, k: 'susulan', key, open });
   }
+  // pengingat tugas: tepat di jam tenggat (tanpa jam: 07.00)
+  for (const t of S.data.tasks || []) {
+    if (t.done || t.remind === false || !t.due) continue;
+    if (!((t.owner_id === myId() && !t.assignee) || t.assignee === myId())) continue;
+    if (t.due < ymd(addDays(todayD(), -1)) || t.due > todayS()) continue;
+    const at = pd(t.due); if (t.time) { const [hh, mm] = t.time.split(':').map(Number); at.setHours(hh, mm || 0, 0, 0); } else at.setHours(7, 0, 0, 0);
+    if (now < at) continue;
+    const key = 'task:' + t.id + '|t|' + t.due; if (dis.includes(key)) continue;
+    out.push({ e: { id: 'task:' + t.id, title: t.title, date: t.due, time: t.time || '', owner_id: t.owner_id, _task: t.id }, k: 'task', key });
+  }
   const seen = new Set();
   return out.sort((a, b) => sortEv(a.e, b.e)).filter((x) => (seen.has(x.e.id + x.k.startsWith('sus')) ? false : seen.add(x.e.id + x.k.startsWith('sus'))));
 }
@@ -933,7 +1005,11 @@ async function fnCall(method, body) {
 }
 async function syncFriendRem() {
   if (!pushOn()) return;
-  try { await S.sb.from('push_prefs').upsert({ user_id: myId(), friend_rem: lsGet(FKEY, {}), updated_at: new Date().toISOString() }, { onConflict: 'user_id' }); } catch {}
+  const row = { user_id: myId(), friend_rem: lsGet(FKEY, {}), brief: briefCfg(), tz_min: -new Date().getTimezoneOffset(), updated_at: new Date().toISOString() };
+  try {
+    let { error } = await S.sb.from('push_prefs').upsert(row, { onConflict: 'user_id' });
+    if (error) { delete row.brief; delete row.tz_min; ({ error } = await S.sb.from('push_prefs').upsert(row, { onConflict: 'user_id' })); }
+  } catch {}
 }
 async function saveSub(sub) {
   const { error } = await S.sb.rpc('save_push_sub', { p_endpoint: sub.endpoint, p_sub: sub.toJSON(), p_tz: -new Date().getTimezoneOffset(), p_ua: navigator.userAgent });
@@ -964,7 +1040,7 @@ async function pushRefresh() {
   try {
     const reg = await navigator.serviceWorker.ready; const sub = await reg.pushManager.getSubscription();
     if (!sub) { lsSet(PUSHK, ''); render(); return; }
-    await saveSub(sub); lsSet(PUSHK, sub.endpoint);
+    await saveSub(sub); lsSet(PUSHK, sub.endpoint); syncFriendRem();
   } catch {}
 }
 // tandai pengingat sudah dikirim, supaya server tidak mengirim ulang (dan sebaliknya)
@@ -972,7 +1048,7 @@ async function claimKey(key) {
   if (!pushOn()) return true;
   try { const { error } = await S.sb.from('push_sent').insert({ user_id: myId(), key }); return !(error && (error.code === '23505' || /duplicate/i.test(error.message))); } catch { return true; }
 }
-function prefetchFiles() { for (const f of ['supabase-update-v3.1.sql', 'supabase/functions/push/index.ts']) if (!FILES[f]) fetch(f, { cache: 'no-cache' }).then((r) => (r.ok ? r.text() : null)).then((t) => { if (t) FILES[f] = t; }).catch(() => {}); }
+function prefetchFiles() { for (const f of ['supabase-update-v3.1.sql', 'supabase-update-v3.3.sql', 'supabase/functions/push/index.ts']) if (!FILES[f]) fetch(f, { cache: 'no-cache' }).then((r) => (r.ok ? r.text() : null)).then((t) => { if (t) FILES[f] = t; }).catch(() => {}); }
 async function pushToggle(on) {
   if (S.pushBusy) return;
   S.pushBusy = true; render();
@@ -993,7 +1069,7 @@ async function notifyDue() {
     if (sent.includes(key)) continue;
     sent.push(key); lsSet(NKEY, sent.slice(-300));
     if (!(await claimKey(key))) continue; // server sudah mengirimkannya
-    const body = k === 'susulan' ? open + ' persiapan belum ditandai beres' : k === 'hari-h@0' ? 'Dimulai sekarang · ' + fmtTime(e.time) : k === 'hari-h' && e.time ? '1 jam lagi · ' + fmtTime(e.time) : rel(e.date) + ' · ' + fmtLong(e.date) + (e.time ? ' ' + fmtTime(e.time) : '');
+    const body = k === 'task' ? 'Tugas' + (e.time ? ' · ' + fmtTime(e.time) : ' hari ini') : k === 'susulan' ? open + ' persiapan belum ditandai beres' : k === 'hari-h@0' ? 'Dimulai sekarang · ' + fmtTime(e.time) : k === 'hari-h' && e.time ? '1 jam lagi · ' + fmtTime(e.time) : rel(e.date) + ' · ' + fmtLong(e.date) + (e.time ? ' ' + fmtTime(e.time) : '');
     await showNote('Ingetin: ' + e.title, { body, icon: 'icon-192.png', badge: 'icon-192.png', tag: key });
   }
   lsSet(NKEY, sent.slice(-300));
@@ -1170,12 +1246,14 @@ function openSheet(kind, args = {}) {
 const isField = (el) => el && el.matches && el.matches('input:not([type=checkbox]):not([type=radio]):not([type=file]):not([type=color]),textarea,select');
 function closeSheet(fromBack) { S.sheet = null; $('#sh').innerHTML = ''; if (lastFocus && lastFocus.focus && !isField(lastFocus) && document.contains(lastFocus)) lastFocus.focus({ preventScroll: true }); }
 function renderSheet() {
+  const dock = !!(S.sheet && S.sheet.kind === 'task' && S.view === 'tugas' && window.matchMedia('(min-width:1100px)').matches);
+  $('#sh').classList.toggle('docked', dock); document.body.classList.toggle('has-dock', dock);
   if (!S.sheet) { $('#sh').innerHTML = ''; return; }
   const fn = SHEETS[S.sheet.kind]; const body = fn ? fn(S.sheet) : '';
   if (body === null) { closeSheet(); return; }
   const cur = $('#sh .sheet');
   if (cur && cur.dataset.kind === S.sheet.kind) { const st = cur.scrollTop; cur.innerHTML = body; cur.scrollTop = st; return; }
-  $('#sh').innerHTML = `<div class="backdrop" data-act="closeSheet"></div><div class="sheet" role="dialog" aria-modal="true" aria-label="${h({ quick: 'Tambah cepat', event: 'Detail acara', editEvent: 'Ubah acara', note: 'Catatan', person: 'Teman', invite: 'Undang teman', today: 'Hari ini', pushSetup: 'Siapkan notifikasi server', pin: 'PIN', search: 'Cari', monthPick: 'Pilih bulan', notif: 'Notifikasi' }[S.sheet.kind] || '')}" tabindex="-1" data-kind="${S.sheet.kind}">${body}</div>`;
+  $('#sh').innerHTML = `<div class="backdrop" data-act="closeSheet"></div><div class="sheet" role="dialog" aria-modal="true" aria-label="${h({ quick: 'Tambah cepat', event: 'Detail acara', editEvent: 'Ubah acara', note: 'Catatan', person: 'Teman', invite: 'Undang teman', today: 'Hari ini', task: 'Tugas', pushSetup: 'Siapkan notifikasi server', pin: 'PIN', search: 'Cari', monthPick: 'Pilih bulan', notif: 'Notifikasi' }[S.sheet.kind] || '')}" tabindex="-1" data-kind="${S.sheet.kind}">${body}</div>`;
 }
 
 const avatar = (p, size = 44) => `<span class="av" style="width:${size}px;height:${size}px;font-size:${Math.round(size * 0.38)}px;${cs(p.color)}">${h((p.name || '?')[0].toUpperCase())}</span>`;
@@ -1192,7 +1270,7 @@ function evRow(e, showDate = true) {
 
 /* ============ views ============ */
 function navItems() {
-  return [['kalender', 'Kalender', 'cal'], ['teman', 'Teman', 'people'], ['pengaturan', 'Pengaturan', 'gear']];
+  return [['kalender', 'Kalender', 'cal'], ['tugas', 'Tugas', 'tasks'], ['teman', 'Teman', 'people'], ['pengaturan', 'Pengaturan', 'gear']];
 }
 function renderShell() {
   if (S.view === 'minggu') { S.view = 'kalender'; S.kalMode = 'daftar'; }
@@ -1240,7 +1318,7 @@ function todaySheetBody() {
   let html = `<div class="sh-body"><div class="sh-top"><h2>Hari ini</h2><button type="button" class="icon-btn round" data-act="closeSheet" aria-label="Tutup">${ic('x', 18, 2.4)}</button></div>`;
   if (c.brief) html += briefCard(true);
   if (c.due.length) html += `<section class="tsec"><div class="tsec-h warn">${ic('bell', 16)}Pengingat (${c.due.length})</div>
-    ${c.due.map(({ e, key, k, open }) => `<div class="pend-i"><span class="pend-t"><b>${h(e.title)}</b><span>${k === 'susulan' ? open + ' persiapan belum beres' : k === 'hari-h@0' ? 'Dimulai ' + fmtTime(e.time) : rel(e.date) + (e.time ? ', ' + fmtTime(e.time) : '')}</span></span><button type="button" class="btn ghost" style="min-height:36px" data-act="openEvent" data-id="${h(e.id)}">Lihat</button><button type="button" class="mini" data-act="dismiss" data-key="${h(key)}" aria-label="Tandai sudah dibaca" title="Sudah dibaca">${ic('check', 18, 2.4)}</button></div>`).join('')}
+    ${c.due.map(({ e, key, k, open }) => `<div class="pend-i"><span class="pend-t"><b>${h(e.title)}</b><span>${k === 'task' ? 'Tugas' + (e.time ? ' · ' + fmtTime(e.time) : ' hari ini') : k === 'susulan' ? open + ' persiapan belum beres' : k === 'hari-h@0' ? 'Dimulai ' + fmtTime(e.time) : rel(e.date) + (e.time ? ', ' + fmtTime(e.time) : '')}</span></span>${k === 'task' ? `<button type="button" class="btn ghost" style="min-height:36px" data-act="tOpen" data-k="t:${h(e._task)}">Lihat</button>` : `<button type="button" class="btn ghost" style="min-height:36px" data-act="openEvent" data-id="${h(e.id)}">Lihat</button>`}<button type="button" class="mini" data-act="dismiss" data-key="${h(key)}" aria-label="Tandai sudah dibaca" title="Sudah dibaca">${ic('check', 18, 2.4)}</button></div>`).join('')}
     ${c.due.length > 1 ? `<button type="button" class="btn ghost" style="align-self:flex-start;min-height:36px" data-act="dismissAll">Tandai semua dibaca</button>` : ''}</section>`;
   if (c.pend.length) html += `<section class="tsec"><div class="tsec-h bad">${ic('clock', 16)}Tertunda (${c.pend.length})<input type="hidden" id="resch-date" name="date"></div>
     ${c.pend.map((p, n) => `<div class="pend-i"><span class="pend-t"><b>${h(p.x.text)}</b><span>${h(p.e.title)} · ${p.x.before != null ? 'tenggat ' + h(rel(p.due).toLowerCase()) : 'acara ' + h(rel(p.e.date).toLowerCase())}</span></span>
@@ -1272,20 +1350,21 @@ function vKalender() {
   const m = S.month, y = m.getFullYear(), mo = m.getMonth();
   const first = new Date(y, mo, 1), offset = (first.getDay() + 6) % 7, dim = new Date(y, mo + 1, 0).getDate();
   const rows = Math.ceil((offset + dim) / 7), start = addDays(first, -offset), today = todayS();
+  const tkOn = {}; for (const x of taskItems()) if (!x.done && x.due) tkOn[x.due] = (tkOn[x.due] || 0) + 1;
   let cells = '';
   for (let i = 0; i < rows * 7; i++) {
     const d = addDays(start, i), key = ymd(d), evs = eventsOn(key), inM = d.getMonth() === mo, hd = holOn(key);
     const red = (hd && hd.t === 'libur') || d.getDay() === 0;
     cells += `<button type="button" class="cell ${inM ? '' : 'out'} ${red ? 'red' : ''} ${key === today ? 'today' : ''} ${key === S.sel ? 'sel' : ''}" data-act="pickDay" data-date="${key}" aria-label="${h(fmtLong(key))}${hd ? ', ' + h(hd.n) : ''}${evs.length ? ', ' + evs.length + ' acara' : ''}" ${key === S.sel ? 'aria-pressed="true"' : 'aria-pressed="false"'}>
       <span class="num">${d.getDate()}</span>
-      <span class="chips">${hd ? `<span class="hol ${hd.t === 'cuti' ? 'cuti' : ''}">${h(hd.t === 'cuti' ? 'Cuti bersama' : holShort(hd.n))}</span>` : ''}${evs.slice(0, 3).map((e) => `<span class="chip" style="${cs(evInfo(e).color)}">${h(e.title)}</span>`).join('')}${evs.length > 3 ? `<span class="more">+${evs.length - 3}</span>` : ''}</span>
+      <span class="chips">${hd ? `<span class="hol ${hd.t === 'cuti' ? 'cuti' : ''}">${h(hd.t === 'cuti' ? 'Cuti bersama' : holShort(hd.n))}</span>` : ''}${evs.slice(0, 3).map((e) => `<span class="chip" style="${cs(evInfo(e).color)}">${h(e.title)}</span>`).join('')}${evs.length > 3 ? `<span class="more">+${evs.length - 3}</span>` : ''}${tkOn[key] ? `<span class="tline" title="${tkOn[key]} tugas"><i></i></span>` : ''}</span>
     </button>`;
   }
   const used = new Map(); used.set('Kamu', 'blue');
   for (const e of eventsBetween(ymd(start), ymd(addDays(start, rows * 7)))) { const i = evInfo(e); used.set(i.who, i.color); }
-  const legend = [...used].map(([n, c]) => `<span class="pill" style="${cs(c)}"><span class="dot"></span>${h(n)}</span>`).join('');
+  const legend = [...used].map(([n, c]) => `<span class="pill" style="${cs(c)}"><span class="dot"></span>${h(n)}</span>`).join('') + (Object.keys(tkOn).length ? `<span class="pill tk-leg"><span class="tbox"></span>Tugas</span>` : '');
 
-  const selEv = eventsOn(S.sel);
+  const selEv = eventsOn(S.sel), selTk = taskDays(S.sel).sort((a, b) => a.done - b.done || byDue(a, b));
   return `<div class="cal-layout">
     <section class="cal-main" aria-label="Kalender">
       ${calHead()}
@@ -1297,7 +1376,8 @@ function vKalender() {
       <button type="button" class="btn pri block quick-top" data-act="quick">${ic('plus', 18, 2.4)}Tambah cepat</button>
       <div class="sec-h"><h2>${S.sel === today ? 'Hari ini' : h(HARI[pd(S.sel).getDay()] + ', ' + fmtShort(S.sel))}</h2>${selEv.length ? `<button type="button" class="btn ghost" data-act="newEvent" data-date="${S.sel}">+ Tambah</button>` : ''}</div>
       ${holOn(S.sel) ? holRow(S.sel) : ''}
-      <div class="stack">${selEv.length ? selEv.map((e) => evRow(e, false)).join('') : `<div class="note-row" style="justify-content:space-between;align-items:center"><span class="muted">Tidak ada acara.</span><button type="button" class="btn ghost" data-act="newEvent" data-date="${S.sel}">+ Tambah di tanggal ini</button></div>`}</div>
+      <div class="stack">${selEv.length ? selEv.map((e) => evRow(e, false)).join('') : selTk.length ? '' : `<div class="note-row" style="justify-content:space-between;align-items:center"><span class="muted">Tidak ada acara.</span><button type="button" class="btn ghost" data-act="newEvent" data-date="${S.sel}">+ Tambah di tanggal ini</button></div>`}
+      ${selTk.length ? `<div class="tk-gh" style="margin-top:4px"><h2 style="font-size:15px">Tugas</h2><span class="tk-n">${selTk.length}</span></div>${selTk.map(taskRow).join('')}` : ''}</div>
     </aside>
   </div>`;
 }
@@ -1346,7 +1426,9 @@ function buildBrief() {
   if (n) lines.push(today.map((e) => (e.time ? fmtTime(e.time) + ' ' : '') + e.title).join(' · '));
   if (tomorrow.length) lines.push('Besok: ' + tomorrow.map((e) => e.title + (ageOn(e) > 0 ? ' (ke-' + ageOn(e) + ')' : '')).join(', '));
   const open = prep.reduce((x, e) => x + e.checklist.filter((i) => !i.done).length, 0); if (open) lines.push(open + ' persiapan belum beres minggu ini');
-  const pn = c.prep ? pendingItems().length : 0; if (pn) lines.push(pn + ' tugas tertunda dari acara yang sudah lewat');
+  const tk = (S.data.tasks || []).filter((x) => !x.done && x.due && x.due <= td && ((x.owner_id === myId() && !x.assignee) || x.assignee === myId()));
+  if (tk.length) lines.push(tk.length + ' tugas hari ini: ' + tk.slice(0, 3).map((x) => x.title).join(', ') + (tk.length > 3 ? ', …' : ''));
+  const pn = c.prep ? pendingItems().length : 0; if (pn) lines.push(pn + ' persiapan tertunda dari acara yang sudah lewat');
   if (bdays.length) lines.push('Ulang tahun: ' + bdays.map((e) => (e.title.replace(/\b(ultah|ulang\s*tahun)\b/gi, '').trim() || e.title) + ' ' + rel(e.date).toLowerCase()).join(', '));
   if (hol) lines.push((hol.t === 'cuti' ? 'Cuti bersama' : 'Libur') + ' ' + rel(hol.d) + ': ' + holShort(hol.n));
   return { title, lines, today, tomorrow, prep, bdays, hol, empty: !n && !lines.length };
@@ -1356,7 +1438,7 @@ async function sendBrief(force) {
   const b = buildBrief();
   if (!force && (lsGet('ingetin:briefSent', '') === todayS() || !briefDue())) return;
   if (!('Notification' in window) || Notification.permission !== 'granted') { if (force) toast('Aktifkan notifikasi dulu (Pengaturan › Notifikasi)'); return; }
-  if (!force) lsSet('ingetin:briefSent', todayS());
+  if (!force) { lsSet('ingetin:briefSent', todayS()); if (!(await claimKey('brief|' + todayS()))) return; }
   await showNote(b.title, { body: b.lines.join('\n') || 'Tidak ada acara hari ini. Nikmati harimu!', tag: 'ingetin-brief-' + todayS() + (force ? '-' + Date.now() : '') });
   if (force) toast('Contoh ringkasan dikirim');
 }
@@ -1583,7 +1665,169 @@ function vPengaturan() {
     ${group('Lainnya', [row('privasi', 'lock', '#EDE9FE', '#5B21B6', 'Privasi &amp; PIN', pinSet() ? (notesLocked() ? 'Terkunci' : 'Terbuka') : 'Mati'), row('data', 'db', 'var(--soft)', 'var(--mu2)', 'Data &amp; cadangan', ''), row('', 'info', 'var(--soft)', 'var(--mu2)', 'Tentang', 'Versi ' + APP_VERSION.split(' ')[0])])}
   </div>`;
 }
-const VIEWS = { kalender: vKalender, minggu: vMinggu, teman: vTeman, pengaturan: vPengaturan };
+/* ============ Tugas (to-do) ============ */
+const friendPeople = () => S.data.people.filter((p) => p.linked_user_id && S.data.friends.some((f) => f.id === p.linked_user_id));
+const personOfUser = (uidv) => S.data.people.find((p) => p.linked_user_id === uidv) || null;
+const userName = (uidv) => { if (uidv === myId()) return 'Kamu'; const p = personOfUser(uidv); if (p) return p.name; const f = S.data.friends.find((x) => x.id === uidv); return f ? f.name : 'Teman'; };
+const evEmoji = (e) => (e.kind === 'ultah' || (e.repeat === 'yearly' && /ultah|ulang tahun|birthday/i.test(e.title)) ? '🎂' : '📋');
+function taskEvent(t) {
+  if (!t.event_id) return null;
+  const b = S.data.events.find((e) => e.id === t.event_id); if (!b) return null;
+  return isRec(b) && t.event_date ? instance(b, t.event_date) : b;
+}
+// semua item: tugas + persiapan acara milikku
+function taskItems() {
+  const me = myId(), T = todayS(), out = [];
+  for (const t of S.data.tasks || []) {
+    if (t.owner_id !== me && t.assignee !== me) continue;
+    const who = t.owner_id === me ? (t.assignee ? 'titip' : 'mine') : 'dari';
+    out.push({ k: 't:' + t.id, src: 'task', t, title: t.title, due: t.due || '', time: t.time || '', done: !!t.done, ev: taskEvent(t), who });
+  }
+  for (const e of expand(ymd(addDays(todayD(), -30)), ymd(addDays(todayD(), 90)))) {
+    if (!isMine(e) || e.repeat === 'daily') continue;
+    (e.checklist || []).forEach((x, i) => {
+      if (x.skip) return;
+      if (x.done && e.date < ymd(addDays(todayD(), -7))) return;
+      const due = x.before != null ? ymd(addDays(pd(e.date), -x.before)) : e.date;
+      out.push({ k: 'c:' + e.id + ':' + i, src: 'chk', e, i, x, title: x.text, due, time: '', done: !!x.done, ev: e, who: 'mine' });
+    });
+  }
+  return out;
+}
+const findItem = (k) => taskItems().find((x) => x.k === k);
+const byDue = (a, b) => (a.due || '9999').localeCompare(b.due || '9999') || (a.time || '99').localeCompare(b.time || '99') || a.title.localeCompare(b.title);
+function taskGroups(filter) {
+  const T = todayS();
+  let items = taskItems();
+  if (filter === 'punyaku') items = items.filter((x) => x.who === 'mine');
+  else if (filter === 'titip') items = items.filter((x) => x.who === 'titip');
+  else if (filter === 'dari') items = items.filter((x) => x.who === 'dari');
+  const open = items.filter((x) => !x.done).sort(byDue);
+  return {
+    late: open.filter((x) => x.due && x.due < T), today: open.filter((x) => x.due === T),
+    later: open.filter((x) => x.due > T).slice(0, 60), someday: open.filter((x) => !x.due),
+    done: items.filter((x) => x.done).sort((a, b) => ((b.t && b.t.done_at) || b.due || '').localeCompare((a.t && a.t.done_at) || a.due || '')).slice(0, 30),
+    all: items
+  };
+}
+function taskRow(x) {
+  const T = todayS(), late = !x.done && x.due && x.due < T;
+  const meta = [];
+  if (late) meta.push(`<span class="tk-late">${ic('flag', 13, 2.2)}${h(rel(x.due))}</span>`);
+  else if (x.due && x.due !== T) { const dd = diffDays(x.due, T); meta.push(`<span>${h(dd > 0 && dd <= 6 ? rel(x.due) : fmtShort(x.due))}</span>`); }
+  if (x.time) meta.push(`<span class="tk-m">${ic((x.t && x.t.remind === false) ? 'clock' : 'bell', 13, 2.2)}${fmtTime(x.time)}</span>`);
+  if (x.ev) { const c = evInfo(x.ev).color; meta.push(`<span class="tk-ev" style="${cs(c)}">${evEmoji(x.ev)} ${h(x.ev.title)}</span>`); }
+  if (x.who === 'dari') meta.push(`<span>dari ${h(userName(x.t.owner_id))}</span>`);
+  if (x.who === 'titip' && x.done && x.t.done_by && x.t.done_by !== myId()) meta.push(`<span>dicentang ${h(userName(x.t.done_by))}</span>`);
+  const p = x.who === 'titip' ? personOfUser(x.t.assignee) : x.who === 'dari' ? personOfUser(x.t.owner_id) : null;
+  const isNew = x.who === 'dari' && !x.done && x.t.created_at && Date.now() - new Date(x.t.created_at).getTime() < 86400000;
+  return `<div class="tk ${x.done ? 'done' : ''} ${isNew ? 'new' : ''}">
+    <button type="button" class="tk-box" data-act="tDone" data-k="${h(x.k)}" role="checkbox" aria-checked="${x.done}" aria-label="${x.done ? 'Batal tandai beres' : 'Tandai beres'}: ${h(x.title)}">${x.done ? ic('check', 15, 3) : ''}</button>
+    <button type="button" class="tk-body" data-act="tOpen" data-k="${h(x.k)}"><b>${h(x.title)}</b>${meta.length ? `<span class="tk-meta">${meta.join('')}</span>` : ''}</button>
+    ${isNew ? '<span class="tk-badge">Baru</span>' : ''}${p ? `<span class="tk-av" title="${h(p.name)}">${avatar(p, 26)}</span>` : ''}
+  </div>`;
+}
+function vTugas() {
+  const f = S.tFilter, g = taskGroups(f), cloud = S.mode === 'cloud';
+  const todayAll = taskItems().filter((x) => x.due && x.due <= todayS());
+  const doneN = todayAll.filter((x) => x.done).length;
+  const grp = (k, t, list, cls = '') => (list.length ? `<section class="tk-grp ${cls}"><div class="tk-gh"><h2>${t}</h2><span class="tk-n">${list.length}</span></div><div class="stack" style="gap:8px">${list.map(taskRow).join('')}</div></section>` : '');
+  const chips = [['semua', 'Semua'], ['punyaku', 'Punyaku']].concat(cloud && friendPeople().length ? [['titip', 'Dititipkan'], ['dari', 'Dari teman']] : []);
+  const empty = !g.late.length && !g.today.length && !g.later.length && !g.someday.length;
+  return `<div class="tk-page">
+    <div class="tk-head"><h1>Tugas</h1>${todayAll.length ? `<span class="muted tk-prog">${doneN} dari ${todayAll.length} beres</span>` : ''}<button type="button" class="icon-btn" data-act="search" aria-label="Cari">${ic('search', 19, 2.2)}</button></div>
+    <form class="tk-add" data-form="taskAdd" autocomplete="off"><span class="tk-add-i">${ic('plus', 20, 2.4)}</span><label class="sr" for="tk-q">Tambah tugas</label><input id="tk-q" name="q" placeholder="Tambah tugas… mis. bayar listrik besok" enterkeyhint="done" autocomplete="off"><button type="submit" class="tk-send" aria-label="Simpan tugas">${ic('send', 17, 2.2)}</button></form>
+    <div class="tk-chips" role="radiogroup" aria-label="Saring tugas">${chips.map(([k, l]) => `<button type="button" role="radio" aria-checked="${f === k}" class="tchip2 ${f === k ? 'on' : ''}" data-act="tFilter" data-f="${k}">${l}</button>`).join('')}</div>
+    ${S.mode === 'cloud' && S.noTasks ? `<div class="ps-warn">${ic('info', 18)}<span>Tugas belum bisa tersimpan online. Jalankan <b>supabase-update-v3.3.sql</b> (Pengaturan › Notifikasi › Panduan).</span></div>` : ''}
+    <div class="tk-cols">
+      <div class="tk-col">${grp('late', 'Terlambat', g.late, 'late')}${grp('today', 'Hari ini', g.today)}</div>
+      <div class="tk-col">${grp('later', 'Nanti', g.later)}${grp('someday', 'Kapan-kapan', g.someday)}</div>
+    </div>
+    ${empty ? `<div class="empty">${ic('tasks', 34, 1.6)}<b>${f === 'dari' ? 'Belum ada titipan dari teman' : f === 'titip' ? 'Belum ada tugas yang kamu titipkan' : 'Belum ada tugas'}</b>Ketik di kolom atas, mis. “bayar listrik besok jam 7 malam”.</div>` : ''}
+    ${g.done.length ? `<section class="tk-grp"><button type="button" class="tk-gh tk-fold" data-act="tFold" aria-expanded="${!!S.tDoneOpen}"><h2 class="muted">Selesai</h2><span class="tk-n">${g.done.length}</span>${ic(S.tDoneOpen ? 'down' : 'right', 18, 2.2)}</button>${S.tDoneOpen ? `<div class="stack" style="gap:8px">${g.done.map(taskRow).join('')}</div>` : ''}</section>` : ''}
+  </div>`;
+}
+// baris-baris formulir tugas (dipakai Tambah cepat jenis Tugas & detail tugas)
+function taskFields(t, s, ro) {
+  const open = s.open || (s.open = {});
+  const row = (k, icon, label, val, body, warn) => `<div class="qrow ${open[k] ? 'open' : ''}" data-row="${k}">
+      <button type="button" class="qrow-h" data-act="qaRow" data-r="${k}" aria-expanded="${!!open[k]}" ${ro ? 'disabled' : ''}><span class="qrow-i">${ic(icon, 17, 2.2)}</span><b>${label}</b><span class="qrow-v ${warn ? 'warn' : ''}" id="qv-${k}">${h(val)}</span>${ro ? '' : ic('right', 18, 2.2)}</button>
+      <div class="qrow-b" ${open[k] ? '' : 'hidden'}>${body}</div></div>`;
+  const base = todayD(), days = []; for (let i = 0; i < 21; i++) days.push(ymd(addDays(base, i)));
+  if (t.due && !days.includes(t.due)) days.unshift(t.due);
+  const strip = `<div class="dstrip" role="radiogroup" aria-label="Pilih tenggat"><button type="button" class="dchip ${!t.due ? 'on' : ''}" data-act="tkDate" data-d=""><small>Tanpa</small><b>–</b><small>tanggal</small></button>${days.map((k) => { const d = pd(k); return `<button type="button" role="radio" aria-checked="${k === t.due}" class="dchip ${k === t.due ? 'on' : ''} ${d.getDay() === 0 ? 'red' : ''}" data-act="tkDate" data-d="${k}" aria-label="${h(fmtLong(k))}"><small>${k === todayS() ? 'Hari ini' : HARI3[d.getDay()]}</small><b>${d.getDate()}</b><small>${BUL3[d.getMonth()]}</small></button>`; }).join('')}</div>
+      <button type="button" class="chipbtn qa-more" data-act="pickDate" data-for="tk-due">${ic('cal', 15)} Kalender penuh</button>`;
+  const TIMES = ['', '07:00', '09:00', '12:00', '15:00', '19:00', '20:00'];
+  const times = `<div class="qchips">${TIMES.map((x) => `<button type="button" class="tchip2 ${(t.time || '') === x ? 'on' : ''}" data-act="tkTime" data-t="${x}">${x ? fmtTime(x) : 'Tanpa jam'}</button>`).join('')}<button type="button" class="tchip2" data-act="pickTime" data-for="tk-time">${ic('clock', 15)} Jam lain</button></div>`;
+  const evs = expand(ymd(addDays(base, -1)), ymd(addDays(base, 90))).filter((e) => e.repeat !== 'daily').slice(0, 40);
+  const evSel = t.ev_key || '';
+  if (evSel && !evs.some((e) => e.id === evSel)) { const e = getEv(evSel); if (e) evs.unshift(e); }
+  const evList = `<div class="tk-evl">${[`<label class="tk-evo"><input type="radio" name="tev" value="" ${!evSel ? 'checked' : ''}><span>Tidak terkait acara</span></label>`].concat(evs.map((e) => `<label class="tk-evo"><input type="radio" name="tev" value="${h(e.id)}" ${evSel === e.id ? 'checked' : ''}><span>${evEmoji(e)} ${h(e.title)} <small>· ${h(fmtShort(e.date))}</small></span></label>`)).join('')}</div>
+      <small class="muted" style="font-size:12px">Tanpa titip: tugas masuk ke daftar persiapan acaranya.</small>`;
+  const fr = friendPeople();
+  const tto = t.assignee || '';
+  const toBody = `<div class="pchips"><label class="pchip"><input type="radio" name="tto" value="" ${!tto ? 'checked' : ''}><span>Aku sendiri</span></label>${fr.map((p) => `<label class="pchip"><input type="radio" name="tto" value="${h(p.linked_user_id)}" ${tto === p.linked_user_id ? 'checked' : ''}><span>${avatar(p, 24)}${h(p.name)}</span></label>`).join('')}</div>
+      <small class="muted" style="font-size:12px">Temanmu melihat tugas ini di menu Tugas miliknya, dan kamu dapat kabar saat dia mencentangnya.</small>`;
+  const v = tkVals(t);
+  return `<input type="hidden" id="tk-due" name="due" value="${h(t.due || '')}"><input type="hidden" id="tk-time" name="ttime" value="${h(t.time || '')}">
+    <div class="qrows">
+      ${row('tdue', 'cal', 'Tenggat', v.tdue, strip)}
+      ${row('ttime', 'clock', 'Jam', v.ttime, times)}
+      <label class="qrow-h qrow-sw"><span class="qrow-i">${ic('bell', 17, 2.2)}</span><b>Pengingat</b><span class="qrow-v" id="qv-trem">${h(v.trem)}</span><input type="checkbox" role="switch" name="tremind" ${t.remind !== false ? 'checked' : ''} ${ro ? 'disabled' : ''}></label>
+      ${row('tev', 'flag', 'Bagian dari acara', v.tev, evList)}
+      ${S.mode === 'cloud' && fr.length ? row('tto', 'people', 'Titip ke', v.tto, toBody) : ''}
+      ${row('tnote', 'note', 'Catatan', v.tnote, `<textarea class="inp" name="tnotes" rows="2" placeholder="mis. yang 2 meter" ${ro ? 'readonly' : ''}>${h(t.notes || '')}</textarea>`)}
+    </div>`;
+}
+function tkVals(t) {
+  const e = t.ev_key ? getEv(t.ev_key) : null;
+  return { tdue: t.due ? qaDateLabel(t.due) : 'Tanpa tanggal', ttime: t.time ? fmtTime(t.time) : 'Tanpa jam',
+    trem: t.remind === false ? 'Mati' : t.due ? (t.time ? 'Tepat waktu' : 'Pukul 07.00') : 'Perlu tenggat',
+    tev: e ? evEmoji(e) + ' ' + e.title : 'Tidak ada', tto: t.assignee ? userName(t.assignee) : 'Aku sendiri', tnote: (t.notes || '').trim() ? 'Ada' : 'Tambah' };
+}
+function tkSync() {
+  const f = $('form[data-form=task]') || $('form[data-form=quick]'); if (!f || !S.sheet || !S.sheet.tk) return;
+  const fd = new FormData(f), t = S.sheet.tk;
+  if (fd.has('title')) t.title = fd.get('title');
+  t.due = fd.get('due') || ''; t.time = fd.get('ttime') || ''; t.remind = fd.has('tremind') ? true : (f.querySelector('[name=tremind]') ? false : t.remind);
+  if (fd.has('tev')) t.ev_key = fd.get('tev'); if (fd.has('tto')) t.assignee = fd.get('tto') || null; if (fd.has('tnotes')) t.notes = fd.get('tnotes');
+  const v = tkVals(t);
+  for (const k of Object.keys(v)) { const el = $('#qv-' + k); if (el) el.textContent = v[k]; }
+}
+async function saveTask(t, isNew) {
+  const title = (t.title || '').trim();
+  const ev = t.ev_key ? getEv(t.ev_key) : null;
+  if (isNew && ev && !t.assignee && isMine(ev)) {
+    // tanpa titip → jadi persiapan acara
+    const item = { text: title, done: false }; if (t.due && t.due < ev.date) item.before = diffDays(ev.date, t.due);
+    await saveChecklist(ev, [...(ev.checklist || []), item]);
+    toast('Masuk ke persiapan ' + ev.title);
+    return;
+  }
+  const b = ev ? baseOf(ev) : null;
+  const row = { ...(t.id ? (S.data.tasks.find((x) => x.id === t.id) || {}) : {}), id: t.id || uid(), title, due: t.due || null, time: t.due ? t.time || null : null,
+    remind: t.remind !== false, notes: (t.notes || '').trim() || null, event_id: b ? b.id : null, event_date: b && isRec(b) ? ev.date : null,
+    assignee: S.mode === 'cloud' ? t.assignee || null : null, done: !!t.done };
+  await save('tasks', row);
+  if (isNew) toast(row.assignee ? 'Dititipkan ke ' + userName(row.assignee) : 'Tugas ditambahkan');
+}
+async function toggleTask(x) {
+  const now = !x.done;
+  if (x.src === 'chk') {
+    const e = getEv(x.e.id) || x.e;
+    await saveChecklist(e, (e.checklist || []).map((y, i) => (i === x.i ? { ...y, done: now } : y)));
+  } else if (x.t.owner_id === myId()) {
+    await save('tasks', { ...x.t, done: now, done_at: now ? new Date().toISOString() : null, done_by: now ? myId() : null });
+  } else {
+    const t = S.data.tasks.find((y) => y.id === x.t.id); if (t) { t.done = now; t.done_at = now ? new Date().toISOString() : null; t.done_by = now ? myId() : null; }
+    render();
+    const { error } = await S.sb.rpc('set_task_done', { p_id: x.t.id, p_done: now }); if (error) toast('Gagal: ' + error.message);
+  }
+  if (now && 'vibrate' in navigator) navigator.vibrate(12);
+  toast(now ? 'Beres! ' + x.title : 'Dibuka lagi', now ? { label: 'Batalkan', fn: () => { const y = findItem(x.k); if (y) toggleTask(y); } } : null);
+}
+const taskDays = (key) => taskItems().filter((x) => x.due === key);
+const VIEWS = { kalender: vKalender, minggu: vMinggu, tugas: vTugas, teman: vTeman, pengaturan: vPengaturan };
 
 function render() {
   const main = $('#main'); const st = main ? main.scrollTop : 0;
@@ -1666,12 +1910,13 @@ const SHEETS = {
       ${isBday ? `<div class="field"><label for="qa-by">Tahun lahir (opsional)</label><input class="inp" id="qa-by" name="birthYear" inputmode="numeric" pattern="[0-9]{4}" maxlength="4" placeholder="mis. 1998" value="${h(r.birthYear || '')}" autocomplete="off"><small class="muted" style="font-size:12px">Untuk menampilkan “Ulang tahun ke-…”</small></div>` : ''}`;
     const TIMES = ['', '07:00', '09:00', '12:00', '15:00', '19:00', '20:00'];
     const times = `<div class="qchips">${TIMES.map((t) => `<button type="button" class="tchip2 ${(r.time || '') === t ? 'on' : ''}" data-act="qaTime" data-t="${t}">${t ? fmtTime(t) : 'Tanpa jam'}</button>`).join('')}<button type="button" class="tchip2" data-act="pickTime" data-for="qa-time">${ic('clock', 15)} Jam lain</button></div>`;
-    const types = [['event', 'Acara'], ['bday', 'Ulang tahun'], ['note', 'Catatan']];
+    const types = [['event', 'Acara'], ['bday', 'Ultah'], ['note', 'Catatan'], ['task', 'Tugas']];
+    if (kind === 'task' && !s.tk) s.tk = { title: r.title || r.noteText || '', due: r.date || '', time: r.time || '', remind: true };
     return `<div class="sh-body">
       <div class="sh-top"><h2>${s.date ? 'Tambah · ' + h(fmtShort(s.date)) : 'Tambah cepat'}</h2><button type="button" class="icon-btn round" data-act="closeSheet" aria-label="Tutup">${ic('x', 18, 2.4)}</button></div>
       <form class="stack" data-form="quick" style="gap:14px" novalidate>
         <div class="seg" role="radiogroup" aria-label="Jenis">${types.map(([k, l]) => `<label><input type="radio" name="type" value="${k}" data-chg="qaType" ${kind === k ? 'checked' : ''}><span>${l}</span></label>`).join('')}</div>
-        ${isNote
+        ${kind === 'task' ? `<label class="sr" for="qa-title">Tugas</label><input id="qa-title" class="qtitle" name="title" value="${h(s.tk.title || '')}" placeholder="Apa yang perlu dikerjakan?" autocomplete="off">` : isNote
           ? `<label class="sr" for="qa-title">Catatan</label><textarea id="qa-title" class="qtitle" name="noteText" rows="2" placeholder="Apa yang perlu diingat? mis. alergi udang">${h(r.noteText || '')}</textarea>`
           : `<label class="sr" for="qa-title">${isBday ? 'Judul (opsional)' : 'Judul acara'}</label><input id="qa-title" class="qtitle" name="title" value="${h(r.title || '')}" placeholder="${isBday ? 'Ulang tahun siapa? (opsional)' : 'Judul acara'}" autocomplete="off">`}
         <div class="qa-auto">
@@ -1683,6 +1928,7 @@ const SHEETS = {
               <button type="button" class="chipbtn" data-act="qaEx" data-t="Rina alergi udang">Rina alergi udang</button></div>
           </div>
         </div>
+        ${kind === 'task' ? taskFields(s.tk, s) + `<p class="err" id="qa-err" role="alert"></p><div class="row2"><button type="button" class="btn" data-act="closeSheet">Batal</button><button type="submit" class="btn pri">Simpan tugas</button></div></form></div>` : `
         <input type="hidden" id="qa-date" name="date" value="${h(r.date || '')}"><input type="hidden" id="qa-time" name="time" value="${h(isBday ? '' : r.time || '')}">
         ${isBday ? '<input type="hidden" name="repeat" value="yearly">' : ''}
         <div class="qrows">
@@ -1698,7 +1944,7 @@ const SHEETS = {
         ${isNote ? '' : shareBox(S.sheet && S.sheet.shareTo)}
         <p class="err" id="qa-err" role="alert"></p>
         <div class="row2"><button type="button" class="btn" data-act="closeSheet">Batal</button><button type="submit" class="btn pri">${isNote ? 'Simpan catatan' : 'Simpan'}</button></div>
-      </form></div>`;
+      </form></div>`}`;
   },
   event(s) {
     const e = getEv(s.id); if (!e) return null;
@@ -1798,13 +2044,26 @@ const SHEETS = {
       <div id="srch-res">${searchResults(s)}</div></div>`;
   },
   today() { return todaySheetBody(); },
+  task(s) {
+    const t = s.tk, mine = !t.owner_id || t.owner_id === myId();
+    return `<div class="sh-body"><div class="sh-top"><h2>${s.isNew ? 'Tugas baru' : 'Detail tugas'}</h2><button type="button" class="icon-btn round" data-act="closeSheet" aria-label="Tutup">${ic('x', 18, 2.4)}</button></div>
+      <form class="stack" data-form="task" style="gap:14px" novalidate>
+        <div class="tk-title"><button type="button" class="tk-box ${t.done ? 'on' : ''}" data-act="tkDone" role="checkbox" aria-checked="${!!t.done}" aria-label="Tandai beres">${t.done ? ic('check', 15, 3) : ''}</button>
+        <label class="sr" for="tk-title">Judul tugas</label><input id="tk-title" class="qtitle" name="title" value="${h(t.title || '')}" placeholder="Apa yang perlu dikerjakan?" autocomplete="off" ${mine ? '' : 'readonly'}></div>
+        ${mine ? '' : `<div class="ps-warn" style="background:var(--p-l);color:var(--tx)">${ic('people', 18)}<span>Dititipkan oleh <b>${h(userName(t.owner_id))}</b>. Kamu bisa mencentangnya kalau sudah beres.</span></div>`}
+        ${taskFields(t, s, !mine)}
+        ${!s.isNew ? `<div class="tk-hist"><b>Riwayat</b><span>Dibuat ${h(fmtShort((t.created_at || '').slice(0, 10) || todayS()))}${t.assignee ? ' · dititipkan ke ' + h(userName(t.assignee)) : ''}${t.done && t.done_at ? ' · dicentang ' + h(userName(t.done_by || myId())) + ' ' + h(fmtShort(t.done_at.slice(0, 10))) : ''}</span></div>` : ''}
+        <p class="err" id="tk-err" role="alert"></p>
+        <div class="row2">${!s.isNew && mine ? `<button type="button" class="btn danger" data-act="tkDel">${ic('trash', 16)}Hapus</button>` : `<button type="button" class="btn" data-act="closeSheet">Tutup</button>`}${mine ? `<button type="submit" class="btn pri">Simpan</button>` : `<button type="button" class="btn pri" data-act="tkDone">${t.done ? 'Buka lagi' : 'Tandai beres'}</button>`}</div>
+      </form></div>`;
+  },
   pushSetup(s) {
     const step = (n, t, d, btn) => `<li class="ps-step"><span class="ps-n">${n}</span><span class="ps-t"><b>${t}</b><small>${d}</small>${btn || ''}</span></li>`;
     return `<div class="sh-body"><div class="sh-top"><h2>Siapkan notifikasi server</h2><button type="button" class="icon-btn round" data-act="closeSheet" aria-label="Tutup">${ic('x', 18, 2.4)}</button></div>
       ${s.why === 'SERVER' ? `<div class="ps-warn">${ic('info', 18)}<span>Server notifikasi belum ditemukan. Ikuti langkah 2 dan 3 dulu.</span></div>` : s.why === 'SQL' ? `<div class="ps-warn">${ic('info', 18)}<span>Tabel notifikasi belum ada. Jalankan langkah 1 dulu.</span></div>` : '<p class="muted" style="margin:0">Cukup sekali. Setelah itu semua akun di Ingetin bisa memakainya.</p>'}
       <ol class="ps-list">
-        ${step(1, 'Jalankan SQL', 'Supabase › SQL Editor › New query › tempel › Run.', `<button type="button" class="btn ghost ps-btn" data-act="copyFile" data-f="supabase-update-v3.1.sql">${ic('copy', 16)}Salin SQL</button>`)}
-        ${step(2, 'Buat Edge Function "push"', 'Supabase › Edge Functions › Deploy a new function › Via Editor. Beri nama <b>push</b>, hapus contoh kodenya, tempel kode ini, lalu Deploy.', `<button type="button" class="btn ghost ps-btn" data-act="copyFile" data-f="supabase/functions/push/index.ts">${ic('copy', 16)}Salin kode fungsi</button>`)}
+        ${step(1, 'Jalankan SQL (2 file)', 'Supabase › SQL Editor › New query › tempel › Run. Lakukan untuk kedua file, berurutan. Sudah pernah menjalankan v3.1? Cukup v3.3.', `<div style="display:flex;gap:8px;flex-wrap:wrap"><button type="button" class="btn ghost ps-btn" data-act="copyFile" data-f="supabase-update-v3.1.sql">${ic('copy', 16)}SQL v3.1</button><button type="button" class="btn ghost ps-btn" data-act="copyFile" data-f="supabase-update-v3.3.sql">${ic('copy', 16)}SQL v3.3 (Tugas)</button></div>`)}
+        ${step(2, 'Buat / perbarui Edge Function "push"', 'Supabase › Edge Functions › Deploy a new function › Via Editor. Beri nama <b>push</b>, hapus contoh kodenya, tempel kode ini, lalu Deploy. Sudah ada? Buka fungsi push › Code, ganti seluruh isinya dengan kode terbaru, lalu Deploy.', `<button type="button" class="btn ghost ps-btn" data-act="copyFile" data-f="supabase/functions/push/index.ts">${ic('copy', 16)}Salin kode fungsi</button>`)}
         ${step(3, 'Matikan "Verify JWT"', 'Buka fungsi push › Details. Matikan <b>Enforce JWT Verification</b> (atau Verify JWT), lalu Save.')}
         ${step(4, 'Nyalakan di sini', 'Kembali ke Pengaturan › Notifikasi, nyalakan <b>Notifikasi walau aplikasi ditutup</b>.')}
       </ol>
@@ -1934,9 +2193,13 @@ function quickInput() {
     const old = S.sheet.parsed; if (old) { r.location = old.location; r.notes = old.notes; }
   }
   S.sheet.parsed = r;
-  const pos = ta.selectionStart, hadFocus = document.activeElement === ta;
-  renderSheet();
-  const t2 = $('#qa-text'); if (hadFocus) { t2.focus(); t2.setSelectionRange(pos, pos); }
+  if (S.sheet.forceType === 'task' && r && text.trim()) { const tk = S.sheet.tk || {}; S.sheet.tk = { ...tk, title: r.title || r.noteText || tk.title || '', due: r.date || tk.due || '', time: r.time || tk.time || '', remind: tk.remind !== false }; }
+  // perbarui isi formulir TANPA mengganti kolom kalimat, supaya keyboard (mode angka) & kursor tidak ter-reset
+  const form = $('#sh form[data-form=quick]'), tmp = document.createElement('div');
+  tmp.innerHTML = SHEETS.quick(S.sheet);
+  const nf = tmp.querySelector('form'), oldK = form ? [...form.children] : [], newK = nf ? [...nf.children] : [];
+  if (form && oldK.length === newK.length) oldK.forEach((c, i) => { if (!c.classList.contains('qa-auto')) c.replaceWith(newK[i]); });
+  else { const pos = ta.selectionStart, hadFocus = document.activeElement === ta; renderSheet(); const t2 = $('#qa-text'); if (hadFocus && t2) { t2.focus(); t2.setSelectionRange(pos, pos); } }
   const st = $('.dstrip .on'); if (st) centerX($('.dstrip'), st);
 }
 async function ensurePerson(sel, newName, typed) {
@@ -1991,6 +2254,21 @@ function renderPicker() {
 
 /* ============ actions ============ */
 const A = {
+  tFilter(d) { S.tFilter = d.f; render(); },
+  tFold() { S.tDoneOpen = !S.tDoneOpen; render(); },
+  tDone(d) { const x = findItem(d.k); if (x) toggleTask(x); },
+  tOpen(d) {
+    const x = findItem(d.k); if (!x) return;
+    if (x.src === 'chk') { openSheet('event', { id: x.e.id }); return; }
+    const t = x.t; openSheet('task', { tk: { ...t, ev_key: x.ev ? x.ev.id : '' }, open: {} });
+  },
+  tkDate(d) { tkSync(); S.sheet.tk.due = d.d; if (!d.d) S.sheet.tk.time = ''; renderSheet(); const st = $('.dstrip .on'); if (st) centerX($('.dstrip'), st); },
+  tkTime(d) { tkSync(); S.sheet.tk.time = d.t; if (d.t && !S.sheet.tk.due) S.sheet.tk.due = todayS(); renderSheet(); },
+  async tkDone() { const t = S.sheet.tk; const x = findItem('t:' + t.id); if (!x) return; closeSheet(); await toggleTask(x); },
+  async tkDel() {
+    const t = S.sheet.tk; if (!(await confirmBox('Hapus tugas ini?', '“' + t.title + '” akan dihapus.', 'Hapus'))) return;
+    closeSheet(); const old = await remove('tasks', t.id); if (old) toast('Tugas dihapus', { label: 'Batalkan', fn: () => save('tasks', old) });
+  },
   openToday() { openSheet('today'); },
   pushSetup() { openSheet('pushSetup', {}); prefetchFiles(); },
   async pushTest() { try { await fnCall('POST', { test: true, endpoint: lsGet(PUSHK, '') }); toast('Terkirim. Tunggu beberapa detik.'); } catch (err) { toast(/terdaftar/.test(err.message) ? 'HP ini belum terdaftar. Matikan lalu nyalakan lagi.' : 'Gagal: ' + err.message); } },
@@ -2024,7 +2302,7 @@ const A = {
   setBack() { if (NAV.length && NAV[NAV.length - 1].view === 'pengaturan' && !NAV[NAV.length - 1].setPage) history.back(); else { S.setPage = null; render(); } },
   briefHide() { lsSet('ingetin:briefHide', todayS()); render(); },
   briefTest() { sendBrief(true); },
-  briefTime(d) { const c = briefCfg(); c.time = d.t; lsSet('ingetin:brief', c); render(); },
+  briefTime(d) { const c = briefCfg(); c.time = d.t; lsSet('ingetin:brief', c); syncFriendRem(); render(); },
   search() { openSheet('search', { q: '', f: 'all' }); },
   srchF(d) { S.sheet.f = d.f; const r = $('#srch-res'); if (r) r.innerHTML = searchResults(S.sheet); },
   unlock() { openSheet('pin', { mode: 'unlock', buf: '' }); },
@@ -2195,12 +2473,13 @@ function fieldSet(id) {
     });
     return;
   }
-  if (id === 'bf-time') { const c = briefCfg(); c.time = v || '07:00'; lsSet('ingetin:brief', c); render(); return; }
+  if (id === 'bf-time') { const c = briefCfg(); c.time = v || '07:00'; lsSet('ingetin:brief', c); syncFriendRem(); render(); return; }
   const btn = $(`[data-for="${id}"]`), lab = $('#' + id + '-v');
   if (lab) lab.textContent = v ? (inp.name === 'date' ? fmtDMY(v) : fmtTime(v)) : (inp.name === 'date' ? 'DD/MM/YYYY' : '--.--');
   if (btn) { btn.classList.toggle('unset', !v); btn.classList.remove('bad'); }
   const p = S.sheet && S.sheet.kind === 'quick' && S.sheet.parsed;
   if (S.sheet && S.sheet.kind === 'quick' && (id === 'qa-date' || id === 'qa-time')) { qaSync(); renderSheet(); }
+  if (S.sheet && S.sheet.tk && (id === 'tk-due' || id === 'tk-time')) { tkSync(); if (id === 'tk-time' && v && !S.sheet.tk.due) S.sheet.tk.due = todayS(); renderSheet(); }
 }
 const CHG = {
   remOff(el) { if (S.sheet && S.sheet.kind === 'event') return CHG.remEv(el); },
@@ -2211,7 +2490,7 @@ const CHG = {
     const all = f.querySelector('[data-act=shareAll]'); if (all) all.textContent = ids.length === S.data.friends.length ? 'Kosongkan' : 'Pilih semua';
   },
   themeCustom(el) { lsSet('ingetin:theme', 'custom:' + el.value); applyTheme(); render(); },
-  briefOpt(el) { const c = briefCfg(); c[el.value] = el.checked; lsSet('ingetin:brief', c); render(); },
+  briefOpt(el) { const c = briefCfg(); c[el.value] = el.checked; lsSet('ingetin:brief', c); syncFriendRem(); render(); },
   pinToggle(el) { if (el.checked) { el.checked = false; openSheet('pin', { mode: 'set', buf: '' }); } else { el.checked = true; openSheet('pin', { mode: 'verify', buf: '', next: 'off' }); } },
   mode(el) { lsSet('ingetin:mode', el.value); applyTheme(); render(); },
   repeatPick(el) {
@@ -2235,7 +2514,7 @@ const CHG = {
     if (S.sheet && S.sheet.kind === 'quick' && !S.sheet.parsed) S.sheet.parsed = { type: 'event', title: '', date: '', time: '', personId: '', newName: '', noteText: '', sel: el.value };
   },
   authTab(el) { S.authTab = el.value; render(); },
-  qaType(el) { qaSync(); const p = S.sheet.parsed; S.sheet.forceType = el.value; p.type = el.value === 'note' ? 'note' : 'event'; if (el.value === 'bday') { p.repeat = 'yearly'; } else if (p.repeat === 'yearly' && el.value === 'event') p.repeat = ''; if (el.value === 'note' && !p.noteText) p.noteText = p.title || ''; if (el.value !== 'note' && !p.title && p.noteText) p.title = p.noteText; S.sheet.rem = null; renderSheet(); },
+  qaType(el) { qaSync(); tkSync(); const p = S.sheet.parsed; if (el.value === 'task') { S.sheet.forceType = 'task'; S.sheet.tk = { title: (S.sheet.tk && S.sheet.tk.title) || p.title || p.noteText || '', due: p.date || '', time: p.time || '', remind: true }; S.sheet.open = {}; renderSheet(); return; } if (S.sheet.forceType === 'task' && S.sheet.tk) { p.title = S.sheet.tk.title; p.date = S.sheet.tk.due; p.time = S.sheet.tk.time; } S.sheet.forceType = el.value; p.type = el.value === 'note' ? 'note' : 'event'; if (el.value === 'bday') { p.repeat = 'yearly'; } else if (p.repeat === 'yearly' && el.value === 'event') p.repeat = ''; if (el.value === 'note' && !p.noteText) p.noteText = p.title || ''; if (el.value !== 'note' && !p.title && p.noteText) p.title = p.noteText; S.sheet.rem = null; renderSheet(); },
   async check(el) {
     const e = getEv(S.sheet.id); if (!e) return;
     const list = (e.checklist || []).map((x, i) => (i === +el.dataset.i ? { ...x, done: el.checked } : x));
@@ -2268,8 +2547,22 @@ const CHG = {
   }
 };
 const FORMS = {
+  async taskAdd(f) {
+    const inp = f.querySelector('input[name=q]'), text = inp.value.trim(); if (!text) { inp.focus(); return; }
+    const r = parseQuick(text);
+    let title = (r.title || r.noteText || '').trim(); if (title.length < 2) title = text;
+    const t = { title: title.charAt(0).toUpperCase() + title.slice(1), due: r.date || '', time: r.time || '', remind: true };
+    inp.value = ''; await saveTask(t, true); const i2 = $('#tk-q'); if (i2) i2.focus();
+  },
+  async task(f) {
+    tkSync(); const t = S.sheet.tk;
+    if (t.owner_id && t.owner_id !== myId()) { closeSheet(); return; }
+    if (!(t.title || '').trim()) { $('#tk-err').textContent = 'Judul tugasnya belum ada.'; flagField('#tk-title'); return; }
+    const isNew = !!S.sheet.isNew; closeSheet(); await saveTask(t, isNew);
+  },
   async quick(f) {
     const fd = new FormData(f), type = fd.get('type'), err = $('#qa-err');
+    if (type === 'task') { tkSync(); const t = S.sheet.tk; if (!(t.title || '').trim()) { err.textContent = 'Tulis tugasnya dulu.'; flagField('#qa-title'); return; } closeSheet(); await saveTask(t, true); return; }
     const r = S.sheet.parsed || {};
     const need = (k, msg) => { (S.sheet.open || (S.sheet.open = {}))[k] = true; qaSync(); renderSheet(); const e2 = $('#qa-err'); if (e2) e2.textContent = msg; flagField(`.qrow[data-row="${k}"]`); };
     if (type === 'note') {
@@ -2377,7 +2670,7 @@ document.addEventListener('click', (ev) => {
   ev.preventDefault(); if (el.dataset.busy) return;
   fn(el.dataset, el);
 });
-document.addEventListener('change', (ev) => { const el = ev.target; if (el.dataset && el.dataset.chg && CHG[el.dataset.chg]) CHG[el.dataset.chg](el); if (el.form && el.form.dataset.form === 'quick' && !(el.dataset && (el.dataset.chg === 'qaType' || el.dataset.chg === 'repeatPick'))) qaSync(); });
+document.addEventListener('change', (ev) => { const el = ev.target; if (el.dataset && el.dataset.chg && CHG[el.dataset.chg]) CHG[el.dataset.chg](el); if (el.form && el.form.dataset.form === 'quick' && !(el.dataset && (el.dataset.chg === 'qaType' || el.dataset.chg === 'repeatPick'))) { qaSync(); tkSync(); } if (el.form && el.form.dataset.form === 'task') tkSync(); });
 document.addEventListener('submit', async (ev) => {
   const f = ev.target; const fn = FORMS[f.dataset.form]; if (!fn) return;
   ev.preventDefault(); if (f.dataset.busy) return;
@@ -2387,7 +2680,8 @@ document.addEventListener('submit', async (ev) => {
 });
 let qaTimer;
 document.addEventListener('input', (ev) => {
-  if (ev.target.form && ev.target.form.dataset.form === 'quick' && ev.target.id !== 'qa-text') qaSync();
+  if (ev.target.form && ev.target.form.dataset.form === 'quick' && ev.target.id !== 'qa-text') { qaSync(); tkSync(); }
+  if (ev.target.form && ev.target.form.dataset.form === 'task') tkSync();
   if (ev.target.id === 'srch' && S.sheet && S.sheet.kind === 'search') { S.sheet.q = ev.target.value; const r = $('#srch-res'); if (r) r.innerHTML = searchResults(S.sheet); }
   if (ev.target.id === 'cari') { S.q = ev.target.value; const l = $('#frlist'); if (l) l.innerHTML = friendList(); }
   if (ev.target.id === 'pp-custom' || (ev.target.name === 'color' && ev.target.closest('[data-form=person]'))) {
@@ -2397,7 +2691,7 @@ document.addEventListener('input', (ev) => {
     if (ev.target.id === 'pp-custom') { const sw = $('#pp-custom-sw'); if (sw) sw.style.background = pair(v)[0]; }
   }
   if (ev.target.classList && ev.target.classList.contains('bad')) ev.target.classList.remove('bad');
-  if (ev.target.id === 'qa-text') { clearTimeout(qaTimer); qaTimer = setTimeout(quickInput, 250); }
+  if (ev.target.id === 'qa-text') { clearTimeout(qaTimer); qaTimer = setTimeout(quickInput, 450); }
   if (S.sheet && S.sheet.kind === 'quick' && ev.target.name === 'rem') { const f = ev.target.form; S.sheet.rem = [...f.querySelectorAll('input[name=rem]:checked')].map((x) => x.value); }
   if (['qa-title', 'qa-note', 'qa-loc', 'qa-notes'].includes(ev.target.id)) {
     const p = S.sheet && S.sheet.parsed; if (!p) return;
@@ -2539,7 +2833,7 @@ if ('serviceWorker' in navigator && location.protocol === 'https:') {
     reg.update().catch(() => {});
     document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') reg.update().catch(() => {}); });
   }).catch(() => {});
-  navigator.serviceWorker.addEventListener('message', (m) => { const id = m.data && m.data.openEv; if (id && getEv(id)) openSheet('event', { id }); });
+  navigator.serviceWorker.addEventListener('message', (m) => { const id = m.data && m.data.openEv; if (id && getEv(id)) openSheet('event', { id }); if (m.data && m.data.openView && VIEWS[m.data.openView]) { navPush(); S.view = m.data.openView; render(); } });
   navigator.serviceWorker.addEventListener('controllerchange', () => { if (hadCtrl && !reloaded && !S.sheet) { reloaded = true; location.reload(); } });
 }
 boot();

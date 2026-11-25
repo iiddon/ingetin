@@ -1,4 +1,4 @@
-const CACHE = 'ingetin-v23';
+const CACHE = 'ingetin-v24';
 const SHELL = ['./', './index.html', './config.js', './manifest.json', './icon.svg', './icon-192.png', './apple-touch-icon.png', './holidays.json'];
 
 self.addEventListener('install', (e) => {
@@ -28,15 +28,15 @@ self.addEventListener('push', (e) => {
   const title = d.title || 'Ingetin', tag = d.tag || 'ingetin-' + Date.now();
   e.waitUntil(self.registration.getNotifications({ tag }).then((l) => {
     if (l.length) return; // sudah tampil dari aplikasi
-    return self.registration.showNotification(title, { body: d.body || '', tag, renotify: true, icon: 'icon-192.png', badge: 'favicon-32.png', vibrate: [120, 60, 120], data: { ev: d.ev || '' } });
+    return self.registration.showNotification(title, { body: d.body || '', tag, renotify: true, icon: 'icon-192.png', badge: 'favicon-32.png', vibrate: [120, 60, 120], data: { ev: d.ev || '', view: d.view || '' } });
   }));
 });
 self.addEventListener('notificationclick', (e) => {
   e.notification.close();
-  const ev = (e.notification.data && e.notification.data.ev) || '';
+  const ev = (e.notification.data && e.notification.data.ev) || '', view = (e.notification.data && e.notification.data.view) || '';
   e.waitUntil(self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then((cs) => {
     const c = cs[0];
-    if (c) { if (ev) c.postMessage({ openEv: ev }); return c.focus(); }
-    return self.clients.openWindow(ev ? './?ev=' + encodeURIComponent(ev) : './');
+    if (c) { if (ev) c.postMessage({ openEv: ev }); else if (view) c.postMessage({ openView: view }); return c.focus(); }
+    return self.clients.openWindow(ev ? './?ev=' + encodeURIComponent(ev) : view ? './?view=' + view : './');
   }));
 });

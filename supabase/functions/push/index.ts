@@ -65,7 +65,7 @@ export function occDates(b: Ev, a: string, z: string) {
 }
 const DAYS: Record<string, number> = { 'h-7': 7, 'h-3': 3, 'h-1': 1, 'hari-h': 0 };
 
-export type Note = { key: string; title: string; body: string; ev: string };
+export type Note = { key: string; title: string; body: string; ev?: string; view?: string };
 // Semua pengingat yang jatuh tempo antara (now - WINDOW) dan now untuk satu pengguna.
 export function dueFor(uid: string, events: Ev[], friendRem: Record<string, string[]>, tz: number, now: number): Note[] {
   const local = new Date(now + tz * 60000), today = ymd(local);
@@ -98,6 +98,37 @@ export function dueFor(uid: string, events: Ev[], friendRem: Record<string, stri
   return out;
 }
 
+/* ---------- tugas & ringkasan pagi ---------- */
+export type Task = { id: string; owner_id: string; title: string; due?: string | null; time?: string | null; done?: boolean; remind?: boolean | null; assignee?: string | null; done_by?: string | null; event_id?: string | null; assign_notified?: boolean; done_notified?: boolean };
+export function dueTasks(uid: string, tasks: Task[], tz: number, now: number): Note[] {
+  const from = now - WINDOW_MIN * 60000, out: Note[] = [];
+  for (const t of tasks) {
+    if (t.done || t.remind === false || !t.due) continue;
+    if (!((t.owner_id === uid && !t.assignee) || t.assignee === uid)) continue;
+    const [hh, mm] = t.time ? t.time.split(':').map(Number) : [7, 0];
+    const tt = at(t.due, hh, mm || 0, tz);
+    if (tt > from && tt <= now) out.push({ key: 'task:' + t.id + '|t|' + t.due, title: 'Ingetin: ' + t.title, body: 'Tugas' + (t.time ? ' · ' + fmtTime(t.time) : ' hari ini'), view: 'tugas' });
+  }
+  return out;
+}
+type Brief = { on?: boolean; time?: string; today?: boolean; tomorrow?: boolean };
+export function briefFor(uid: string, b: Brief | null, events: Ev[], tasks: Task[], tz: number, now: number): Note | null {
+  if (!b || b.on === false) return null;
+  const [hh, mm] = (b.time || '07:00').split(':').map(Number);
+  const local = new Date(now + tz * 60000), today = ymd(local), tm = ymd(addDays(pd(today), 1));
+  const tt = at(today, hh, mm || 0, tz);
+  if (!(tt <= now && tt > now - WINDOW_MIN * 60000)) return null;
+  const on = (d: string) => events.filter((e) => occDates(e, d, d).length).map((e) => ({ ...e, date: d })).sort((x, y) => (x.time || '').localeCompare(y.time || ''));
+  const td = b.today === false ? [] : on(today), tmr = b.tomorrow === false ? [] : on(tm);
+  const tk = tasks.filter((t) => !t.done && t.due && t.due <= today && ((t.owner_id === uid && !t.assignee) || t.assignee === uid));
+  const lines: string[] = [];
+  if (td.length) lines.push(td.map((e) => (e.time ? fmtTime(e.time) + ' ' : '') + e.title).join(' · '));
+  if (tmr.length) lines.push('Besok: ' + tmr.map((e) => e.title).join(', '));
+  if (tk.length) lines.push(tk.length + ' tugas hari ini: ' + tk.slice(0, 3).map((t) => t.title).join(', ') + (tk.length > 3 ? ', …' : ''));
+  const n = td.length;
+  return { key: 'brief|' + today, title: n ? `Selamat pagi! ${n} hal hari ini` : 'Selamat pagi! Hari ini kosong', body: lines.join('\n') || 'Tidak ada acara hari ini. Nikmati harimu!', view: 'kalender' };
+}
+
 /* ---------- kirim ---------- */
 type Sub = { endpoint: string; user_id: string; sub: webpush.PushSubscription; tz_min: number };
 async function send(s: Sub, payload: Record<string, unknown>) {
@@ -109,12 +140,34 @@ async function send(s: Sub, payload: Record<string, unknown>) {
   return res.status;
 }
 
+// kabar titipan: ke teman saat dititipi, ke pemilik saat teman mencentang
+async function taskNews(tasks: Task[], byUser: Map<string, Sub[]>) {
+  let sent = 0;
+  const names = new Map<string, string>();
+  const nameOf = async (id: string) => { if (!names.has(id)) { const { data } = await sb.from('profiles').select('name').eq('id', id).maybeSingle(); names.set(id, (data && data.name) || 'Temanmu'); } return names.get(id)!; };
+  for (const t of tasks) {
+    if (t.assignee && t.assign_notified === false && !t.done) {
+      await sb.from('tasks').update({ assign_notified: true }).eq('id', t.id);
+      for (const s of byUser.get(t.assignee) || []) { await send(s, { title: (await nameOf(t.owner_id)) + ' menitipkan tugas', body: t.title + (t.due ? ' · tenggat ' + fmtLong(t.due) : ''), tag: 'assign-' + t.id, view: 'tugas' }).catch(() => 0); sent++; }
+    }
+    if (t.assignee && t.done && t.done_notified === false && t.done_by && t.done_by !== t.owner_id) {
+      await sb.from('tasks').update({ done_notified: true }).eq('id', t.id);
+      for (const s of byUser.get(t.owner_id) || []) { await send(s, { title: (await nameOf(t.done_by)) + ' menyelesaikan tugas', body: '✓ ' + t.title, tag: 'done-' + t.id, view: 'tugas' }).catch(() => 0); sent++; }
+    }
+  }
+  return sent;
+}
 async function run() {
   const { data: subs } = await sb.from('push_subs').select('endpoint, user_id, sub, tz_min');
   if (!subs || !subs.length) return { users: 0, sent: 0 };
   const byUser = new Map<string, Sub[]>();
   for (const s of subs as Sub[]) byUser.set(s.user_id, [...(byUser.get(s.user_id) || []), s]);
   const now = Date.now(); let sent = 0;
+  // tugas (tabel ada setelah SQL v3.3)
+  const uids = [...byUser.keys()];
+  let allTasks: Task[] | null = null;
+  { const r = await sb.from('tasks').select('*').or(`owner_id.in.(${uids.join(',')}),assignee.in.(${uids.join(',')})`); if (!r.error) allTasks = r.data as Task[]; }
+  if (allTasks) sent += await taskNews(allTasks, byUser);
   for (const [uid, list] of byUser) {
     const { data: fr } = await sb.from('friendships').select('friend_id').eq('user_id', uid);
     const fids = (fr || []).map((x) => x.friend_id);
@@ -122,13 +175,17 @@ async function run() {
     const { data: own } = await sb.from('events').select(cols).eq('owner_id', uid);
     let theirs: Ev[] = [];
     if (fids.length) { const { data } = await sb.from('events').select(cols).in('owner_id', fids).eq('shared', true); theirs = ((data || []) as Ev[]).filter((e) => !e.share_with || e.share_with.includes(uid)); }
-    const { data: pref } = await sb.from('push_prefs').select('friend_rem').eq('user_id', uid).maybeSingle();
-    const notes = dueFor(uid, [...((own || []) as Ev[]), ...theirs], (pref && pref.friend_rem) || {}, list[0].tz_min ?? 420, now);
+    let pref: { friend_rem?: Record<string, string[]>; brief?: Brief } | null = null;
+    { const r = await sb.from('push_prefs').select('friend_rem, brief').eq('user_id', uid).maybeSingle(); if (r.error) { const r2 = await sb.from('push_prefs').select('friend_rem').eq('user_id', uid).maybeSingle(); pref = r2.data; } else pref = r.data; }
+    const tasks = (allTasks || []).filter((t) => t.owner_id === uid || t.assignee === uid);
+    const tz = list[0].tz_min ?? 420, evs = [...((own || []) as Ev[]), ...theirs];
+    const notes = [...dueFor(uid, evs, (pref && pref.friend_rem) || {}, tz, now), ...dueTasks(uid, tasks, tz, now)];
+    const br = briefFor(uid, (pref && pref.brief) || null, evs, tasks, tz, now); if (br) notes.push(br);
     if (!notes.length) continue;
     // tandai terkirim; yang sudah ditandai (oleh server atau aplikasi yang sedang terbuka) dilewati
     const { data: fresh } = await sb.from('push_sent').upsert(notes.map((n) => ({ user_id: uid, key: n.key })), { onConflict: 'user_id,key', ignoreDuplicates: true }).select('key');
     const ok = new Set((fresh || []).map((x) => x.key));
-    for (const n of notes) if (ok.has(n.key)) for (const s of list) { await send(s, { title: n.title, body: n.body, tag: n.key, ev: n.ev }).catch(() => 0); sent++; }
+    for (const n of notes) if (ok.has(n.key)) for (const s of list) { await send(s, { title: n.title, body: n.body, tag: n.key, ev: n.ev || '', view: n.view || '' }).catch(() => 0); sent++; }
   }
   if (new Date().getUTCMinutes() === 0) await sb.from('push_sent').delete().lt('sent_at', new Date(now - 14 * 86400000).toISOString());
   return { users: byUser.size, sent };
