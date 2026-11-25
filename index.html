@@ -589,7 +589,7 @@ mark{background:var(--mark);color:inherit;border-radius:3px;padding:0 1px}
 
 <script type="module">
 /* ============ helpers ============ */
-const APP_VERSION = '3.4 (25 Nov 2026)';
+const APP_VERSION = '3.5 (25 Nov 2026)';
 const $ = (s, r = document) => r.querySelector(s);
 const h = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const pad = (n) => String(n).padStart(2, '0');
@@ -1282,7 +1282,7 @@ function renderShell() {
   </nav>`;
   const tb = navItems().map(([k, l, i]) => `<button type="button" class="tab ${S.view === k ? 'on' : ''}" data-act="go" data-v="${k}" ${S.view === k ? 'aria-current="page"' : ''}>${ic(i, 22)}${l}</button>`);
   const tabs = `<nav class="tabbar" aria-label="Menu">${tb.join('')}</nav>
-  <button type="button" class="fab" data-act="quick" aria-label="Tambah cepat">${ic('plus', 26, 2.4)}</button>`;
+  <button type="button" class="fab" data-act="quick" aria-label="${S.view === 'tugas' ? 'Tambah tugas' : S.view === 'teman' ? (S.personId && personById(S.personId) ? 'Tambah catatan' : 'Tambah teman') : 'Tambah acara'}">${ic('plus', 26, 2.4)}</button>`;
   return side + `<main id="main" class="${S.view === 'kalender' && S.kalMode !== 'daftar' ? 'fit' : ''}">${topNotes()}${VIEWS[S.view]()}</main>` + tabs;
 }
 function todayCounts() { return { due: dueReminders(), pend: pendingItems(), brief: briefDue() && lsGet('ingetin:briefHide', '') !== todayS() }; }
@@ -1467,6 +1467,8 @@ function noteRow(n) {
   return `<button type="button" class="note-row" style="border:none;text-align:left;width:100%" data-act="openPerson" data-id="${h(n.person_id || '')}">${p ? `<span class="pill" style="${cs(p.color)}">${h(p.name)}</span>` : ''}<span>${h(n.text)}</span></button>`;
 }
 
+const listTasks = (k) => { const T = todayS(); return taskItems().filter((x) => x.src === 'task' && x.due === k && (x.done || x.due >= T)).sort((a, b) => a.done - b.done || byDue(a, b)); };
+const tkBlock = (k) => { const l = listTasks(k); return l.length ? `<div class="stack" style="gap:8px">${l.map(taskRow).join('')}</div>` : ''; };
 function vMinggu() {
   const t = todayD(), isMonth = S.agTab === 'bulan';
   const seg = `<div class="seg ag-seg" role="radiogroup" aria-label="Rentang agenda">
@@ -1476,8 +1478,8 @@ function vMinggu() {
   if (!isMonth) {
     let out = '';
     for (let i = 0; i < 14; i++) {
-      const k = ymd(addDays(t, i)), evs = eventsOn(k), hd = holOn(k); if (!evs.length && !hd) continue;
-      out += `<div class="day-group"><h2>${i === 0 ? 'Hari ini' : i === 1 ? 'Besok' : HARI[pd(k).getDay()]}<small>${fmtShort(k)}</small></h2>${holRow(k)}${evs.map((e) => evRow(e)).join('')}</div>`;
+      const k = ymd(addDays(t, i)), evs = eventsOn(k), hd = holOn(k), tb = tkBlock(k); if (!evs.length && !hd && !tb) continue;
+      out += `<div class="day-group"><h2>${i === 0 ? 'Hari ini' : i === 1 ? 'Besok' : HARI[pd(k).getDay()]}<small>${fmtShort(k)}</small></h2>${holRow(k)}${evs.map((e) => evRow(e)).join('')}${tb}</div>`;
     }
     const later = eventsBetween(ymd(addDays(t, 14)), ymd(addDays(t, 90)));
     main = (out || `<div class="card"><div class="empty">${ic('cal', 32, 1.6)}<b>Belum ada acara dua minggu ke depan</b>Ketuk tombol <b style="font-size:inherit">+</b> lalu tulis seperti chat, misalnya “Budi ultah 14 Januari”.</div></div>`)
@@ -1492,13 +1494,14 @@ function vMinggu() {
     for (const e of evs) { const i = evInfo(e); if (i.who === 'Kamu') continue; const k = i.person ? i.person.id : 'f:' + e.owner_id; const cur = pmap.get(k) || { name: i.who, color: i.color, id: i.person ? i.person.id : '', n: 0, next: null }; cur.n++; if (e.date >= today && (!cur.next || e.date < cur.next.date)) cur.next = e; pmap.set(k, cur); }
     const busiest = (() => { const c = {}; for (const e of evs) c[e.date] = (c[e.date] || 0) + 1; const top = Object.entries(c).sort((p, q) => q[1] - p[1])[0]; return top && top[1] > 1 ? top : null; })();
     const f = S.agFilter || 'all';
-    const groupList = (arr, withHol) => {
-      const days = [...new Set([...arr.map((e) => e.date), ...(withHol ? holBetween(a, z) : [])])].sort();
-      return days.map((k) => { const d = pd(k), es = arr.filter((e) => e.date === k); return `<div class="day-group ${k < today ? 'past' : ''}"><h2>${k === today ? 'Hari ini' : HARI[d.getDay()] + ', ' + d.getDate()}<small>${k < today ? 'Sudah lewat' : rel(k)}</small></h2>${withHol ? holRow(k) : ''}${es.map((e) => evRow(e)).join('')}</div>`; }).join('');
+    const tkDays = taskItems().filter((x) => x.src === 'task' && x.due && x.due >= a && x.due <= z && (x.done || x.due >= today)).map((x) => x.due);
+    const groupList = (arr, withHol, onlyNext) => {
+      const days = [...new Set([...arr.map((e) => e.date), ...(withHol ? holBetween(a, z) : []), ...tkDays.filter((k) => !onlyNext || k >= today)])].sort();
+      return days.map((k) => { const d = pd(k), es = arr.filter((e) => e.date === k); return `<div class="day-group ${k < today ? 'past' : ''}"><h2>${k === today ? 'Hari ini' : HARI[d.getDay()] + ', ' + d.getDate()}<small>${k < today ? 'Sudah lewat' : rel(k)}</small></h2>${withHol ? holRow(k) : ''}${es.map((e) => evRow(e)).join('')}${tkBlock(k)}</div>`; }).join('');
     };
     const emptyBox = (title, text) => `<div class="card"><div class="empty">${ic('cal', 32, 1.6)}<b>${title}</b>${text}</div></div>`;
     let list = '';
-    if (f === 'next') list = groupList(next) || emptyBox('Tidak ada acara yang akan datang', `Semua acara di ${BULAN[mo]} sudah lewat.`);
+    if (f === 'next') list = groupList(next, false, true) || emptyBox('Tidak ada acara yang akan datang', `Semua acara di ${BULAN[mo]} sudah lewat.`);
     else if (f === 'prep') {
       list = prepEvs.map((e) => { const i = evInfo(e), mine = isMine(e); return `<section class="card prep">
         <button type="button" class="prep-h" data-act="openEvent" data-id="${h(e.id)}"><span class="dblock" style="${cs(i.color)}"><small>${HARI3[pd(e.date).getDay()]}</small><b>${pd(e.date).getDate()}</b></span><span class="ev-t"><b>${h(e.title)}</b><span>${h(rel(e.date))} · ${e.checklist.filter((c) => !c.done).length} belum beres</span></span>${ic('right', 18, 2.2)}</button>
@@ -1735,14 +1738,13 @@ function vTugas() {
   const empty = !g.late.length && !g.today.length && !g.later.length && !g.someday.length;
   return `<div class="tk-page">
     <div class="tk-head"><h1>Tugas</h1>${todayAll.length ? `<span class="muted tk-prog">${doneN} dari ${todayAll.length} beres</span>` : ''}<button type="button" class="icon-btn" data-act="search" aria-label="Cari acara, tugas, catatan, teman">${ic('search', 19, 2.2)}</button></div>
-    <form class="tk-add" data-form="taskAdd" autocomplete="off"><span class="tk-add-i">${ic('plus', 20, 2.4)}</span><label class="sr" for="tk-q">Tambah tugas</label><input id="tk-q" name="q" placeholder="Tambah tugas… mis. bayar listrik besok" enterkeyhint="done" autocomplete="off"><button type="submit" class="tk-send" aria-label="Simpan tugas">${ic('send', 17, 2.2)}</button></form>
     <div class="tk-chips" role="radiogroup" aria-label="Saring tugas">${chips.map(([k, l]) => `<button type="button" role="radio" aria-checked="${f === k}" class="tchip2 ${f === k ? 'on' : ''}" data-act="tFilter" data-f="${k}">${l}</button>`).join('')}</div>
     ${S.mode === 'cloud' && S.noTasks ? `<div class="ps-warn">${ic('info', 18)}<span>Tugas belum bisa tersimpan online. Jalankan <b>supabase-update-v3.3.sql</b> (Pengaturan › Notifikasi › Panduan).</span></div>` : ''}
     <div class="tk-cols">
       <div class="tk-col">${grp('late', 'Terlambat', g.late, 'late')}${grp('today', 'Hari ini', g.today)}</div>
       <div class="tk-col">${grp('later', 'Nanti', g.later)}${grp('someday', 'Kapan-kapan', g.someday)}</div>
     </div>
-    ${empty ? `<div class="empty">${ic('tasks', 34, 1.6)}<b>${f === 'dari' ? 'Belum ada titipan dari teman' : f === 'titip' ? 'Belum ada tugas yang kamu titipkan' : 'Belum ada tugas'}</b>Ketik di kolom atas, mis. “bayar listrik besok jam 7 malam”.</div>` : ''}
+    ${empty ? `<div class="empty">${ic('tasks', 34, 1.6)}<b>${f === 'dari' ? 'Belum ada titipan dari teman' : f === 'titip' ? 'Belum ada tugas yang kamu titipkan' : 'Belum ada tugas'}</b>Ketuk tombol <b style="font-size:inherit">+</b> untuk menambah tugas.</div>` : ''}
     ${g.done.length ? `<section class="tk-grp"><button type="button" class="tk-gh tk-fold" data-act="tFold" aria-expanded="${!!S.tDoneOpen}"><h2 class="muted">Selesai</h2><span class="tk-n">${g.done.length}</span>${ic(S.tDoneOpen ? 'down' : 'right', 18, 2.2)}</button>${S.tDoneOpen ? `<div class="stack" style="gap:8px">${g.done.map(taskRow).join('')}</div>` : ''}</section>` : ''}
   </div>`;
 }
@@ -2363,7 +2365,11 @@ const A = {
     render();
     if (!window.matchMedia('(min-width:1100px)').matches) scrollWithin($('#main'), $('.aside'), 12);
   },
-  quick() { openSheet('quick', { text: '', parsed: null }); },
+  quick() {
+    if (S.view === 'teman') { const p = S.personId && personById(S.personId); if (p) openSheet('note', { person: p.id }); else openSheet('person', {}); return; }
+    if (S.view === 'tugas') { openSheet('quick', { text: '', parsed: null, forceType: 'task', tk: { title: '', due: '', time: '', remind: true } }); return; }
+    openSheet('quick', { text: '', parsed: null });
+  },
   qaRow(d) { qaSync(); const o = S.sheet.open || (S.sheet.open = {}); o[d.r] = !o[d.r]; const box = $(`.qrow[data-row="${d.r}"]`); if (box) { box.classList.toggle('open', o[d.r]); box.querySelector('.qrow-b').hidden = !o[d.r]; box.querySelector('.qrow-h').setAttribute('aria-expanded', o[d.r]); if (o[d.r]) { const st = box.querySelector('.dstrip .on'); if (st) centerX(box.querySelector('.dstrip'), st); scrollWithin(box.closest('.sheet'), box, 12); } } },
   qaDate(d) { qaSync(); S.sheet.parsed.date = d.d; renderSheet(); const st = $('.dstrip .on'); if (st) centerX($('.dstrip'), st); },
   qaTime(d) { qaSync(); S.sheet.parsed.time = d.t; renderSheet(); },
