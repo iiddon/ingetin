@@ -564,12 +564,16 @@ mark{background:var(--mark);color:inherit;border-radius:3px;padding:0 1px}
 .dialog p{margin:0;font-size:15px;line-height:1.5}
 .dialog .bd2{position:fixed;inset:0}
 #dlg .backdrop{z-index:60}
-.toast{position:fixed;left:50%;bottom:calc(150px + var(--sab));transform:translateX(-50%);z-index:70;width:min(420px,calc(100vw - 32px));box-sizing:border-box;background:var(--card);color:var(--tx);border:1px solid var(--bd);border-radius:16px;padding:10px 10px 10px 12px;display:flex;align-items:center;gap:12px;font-size:14px;font-weight:600;line-height:1.4;box-shadow:0 12px 32px rgba(17,24,39,.16);animation:toastIn .24s cubic-bezier(.2,.8,.2,1)}
-@keyframes toastIn{from{transform:translate(-50%,24px);opacity:0}to{transform:translate(-50%,0);opacity:1}}
-.toast-i{width:32px;height:32px;border-radius:10px;background:var(--p-l);color:var(--p);display:flex;align-items:center;justify-content:center;flex-shrink:0}
-.toast-t{flex:1;min-width:0;text-align:left;word-break:break-word}
-.toast button{flex-shrink:0;border:none;background:var(--p);color:#fff;font-weight:800;font-size:13px;min-height:36px;padding:0 14px;border-radius:10px}
+.toast{position:fixed;left:50%;top:calc(10px + var(--sat, env(safe-area-inset-top, 0px)));transform:translateX(-50%);z-index:70;max-width:min(440px,calc(100vw - 24px));width:max-content;box-sizing:border-box;background:var(--tx);color:var(--card);border-radius:999px;padding:6px 6px 6px 8px;display:flex;align-items:center;gap:8px;font-size:13.5px;font-weight:700;line-height:1.3;box-shadow:0 8px 24px rgba(17,24,39,.22);animation:toastIn .22s cubic-bezier(.2,.8,.2,1);touch-action:none;cursor:pointer}
+.toast.out{animation:toastOut .18s ease-in forwards}
+.toast.bad{background:#B91C1C;color:#fff}
+@keyframes toastIn{from{transform:translate(-50%,-16px);opacity:0}to{transform:translate(-50%,0);opacity:1}}
+@keyframes toastOut{to{transform:translate(-50%,-14px);opacity:0}}
+.toast-i{width:26px;height:26px;border-radius:50%;background:rgba(255,255,255,.16);color:inherit;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.toast-t{min-width:0;text-align:left;word-break:break-word;padding-right:8px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.toast button{flex-shrink:0;border:none;background:var(--p);color:#fff;font-weight:800;font-size:13px;min-height:32px;padding:0 14px;border-radius:999px}
 .toast button:active{transform:scale(.95)}
+@media (prefers-reduced-motion:reduce){.toast,.toast.out{animation:none}}
 @media (min-width:1000px){.toast{bottom:32px}}
 @keyframes up{from{transform:translateY(24px);opacity:0}to{transform:none;opacity:1}}
 @keyframes fade{from{opacity:0}}
@@ -585,11 +589,11 @@ mark{background:var(--mark);color:inherit;border-radius:3px;padding:0 1px}
 <div id="sh"></div>
 <div id="pick"></div>
 <div id="dlg"></div>
-<div id="toast" aria-live="polite"></div>
+<div id="toast" aria-live="polite" style="position:fixed;inset:0 0 auto 0;z-index:70;pointer-events:none"></div>
 
 <script type="module">
 /* ============ helpers ============ */
-const APP_VERSION = '3.5 (25 Nov 2026)';
+const APP_VERSION = '3.6 (25 Nov 2026)';
 const $ = (s, r = document) => r.querySelector(s);
 const h = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const pad = (n) => String(n).padStart(2, '0');
@@ -1209,13 +1213,26 @@ function scrollWithin(box, el, offset = 12, center) {
 function centerX(box, el) { if (!box || !el) return; box.scrollLeft = el.offsetLeft - (box.clientWidth - el.offsetWidth) / 2; }
 function flagField(sel) { const el = $(sel); if (!el) return; el.classList.add('bad'); scrollWithin(el.closest('.sheet') || $('#main'), el, 12, true); }
 let toastTimer;
+// pil kecil di atas: info 1,6 dtk, dengan Batalkan 4 dtk, error tetap sampai diketuk.
+// Hilang saat mengetuk di tempat lain, menggulir, atau digeser ke atas. Hanya satu sekaligus.
+function toastHide(now) {
+  clearTimeout(toastTimer); const el = $('#toast'), t = el && el.firstElementChild; if (!t) return;
+  if (now) { el.innerHTML = ''; return; }
+  t.classList.add('out'); setTimeout(() => { if (el.firstElementChild === t) el.innerHTML = ''; }, 180);
+}
 function toast(msg, action) {
   const el = $('#toast'); clearTimeout(toastTimer);
   const bad = /^(Gagal|Terjadi kesalahan|Tidak bisa)/.test(msg);
-  el.innerHTML = `<div class="toast" role="status"><span class="toast-i" ${bad ? 'style="background:#FEE2E2;color:#B91C1C"' : ''}>${ic(bad ? 'x' : 'check', 18, 2.6)}</span><span class="toast-t">${h(msg)}</span>${action ? `<button type="button" id="toast-act">${h(action.label)}</button>` : ''}</div>`;
-  if (action) $('#toast-act').onclick = () => { el.innerHTML = ''; action.fn(); };
-  toastTimer = setTimeout(() => (el.innerHTML = ''), action ? 6000 : 3200);
+  el.innerHTML = `<div class="toast ${bad ? 'bad' : ''}" role="${bad ? 'alert' : 'status'}" style="pointer-events:auto" data-bad="${bad ? 1 : ''}"><span class="toast-i">${ic(bad ? 'x' : 'check', 15, 2.8)}</span><span class="toast-t">${h(msg)}</span>${action ? `<button type="button" id="toast-act">${h(action.label)}</button>` : ''}</div>`;
+  const t = el.firstElementChild;
+  if (action) $('#toast-act').onclick = (e) => { e.stopPropagation(); toastHide(true); action.fn(); };
+  t.onclick = () => toastHide();
+  let y0 = null; t.addEventListener('pointerdown', (e) => { y0 = e.clientY; }); t.addEventListener('pointermove', (e) => { if (y0 != null && y0 - e.clientY > 12) { y0 = null; toastHide(); } });
+  if (!bad) toastTimer = setTimeout(() => toastHide(), action ? 4000 : 1600);
 }
+// ketuk di tempat lain / gulir -> toast info langsung hilang
+document.addEventListener('pointerdown', (e) => { const t = $('#toast') && $('#toast').firstElementChild; if (t && !t.dataset.bad && !t.contains(e.target)) toastHide(); }, true);
+document.addEventListener('scroll', () => { const t = $('#toast') && $('#toast').firstElementChild; if (t && !t.dataset.bad) toastHide(); }, true);
 function confirmBox(msg, ok = 'Ya', danger) {
   return new Promise((res) => {
     const el = $('#dlg');
@@ -1824,7 +1841,7 @@ async function toggleTask(x) {
     const { error } = await S.sb.rpc('set_task_done', { p_id: x.t.id, p_done: now }); if (error) toast('Gagal: ' + error.message);
   }
   if (now && 'vibrate' in navigator) navigator.vibrate(12);
-  toast(now ? 'Beres! ' + x.title : 'Dibuka lagi', now ? { label: 'Batalkan', fn: () => { const y = findItem(x.k); if (y) toggleTask(y); } } : null);
+  toast(now ? 'Beres' : 'Dibuka lagi', now ? { label: 'Batalkan', fn: () => { const y = findItem(x.k); if (y) toggleTask(y); } } : null);
 }
 const taskDays = (key) => taskItems().filter((x) => x.due === key);
 const VIEWS = { kalender: vKalender, minggu: vMinggu, tugas: vTugas, teman: vTeman, pengaturan: vPengaturan };
