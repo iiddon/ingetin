@@ -99,12 +99,13 @@ export function dueFor(uid: string, events: Ev[], friendRem: Record<string, stri
 }
 
 /* ---------- tugas & ringkasan pagi ---------- */
-export type Task = { id: string; owner_id: string; title: string; due?: string | null; time?: string | null; done?: boolean; remind?: boolean | null; assignee?: string | null; done_by?: string | null; event_id?: string | null; assign_notified?: boolean; done_notified?: boolean };
+export type Task = { id: string; owner_id: string; title: string; due?: string | null; time?: string | null; done?: boolean; remind?: boolean | null; assignee?: string | null; assignees?: string[] | null; notified?: string[] | null; done_by?: string | null; event_id?: string | null; assign_notified?: boolean; done_notified?: boolean };
+export const asgOf = (t: Task) => (t.assignees && t.assignees.length ? t.assignees : t.assignee ? [t.assignee] : []);
 export function dueTasks(uid: string, tasks: Task[], tz: number, now: number): Note[] {
   const from = now - WINDOW_MIN * 60000, out: Note[] = [];
   for (const t of tasks) {
     if (t.done || t.remind === false || !t.due) continue;
-    if (!((t.owner_id === uid && !t.assignee) || t.assignee === uid)) continue;
+    if (!((t.owner_id === uid && !asgOf(t).length) || asgOf(t).includes(uid))) continue;
     const [hh, mm] = t.time ? t.time.split(':').map(Number) : [7, 0];
     const tt = at(t.due, hh, mm || 0, tz);
     if (tt > from && tt <= now) out.push({ key: 'task:' + t.id + '|t|' + t.due, title: 'Ingetin: ' + t.title, body: 'Tugas' + (t.time ? ' · ' + fmtTime(t.time) : ' hari ini'), view: 'tugas' });
@@ -120,7 +121,7 @@ export function briefFor(uid: string, b: Brief | null, events: Ev[], tasks: Task
   if (!(tt <= now && tt > now - WINDOW_MIN * 60000)) return null;
   const on = (d: string) => events.filter((e) => occDates(e, d, d).length).map((e) => ({ ...e, date: d })).sort((x, y) => (x.time || '').localeCompare(y.time || ''));
   const td = b.today === false ? [] : on(today), tmr = b.tomorrow === false ? [] : on(tm);
-  const tk = tasks.filter((t) => !t.done && t.due && t.due <= today && ((t.owner_id === uid && !t.assignee) || t.assignee === uid));
+  const tk = tasks.filter((t) => !t.done && t.due && t.due <= today && ((t.owner_id === uid && !asgOf(t).length) || asgOf(t).includes(uid)));
   const lines: string[] = [];
   if (td.length) lines.push(td.map((e) => (e.time ? fmtTime(e.time) + ' ' : '') + e.title).join(' · '));
   if (tmr.length) lines.push('Besok: ' + tmr.map((e) => e.title).join(', '));
@@ -140,19 +141,42 @@ async function send(s: Sub, payload: Record<string, unknown>) {
   return res.status;
 }
 
-// kabar titipan: ke teman saat dititipi, ke pemilik saat teman mencentang
+// kabar titipan: ke teman saat dititipi, ke semua anggota saat ada yang mengerjakan, dan pesan obrolan baru
 async function taskNews(tasks: Task[], byUser: Map<string, Sub[]>) {
   let sent = 0;
   const names = new Map<string, string>();
   const nameOf = async (id: string) => { if (!names.has(id)) { const { data } = await sb.from('profiles').select('name').eq('id', id).maybeSingle(); names.set(id, (data && data.name) || 'Temanmu'); } return names.get(id)!; };
+  const push = async (to: string[], payload: Record<string, unknown>) => { for (const u of to) for (const s of byUser.get(u) || []) { await send(s, payload).catch(() => 0); sent++; } };
+  const multi = tasks.some((t) => Array.isArray(t.notified));
   for (const t of tasks) {
-    if (t.assignee && t.assign_notified === false && !t.done) {
-      await sb.from('tasks').update({ assign_notified: true }).eq('id', t.id);
-      for (const s of byUser.get(t.assignee) || []) { await send(s, { title: (await nameOf(t.owner_id)) + ' menitipkan tugas', body: t.title + (t.due ? ' · tenggat ' + fmtLong(t.due) : ''), tag: 'assign-' + t.id, view: 'tugas' }).catch(() => 0); sent++; }
+    const ag = asgOf(t);
+    // dititipi
+    if (ag.length && !t.done) {
+      const fresh = multi ? ag.filter((u) => !(t.notified || []).includes(u)) : (t.assign_notified === false ? ag : []);
+      if (fresh.length) {
+        await sb.from('tasks').update(multi ? { notified: ag, assign_notified: true } : { assign_notified: true }).eq('id', t.id);
+        const others = ag.length > 1 ? ` (bersama ${ag.length - 1} teman lain · cukup salah satu)` : '';
+        await push(fresh, { title: (await nameOf(t.owner_id)) + ' menitipkan tugas', body: t.title + (t.due ? ' · tenggat ' + fmtLong(t.due) : '') + others, tag: 'assign-' + t.id, view: 'tugas' });
+      }
     }
-    if (t.assignee && t.done && t.done_notified === false && t.done_by && t.done_by !== t.owner_id) {
+    // sudah dikerjakan (cukup salah satu): kabari pemilik & penerima lain
+    if (ag.length && t.done && t.done_notified === false && t.done_by) {
       await sb.from('tasks').update({ done_notified: true }).eq('id', t.id);
-      for (const s of byUser.get(t.owner_id) || []) { await send(s, { title: (await nameOf(t.done_by)) + ' menyelesaikan tugas', body: '✓ ' + t.title, tag: 'done-' + t.id, view: 'tugas' }).catch(() => 0); sent++; }
+      const to = [t.owner_id, ...ag].filter((u, i, a) => u !== t.done_by && a.indexOf(u) === i);
+      await push(to, { title: (await nameOf(t.done_by)) + ' sudah mengerjakan', body: '✓ ' + t.title, tag: 'done-' + t.id, view: 'tugas' });
+    }
+  }
+  // pesan obrolan baru
+  const { data: cms, error } = await sb.from('task_comments').select('id, task_id, author, text, kind').eq('notified', false).order('created_at').limit(200);
+  if (!error && cms && cms.length) {
+    await sb.from('task_comments').update({ notified: true }).in('id', cms.map((c) => c.id));
+    for (const c of cms) {
+      if (c.kind === 'sys') continue;
+      let t = tasks.find((x) => x.id === c.task_id);
+      if (!t) { const r = await sb.from('tasks').select('*').eq('id', c.task_id).maybeSingle(); t = (r.data as Task) || undefined; }
+      if (!t) continue;
+      const to = [t.owner_id, ...asgOf(t)].filter((u, i, a) => u !== c.author && a.indexOf(u) === i);
+      await push(to, { title: (await nameOf(c.author)) + ' · ' + t.title, body: c.text.length > 140 ? c.text.slice(0, 137) + '…' : c.text, tag: 'chat-' + t.id, view: 'tugas' });
     }
   }
   return sent;
@@ -166,7 +190,11 @@ async function run() {
   // tugas (tabel ada setelah SQL v3.3)
   const uids = [...byUser.keys()];
   let allTasks: Task[] | null = null;
-  { const r = await sb.from('tasks').select('*').or(`owner_id.in.(${uids.join(',')}),assignee.in.(${uids.join(',')})`); if (!r.error) allTasks = r.data as Task[]; }
+  {
+    const r = await sb.from('tasks').select('*').or(`owner_id.in.(${uids.join(',')}),assignee.in.(${uids.join(',')}),assignees.ov.{${uids.join(',')}}`);
+    if (!r.error) allTasks = r.data as Task[];
+    else { const r2 = await sb.from('tasks').select('*').or(`owner_id.in.(${uids.join(',')}),assignee.in.(${uids.join(',')})`); if (!r2.error) allTasks = r2.data as Task[]; }
+  }
   if (allTasks) sent += await taskNews(allTasks, byUser);
   for (const [uid, list] of byUser) {
     const { data: fr } = await sb.from('friendships').select('friend_id').eq('user_id', uid);
@@ -177,7 +205,7 @@ async function run() {
     if (fids.length) { const { data } = await sb.from('events').select(cols).in('owner_id', fids).eq('shared', true); theirs = ((data || []) as Ev[]).filter((e) => !e.share_with || e.share_with.includes(uid)); }
     let pref: { friend_rem?: Record<string, string[]>; brief?: Brief } | null = null;
     { const r = await sb.from('push_prefs').select('friend_rem, brief').eq('user_id', uid).maybeSingle(); if (r.error) { const r2 = await sb.from('push_prefs').select('friend_rem').eq('user_id', uid).maybeSingle(); pref = r2.data; } else pref = r.data; }
-    const tasks = (allTasks || []).filter((t) => t.owner_id === uid || t.assignee === uid);
+    const tasks = (allTasks || []).filter((t) => t.owner_id === uid || asgOf(t).includes(uid));
     const tz = list[0].tz_min ?? 420, evs = [...((own || []) as Ev[]), ...theirs];
     const notes = [...dueFor(uid, evs, (pref && pref.friend_rem) || {}, tz, now), ...dueTasks(uid, tasks, tz, now)];
     const br = briefFor(uid, (pref && pref.brief) || null, evs, tasks, tz, now); if (br) notes.push(br);

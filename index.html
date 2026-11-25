@@ -61,7 +61,10 @@ main{overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;overscro
 @media (min-width:1000px){
   .app{grid-template-columns:208px 1fr}
   .side{display:flex;flex-direction:column;gap:6px;background:var(--card);border-right:1px solid var(--bd);padding:calc(24px + var(--sat)) 16px calc(20px + var(--sab));overflow-y:auto}
-  .tabbar,.fab{display:none}
+  .tabbar{display:none}
+  .fab{bottom:calc(28px + var(--sab));right:calc(28px + var(--sar))}
+  .fab.kal{display:none}
+  body.has-dock .fab{display:none}
   main{padding:calc(24px + var(--sat)) 24px calc(24px + var(--sab))}
 }
 .brand{display:flex;align-items:center;gap:10px;padding:0 8px 20px}
@@ -500,6 +503,23 @@ mark{background:var(--mark);color:inherit;border-radius:3px;padding:0 1px}
 #sh.docked .backdrop{display:none}
 #sh.docked .sheet{left:auto;right:20px;top:20px;bottom:20px;transform:none;width:400px;max-height:none;border:1px solid var(--bd);box-shadow:0 12px 40px rgba(17,24,39,.12);animation:none}
 @media (min-width:1100px){body.has-dock main{padding-right:440px}}
+.tk-av{gap:0}.tk-av>*+*{margin-left:-8px}.tk-av .av,.tk-av>span{box-shadow:0 0 0 2px var(--card);border-radius:50%}
+.tk-more{width:26px;height:26px;border-radius:50%;background:var(--bd);color:var(--mu);font-size:11px;font-weight:800;display:grid;place-items:center}
+.tk-chat{font-weight:700}.tk-chat.on{color:var(--p)}
+.tk-chatbox{display:flex;flex-direction:column;gap:8px}
+.cm-list{display:flex;flex-direction:column;gap:6px;max-height:300px;overflow-y:auto;padding:10px;border-radius:16px;background:var(--bg);border:1px solid var(--bd);overscroll-behavior:contain}
+.tk-chat-empty{font-size:13px;text-align:center;margin:8px 0}
+.cm{align-self:flex-start;max-width:82%;display:flex;flex-direction:column;gap:2px;padding:8px 12px;border-radius:16px 16px 16px 4px;background:var(--card);border:1px solid var(--bd);font-size:14px;line-height:1.4;word-break:break-word}
+.cm b{font-size:12px;color:var(--p)}
+.cm small{font-size:10.5px;color:var(--mu);align-self:flex-end}
+.cm.me{align-self:flex-end;background:var(--p);border-color:var(--p);color:#fff;border-radius:16px 16px 4px 16px}
+.cm.me small{color:rgba(255,255,255,.75)}
+.cm.pending{opacity:.6}
+.cm-sys{align-self:center;font-size:12px;color:var(--mu);background:var(--card);border:1px solid var(--bd);padding:3px 10px;border-radius:999px;text-align:center}
+.cm-day{align-self:center;font-size:11px;font-weight:800;color:var(--mu);text-transform:uppercase;letter-spacing:.04em;margin:4px 0}
+.cm-form{display:flex;gap:8px;align-items:flex-end}
+.cm-form textarea{flex:1;min-height:44px;max-height:120px;resize:none;border:1.5px solid var(--bd);border-radius:14px;padding:11px 12px;font:inherit;font-size:16px;background:var(--card);color:var(--tx);outline:none}
+.cm-form textarea:focus{border-color:var(--p)}
 .ps-list{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:14px}
 .ps-step{display:flex;gap:12px;align-items:flex-start}
 .ps-n{width:28px;height:28px;border-radius:50%;background:var(--p);color:#fff;display:grid;place-items:center;font-weight:800;font-size:14px;flex-shrink:0}
@@ -573,8 +593,10 @@ mark{background:var(--mark);color:inherit;border-radius:3px;padding:0 1px}
 .toast-t{min-width:0;text-align:left;word-break:break-word;padding-right:8px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
 .toast button{flex-shrink:0;border:none;background:var(--p);color:#fff;font-weight:800;font-size:13px;min-height:32px;padding:0 14px;border-radius:999px}
 .toast button:active{transform:scale(.95)}
+@media (min-width:1000px){.toast{left:auto;right:24px;top:20px;transform:none;animation-name:toastInR}.toast.out{animation-name:toastOutR}}
+@keyframes toastInR{from{transform:translateY(-16px);opacity:0}to{transform:none;opacity:1}}
+@keyframes toastOutR{to{transform:translateY(-14px);opacity:0}}
 @media (prefers-reduced-motion:reduce){.toast,.toast.out{animation:none}}
-@media (min-width:1000px){.toast{bottom:32px}}
 @keyframes up{from{transform:translateY(24px);opacity:0}to{transform:none;opacity:1}}
 @keyframes fade{from{opacity:0}}
 @keyframes pop{from{opacity:0;transform:translate(-50%,-48%) scale(.97)}}
@@ -593,7 +615,7 @@ mark{background:var(--mark);color:inherit;border-radius:3px;padding:0 1px}
 
 <script type="module">
 /* ============ helpers ============ */
-const APP_VERSION = '3.6 (25 Nov 2026)';
+const APP_VERSION = '3.7 (25 Nov 2026)';
 const $ = (s, r = document) => r.querySelector(s);
 const h = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const pad = (n) => String(n).padStart(2, '0');
@@ -679,7 +701,7 @@ const LKEY = 'ingetin:data', CKEY = 'ingetin:cfg', DKEY = 'ingetin:dismissed', N
 const S = {
   view: 'kalender', month: (() => { const d = todayD(); d.setDate(1); return d; })(), sel: todayS(),
   personId: null, q: '', authTab: 'masuk',
-  data: { people: [], events: [], notes: [], friends: [], tasks: [] }, tFilter: 'semua',
+  data: { people: [], events: [], notes: [], friends: [], tasks: [], comments: [] }, tFilter: 'semua',
   agTab: 'minggu', kalMode: (() => { try { return JSON.parse(localStorage.getItem('ingetin:kalMode')) === 'daftar' ? 'daftar' : 'bulan'; } catch { return 'bulan'; } })(),
   mode: 'local', sb: null, session: null, me: null, sheet: null, busy: false
 };
@@ -695,11 +717,11 @@ const COLS = {
   people: ['id', 'owner_id', 'name', 'color', 'linked_user_id', 'created_at'],
   events: ['id', 'owner_id', 'person_id', 'title', 'date', 'time', 'location', 'notes', 'shared', 'checklist', 'reminders', 'repeat', 'birth_year', 'occ', 'kind', 'share_with', 'created_at', 'updated_at'],
   notes: ['id', 'owner_id', 'person_id', 'text', 'kind', 'created_at'],
-  tasks: ['id', 'owner_id', 'title', 'due', 'time', 'notes', 'done', 'done_at', 'done_by', 'event_id', 'event_date', 'assignee', 'remind', 'created_at', 'updated_at']
+  tasks: ['id', 'owner_id', 'title', 'due', 'time', 'notes', 'done', 'done_at', 'done_by', 'event_id', 'event_date', 'assignee', 'assignees', 'remind', 'created_at', 'updated_at']
 };
 const pick = (t, r) => { const o = {}; for (const c of COLS[t]) if (r[c] !== undefined) o[c] = r[c]; return o; };
 const Local = {
-  load() { const d = lsGet(LKEY, null) || { people: [], events: [], notes: [] }; return { people: d.people || [], events: d.events || [], notes: d.notes || [], tasks: d.tasks || [], friends: [] }; },
+  load() { const d = lsGet(LKEY, null) || { people: [], events: [], notes: [] }; return { people: d.people || [], events: d.events || [], notes: d.notes || [], tasks: d.tasks || [], comments: [], friends: [] }; },
   persist() { const { people, events, notes, tasks } = S.data; lsSet(LKEY, { people, events, notes, tasks }); },
   async put() { this.persist(); }, async del() { this.persist(); }
 };
@@ -717,7 +739,9 @@ const Cloud = {
     let tasks = [];
     const t = await sb.from('tasks').select('*');
     if (t.error) { S.noTasks = true; } else { S.noTasks = false; tasks = t.data; }
-    return { people: p.data, events: e.data, notes: n.data, friends, tasks };
+    let comments = [];
+    if (!S.noTasks) { const c = await sb.from('task_comments').select('*').order('created_at').limit(1000); S.noChat = !!c.error; if (!c.error) comments = c.data; }
+    return { people: p.data, events: e.data, notes: n.data, friends, tasks, comments };
   },
   async put(t, row) {
     let { error } = await S.sb.from(t).upsert(pick(t, row));
@@ -725,6 +749,11 @@ const Cloud = {
       // database belum diperbarui (kolom share_with belum ada): simpan tanpa kolom itu
       const r = pick(t, row); delete r.share_with; ({ error } = await S.sb.from(t).upsert(r));
       if (!error && !Cloud._warned) { Cloud._warned = 1; toast('Database perlu diperbarui supaya bisa memilih teman. Lihat Pengaturan › Akun'); }
+    }
+    if (error && t === 'tasks' && /assignees/.test(error.message || '')) {
+      // database belum v3.7: simpan dengan satu penerima saja
+      const r = pick(t, row); delete r.assignees; ({ error } = await S.sb.from(t).upsert(r));
+      if (!error && !Cloud._warn37) { Cloud._warn37 = 1; toast('Jalankan supabase-update-v3.7.sql supaya bisa titip ke beberapa teman & obrolan'); }
     }
     if (error) throw error;
   },
@@ -875,7 +904,7 @@ function dueReminders() {
   // pengingat tugas: tepat di jam tenggat (tanpa jam: 07.00)
   for (const t of S.data.tasks || []) {
     if (t.done || t.remind === false || !t.due) continue;
-    if (!((t.owner_id === myId() && !t.assignee) || t.assignee === myId())) continue;
+    if (!((t.owner_id === myId() && !asgOf(t).length) || asgOf(t).includes(myId()))) continue;
     if (t.due < ymd(addDays(todayD(), -1)) || t.due > todayS()) continue;
     const at = pd(t.due); if (t.time) { const [hh, mm] = t.time.split(':').map(Number); at.setHours(hh, mm || 0, 0, 0); } else at.setHours(7, 0, 0, 0);
     if (now < at) continue;
@@ -1052,7 +1081,7 @@ async function claimKey(key) {
   if (!pushOn()) return true;
   try { const { error } = await S.sb.from('push_sent').insert({ user_id: myId(), key }); return !(error && (error.code === '23505' || /duplicate/i.test(error.message))); } catch { return true; }
 }
-function prefetchFiles() { for (const f of ['supabase-update-v3.1.sql', 'supabase-update-v3.3.sql', 'supabase/functions/push/index.ts']) if (!FILES[f]) fetch(f, { cache: 'no-cache' }).then((r) => (r.ok ? r.text() : null)).then((t) => { if (t) FILES[f] = t; }).catch(() => {}); }
+function prefetchFiles() { for (const f of ['supabase-update-v3.1.sql', 'supabase-update-v3.3.sql', 'supabase-update-v3.7.sql', 'supabase/functions/push/index.ts']) if (!FILES[f]) fetch(f, { cache: 'no-cache' }).then((r) => (r.ok ? r.text() : null)).then((t) => { if (t) FILES[f] = t; }).catch(() => {}); }
 async function pushToggle(on) {
   if (S.pushBusy) return;
   S.pushBusy = true; render();
@@ -1261,7 +1290,7 @@ function openSheet(kind, args = {}) {
   const sh = $('#sh .sheet'); sh && sh.focus({ preventScroll: true });
 }
 const isField = (el) => el && el.matches && el.matches('input:not([type=checkbox]):not([type=radio]):not([type=file]):not([type=color]),textarea,select');
-function closeSheet(fromBack) { S.sheet = null; $('#sh').innerHTML = ''; if (lastFocus && lastFocus.focus && !isField(lastFocus) && document.contains(lastFocus)) lastFocus.focus({ preventScroll: true }); }
+function closeSheet(fromBack) { S.sheet = null; $('#sh').innerHTML = ''; $('#sh').classList.remove('docked'); document.body.classList.remove('has-dock'); if (lastFocus && lastFocus.focus && !isField(lastFocus) && document.contains(lastFocus)) lastFocus.focus({ preventScroll: true }); }
 function renderSheet() {
   const dock = !!(S.sheet && S.sheet.kind === 'task' && S.view === 'tugas' && window.matchMedia('(min-width:1100px)').matches);
   $('#sh').classList.toggle('docked', dock); document.body.classList.toggle('has-dock', dock);
@@ -1299,7 +1328,7 @@ function renderShell() {
   </nav>`;
   const tb = navItems().map(([k, l, i]) => `<button type="button" class="tab ${S.view === k ? 'on' : ''}" data-act="go" data-v="${k}" ${S.view === k ? 'aria-current="page"' : ''}>${ic(i, 22)}${l}</button>`);
   const tabs = `<nav class="tabbar" aria-label="Menu">${tb.join('')}</nav>
-  <button type="button" class="fab" data-act="quick" aria-label="${S.view === 'tugas' ? 'Tambah tugas' : S.view === 'teman' ? (S.personId && personById(S.personId) ? 'Tambah catatan' : 'Tambah teman') : 'Tambah acara'}">${ic('plus', 26, 2.4)}</button>`;
+  <button type="button" class="fab ${S.view === 'kalender' && S.kalMode !== 'daftar' ? 'kal' : ''}" data-act="quick" aria-label="${S.view === 'tugas' ? 'Tambah tugas' : S.view === 'teman' ? (S.personId && personById(S.personId) ? 'Tambah catatan' : 'Tambah teman') : 'Tambah acara'}">${ic('plus', 26, 2.4)}</button>`;
   return side + `<main id="main" class="${S.view === 'kalender' && S.kalMode !== 'daftar' ? 'fit' : ''}">${topNotes()}${VIEWS[S.view]()}</main>` + tabs;
 }
 function todayCounts() { return { due: dueReminders(), pend: pendingItems(), brief: briefDue() && lsGet('ingetin:briefHide', '') !== todayS() }; }
@@ -1425,7 +1454,7 @@ function searchResults(s) {
   const sec = (t, html) => (html ? `<div class="srch-sec">${t}</div>${html}` : '');
   let out = `<div class="srch-chips">${chip('all', 'Semua')}${chip('ev', 'Acara')}${chip('task', 'Tugas')}${chip('note', 'Catatan')}${chip('ppl', 'Teman')}</div>`;
   if (f === 'all' || f === 'ev') out += sec('Acara', evs.slice(0, 30).map((e) => { const i = evInfo(e), c = (e.checklist || []).find((x) => has(x.text)); return row('cal', cs(i.color), hl(e.title, q), h(fmtShort(e.date) + (e.date < today ? ' · sudah lewat' : ' · ' + rel(e.date))) + (c ? ' · ' + hl(c.text, q) : (has(e.notes) ? ' · ' + hl(e.notes, q) : has(e.location) ? ' · ' + hl(e.location, q) : '')), 'openEvent', e.id); }).join(''));
-  if (f === 'all' || f === 'task') out += sec('Tugas', tasks.slice(0, 30).map((x) => `<button type="button" class="srch-row" data-act="srchTask" data-k="${h(x.k)}"><span class="srch-i" style="${cs('blue')}">${ic('tasks', 18)}</span><span class="ev-t"><b>${x.done ? '<s>' + hl(x.title, q) + '</s>' : hl(x.title, q)}</b><span>${h(x.done ? 'Sudah beres' : x.due ? fmtShort(x.due) + ' · ' + rel(x.due) : 'Tanpa tanggal')}${x.who === 'dari' ? ' · dari ' + h(userName(x.t.owner_id)) : x.who === 'titip' ? ' · dititipkan ke ' + h(userName(x.t.assignee)) : ''}</span></span></button>`).join(''));
+  if (f === 'all' || f === 'task') out += sec('Tugas', tasks.slice(0, 30).map((x) => `<button type="button" class="srch-row" data-act="srchTask" data-k="${h(x.k)}"><span class="srch-i" style="${cs('blue')}">${ic('tasks', 18)}</span><span class="ev-t"><b>${x.done ? '<s>' + hl(x.title, q) + '</s>' : hl(x.title, q)}</b><span>${h(x.done ? 'Sudah beres' : x.due ? fmtShort(x.due) + ' · ' + rel(x.due) : 'Tanpa tanggal')}${x.who === 'dari' ? ' · dari ' + h(userName(x.t.owner_id)) : x.who === 'titip' ? ' · dititipkan ke ' + h(asgNames(x.t)) : ''}</span></span></button>`).join(''));
   if (f === 'all' || f === 'task') out += sec('Persiapan belum beres', preps.slice(0, 30).map(({ e, c }) => row('check', cs('blue'), hl(c.text, q), h(e.title + ' · ' + rel(e.date)), 'openEvent', e.id)).join(''));
   if (f === 'all' || f === 'note') out += notesLocked() ? `<div class="srch-sec">Catatan teman</div><div class="note-row" style="justify-content:space-between;align-items:center"><span class="muted">${ic('lock', 14)} Catatan terkunci, tidak ikut dicari</span><button type="button" class="btn ghost" data-act="unlock">Buka</button></div>` : sec('Catatan teman', notes.slice(0, 30).map((n) => { const p = personById(n.person_id) || { name: '?', color: 'gray' }; return row('note', cs(p.color), h(p.name), hl(n.text, q), 'openPerson', n.person_id); }).join(''));
   if (f === 'all' || f === 'ppl') out += sec('Teman', people.map((p) => row('people', cs(p.color), hl(p.name, q), h(S.data.notes.filter((n) => n.person_id === p.id).length + ' catatan'), 'openPerson', p.id)).join(''));
@@ -1446,7 +1475,7 @@ function buildBrief() {
   if (n) lines.push(today.map((e) => (e.time ? fmtTime(e.time) + ' ' : '') + e.title).join(' · '));
   if (tomorrow.length) lines.push('Besok: ' + tomorrow.map((e) => e.title + (ageOn(e) > 0 ? ' (ke-' + ageOn(e) + ')' : '')).join(', '));
   const open = prep.reduce((x, e) => x + e.checklist.filter((i) => !i.done).length, 0); if (open) lines.push(open + ' persiapan belum beres minggu ini');
-  const tk = (S.data.tasks || []).filter((x) => !x.done && x.due && x.due <= td && ((x.owner_id === myId() && !x.assignee) || x.assignee === myId()));
+  const tk = (S.data.tasks || []).filter((x) => !x.done && x.due && x.due <= td && ((x.owner_id === myId() && !asgOf(x).length) || asgOf(x).includes(myId())));
   if (tk.length) lines.push(tk.length + ' tugas hari ini: ' + tk.slice(0, 3).map((x) => x.title).join(', ') + (tk.length > 3 ? ', …' : ''));
   const pn = c.prep ? pendingItems().length : 0; if (pn) lines.push(pn + ' persiapan tertunda dari acara yang sudah lewat');
   if (bdays.length) lines.push('Ulang tahun: ' + bdays.map((e) => (e.title.replace(/\b(ultah|ulang\s*tahun)\b/gi, '').trim() || e.title) + ' ' + rel(e.date).toLowerCase()).join(', '));
@@ -1685,6 +1714,66 @@ function vPengaturan() {
   </div>`;
 }
 /* ============ Tugas (to-do) ============ */
+const asgOf = (t) => (t && t.assignees && t.assignees.length ? t.assignees : t && t.assignee ? [t.assignee] : []);
+const asgNames = (t) => asgOf(t).map(userName).join(', ');
+const chatOf = (tid) => (S.data.comments || []).filter((c) => c.task_id === tid);
+const READK = 'ingetin:tkRead';
+const chatUnread = (tid) => { const r = lsGet(READK, {})[tid] || ''; return chatOf(tid).filter((c) => c.kind !== 'sys' && c.author !== myId() && c.created_at > r).length; };
+const chatMarkRead = (tid) => { const m = lsGet(READK, {}); const l = chatOf(tid); m[tid] = l.length ? l[l.length - 1].created_at : new Date().toISOString(); lsSet(READK, m); };
+const canChat = (t) => S.mode === 'cloud' && !S.noChat && t && t.id && asgOf(t).length > 0 && S.data.tasks.some((x) => x.id === t.id);
+function chatList(tid) {
+  const l = chatOf(tid);
+  if (!l.length) return `<p class="muted tk-chat-empty">Belum ada obrolan. Tanyakan detail tugasnya di sini.</p>`;
+  let last = '';
+  return l.map((c) => {
+    const day = (c.created_at || '').slice(0, 10), dh = day !== last ? `<div class="cm-day">${h(day === todayS() ? 'Hari ini' : fmtShort(day))}</div>` : ''; last = day;
+    const tm = c.created_at ? new Date(c.created_at).toTimeString().slice(0, 5).replace(':', '.') : '';
+    if (c.kind === 'sys') return dh + `<div class="cm-sys">${h(c.text)} · ${tm}</div>`;
+    const me = c.author === myId();
+    return dh + `<div class="cm ${me ? 'me' : ''} ${c._pending ? 'pending' : ''}">${me ? '' : `<b>${h(userName(c.author))}</b>`}<span>${h(c.text)}</span><small>${c._pending ? 'mengirim…' : tm}</small></div>`;
+  }).join('');
+}
+function chatBox(t) {
+  return `<section class="tk-chatbox" aria-label="Obrolan tugas"><div class="tk-hist"><b>Obrolan</b></div>
+    <div class="cm-list" id="tk-chat-list">${chatList(t.id)}</div>
+    <div class="cm-form"><label class="sr" for="tk-msg">Tulis pesan</label><textarea id="tk-msg" rows="1" placeholder="Tulis pesan…" enterkeyhint="send"></textarea><button type="button" class="tk-send" data-act="tkSend" aria-label="Kirim pesan">${ic('send', 17, 2.2)}</button></div></section>`;
+}
+function chatRefresh(tid) {
+  const box = $('#tk-chat-list'); if (!box || !S.sheet || !S.sheet.tk || S.sheet.tk.id !== tid) return false;
+  const atEnd = box.scrollHeight - box.scrollTop - box.clientHeight < 40;
+  box.innerHTML = chatList(tid); if (atEnd) box.scrollTop = box.scrollHeight; chatMarkRead(tid); return true;
+}
+async function chatSend() {
+  const ta = $('#tk-msg'), text = ta ? ta.value.trim() : ''; if (!text || !S.sheet || !S.sheet.tk) return;
+  const tid = S.sheet.tk.id, tmp = { id: 'tmp-' + uid(), task_id: tid, author: myId(), text, kind: 'msg', created_at: new Date().toISOString(), _pending: true };
+  S.data.comments.push(tmp); ta.value = ''; ta.style.height = ''; chatRefresh(tid); const box = $('#tk-chat-list'); if (box) box.scrollTop = box.scrollHeight;
+  const { data, error } = await S.sb.from('task_comments').insert({ task_id: tid, text }).select().single();
+  const i = S.data.comments.indexOf(tmp);
+  if (error) { if (i >= 0) S.data.comments.splice(i, 1); chatRefresh(tid); toast('Gagal mengirim: ' + error.message); if (ta) ta.value = text; return; }
+  if (i >= 0) { if (S.data.comments.some((c) => c.id === data.id)) S.data.comments.splice(i, 1); else S.data.comments[i] = data; }
+  chatRefresh(tid); render();
+}
+// realtime: pesan & status tugas langsung muncul selama aplikasi terbuka
+let RT = null;
+function rtStop() { if (RT && S.sb) { try { S.sb.removeChannel(RT); } catch {} } RT = null; }
+function rtStart() {
+  rtStop(); if (!S.sb || S.mode !== 'cloud' || S.noTasks) return;
+  try {
+    RT = S.sb.channel('ingetin-tasks')
+      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'task_comments' }, (p) => {
+        const c = p.new; if (!c || S.data.comments.some((x) => x.id === c.id)) return;
+        const pi = S.data.comments.findIndex((x) => x._pending && x.task_id === c.task_id && x.author === c.author && x.text === c.text);
+        if (pi >= 0) S.data.comments[pi] = c; else S.data.comments.push(c);
+        if (!chatRefresh(c.task_id)) render(); else render();
+      })
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'tasks' }, (p) => {
+        if (p.eventType === 'DELETE') { S.data.tasks = S.data.tasks.filter((x) => x.id !== (p.old && p.old.id)); render(); return; }
+        const t = p.new; if (!t) return; const i = S.data.tasks.findIndex((x) => x.id === t.id);
+        if (i >= 0) S.data.tasks[i] = t; else S.data.tasks.push(t); render();
+      })
+      .subscribe();
+  } catch {}
+}
 const friendPeople = () => S.data.people.filter((p) => p.linked_user_id && S.data.friends.some((f) => f.id === p.linked_user_id));
 const personOfUser = (uidv) => S.data.people.find((p) => p.linked_user_id === uidv) || null;
 const userName = (uidv) => { if (uidv === myId()) return 'Kamu'; const p = personOfUser(uidv); if (p) return p.name; const f = S.data.friends.find((x) => x.id === uidv); return f ? f.name : 'Teman'; };
@@ -1698,8 +1787,9 @@ function taskEvent(t) {
 function taskItems() {
   const me = myId(), T = todayS(), out = [];
   for (const t of S.data.tasks || []) {
-    if (t.owner_id !== me && t.assignee !== me) continue;
-    const who = t.owner_id === me ? (t.assignee ? 'titip' : 'mine') : 'dari';
+    const ag = asgOf(t);
+    if (t.owner_id !== me && !ag.includes(me)) continue;
+    const who = t.owner_id === me ? (ag.length ? 'titip' : 'mine') : 'dari';
     out.push({ k: 't:' + t.id, src: 'task', t, title: t.title, due: t.due || '', time: t.time || '', done: !!t.done, ev: taskEvent(t), who });
   }
   for (const e of expand(ymd(addDays(todayD(), -30)), ymd(addDays(todayD(), 90)))) {
@@ -1737,13 +1827,15 @@ function taskRow(x) {
   if (x.time) meta.push(`<span class="tk-m">${ic((x.t && x.t.remind === false) ? 'clock' : 'bell', 13, 2.2)}${fmtTime(x.time)}</span>`);
   if (x.ev) { const c = evInfo(x.ev).color; meta.push(`<span class="tk-ev" style="${cs(c)}">${evEmoji(x.ev)} ${h(x.ev.title)}</span>`); }
   if (x.who === 'dari') meta.push(`<span>dari ${h(userName(x.t.owner_id))}</span>`);
-  if (x.who === 'titip' && x.done && x.t.done_by && x.t.done_by !== myId()) meta.push(`<span>dicentang ${h(userName(x.t.done_by))}</span>`);
-  const p = x.who === 'titip' ? personOfUser(x.t.assignee) : x.who === 'dari' ? personOfUser(x.t.owner_id) : null;
+  if (x.src === 'task' && x.done && x.t.done_by && x.t.done_by !== myId()) meta.push(`<span>dikerjakan ${h(userName(x.t.done_by))}</span>`);
+  const avs = x.who === 'titip' ? asgOf(x.t).map((u) => personOfUser(u) || { name: userName(u), color: 'gray' }) : x.who === 'dari' ? [personOfUser(x.t.owner_id) || { name: userName(x.t.owner_id), color: 'gray' }] : [];
+  const unread = x.src === 'task' ? chatUnread(x.t.id) : 0, nmsg = x.src === 'task' ? chatOf(x.t.id).filter((c) => c.kind !== 'sys').length : 0;
+  if (nmsg) meta.push(`<span class="tk-chat ${unread ? 'on' : ''}">💬 ${unread || nmsg}${unread ? ' baru' : ''}</span>`);
   const isNew = x.who === 'dari' && !x.done && x.t.created_at && Date.now() - new Date(x.t.created_at).getTime() < 86400000;
   return `<div class="tk ${x.done ? 'done' : ''} ${isNew ? 'new' : ''}">
     <button type="button" class="tk-box" data-act="tDone" data-k="${h(x.k)}" role="checkbox" aria-checked="${x.done}" aria-label="${x.done ? 'Batal tandai beres' : 'Tandai beres'}: ${h(x.title)}">${x.done ? ic('check', 15, 3) : ''}</button>
     <button type="button" class="tk-body" data-act="tOpen" data-k="${h(x.k)}"><b>${h(x.title)}</b>${meta.length ? `<span class="tk-meta">${meta.join('')}</span>` : ''}</button>
-    ${isNew ? '<span class="tk-badge">Baru</span>' : ''}${p ? `<span class="tk-av" title="${h(p.name)}">${avatar(p, 26)}</span>` : ''}
+    ${isNew ? '<span class="tk-badge">Baru</span>' : ''}${avs.length ? `<span class="tk-av" title="${h(avs.map((p) => p.name).join(', '))}">${avs.slice(0, 3).map((p) => avatar(p, 26)).join('')}${avs.length > 3 ? `<span class="tk-more">+${avs.length - 3}</span>` : ''}</span>` : ''}
   </div>`;
 }
 function vTugas() {
@@ -1782,9 +1874,9 @@ function taskFields(t, s, ro) {
   const evList = `<div class="tk-evl">${[`<label class="tk-evo"><input type="radio" name="tev" value="" ${!evSel ? 'checked' : ''}><span>Tidak terkait acara</span></label>`].concat(evs.map((e) => `<label class="tk-evo"><input type="radio" name="tev" value="${h(e.id)}" ${evSel === e.id ? 'checked' : ''}><span>${evEmoji(e)} ${h(e.title)} <small>· ${h(fmtShort(e.date))}${isRec(baseOf(e)) ? ' · ' + h(REPL[baseOf(e).repeat] ? REPL[baseOf(e).repeat].toLowerCase() : 'berulang') : ''}</small></span></label>`)).join('')}</div>
       <small class="muted" style="font-size:12px">Tanpa titip: tugas masuk ke daftar persiapan acaranya.</small>`;
   const fr = friendPeople();
-  const tto = t.assignee || '';
-  const toBody = `<div class="pchips"><label class="pchip"><input type="radio" name="tto" value="" ${!tto ? 'checked' : ''}><span>Aku sendiri</span></label>${fr.map((p) => `<label class="pchip"><input type="radio" name="tto" value="${h(p.linked_user_id)}" ${tto === p.linked_user_id ? 'checked' : ''}><span>${avatar(p, 24)}${h(p.name)}</span></label>`).join('')}</div>
-      <small class="muted" style="font-size:12px">Temanmu melihat tugas ini di menu Tugas miliknya, dan kamu dapat kabar saat dia mencentangnya.</small>`;
+  const tto = asgOf(t);
+  const toBody = `<div class="pchips">${fr.map((p) => `<label class="pchip"><input type="checkbox" name="tto" value="${h(p.linked_user_id)}" ${tto.includes(p.linked_user_id) ? 'checked' : ''} ${ro ? 'disabled' : ''}><span>${avatar(p, 24)}${h(p.name)}</span></label>`).join('')}</div>
+      <small class="muted" style="font-size:12px">Bisa pilih lebih dari satu. <b>Cukup salah satu</b> yang mengerjakan: begitu satu orang mencentang, tugas selesai untuk semua. Kosongkan kalau untuk dirimu sendiri.</small>`;
   const v = tkVals(t);
   return `<input type="hidden" id="tk-due" name="due" value="${h(t.due || '')}"><input type="hidden" id="tk-time" name="ttime" value="${h(t.time || '')}">
     <div class="qrows">
@@ -1800,21 +1892,21 @@ function tkVals(t) {
   const e = t.ev_key ? getEv(t.ev_key) : null;
   return { tdue: t.due ? qaDateLabel(t.due) : 'Tanpa tanggal', ttime: t.time ? fmtTime(t.time) : 'Tanpa jam',
     trem: t.remind === false ? 'Mati' : t.due ? (t.time ? 'Tepat waktu' : 'Pukul 07.00') : 'Perlu tenggat',
-    tev: e ? evEmoji(e) + ' ' + e.title : 'Tidak ada', tto: t.assignee ? userName(t.assignee) : 'Aku sendiri', tnote: (t.notes || '').trim() ? 'Ada' : 'Tambah' };
+    tev: e ? evEmoji(e) + ' ' + e.title : 'Tidak ada', tto: asgOf(t).length ? asgNames(t) : 'Aku sendiri', tnote: (t.notes || '').trim() ? 'Ada' : 'Tambah' };
 }
 function tkSync() {
   const f = $('form[data-form=task]') || $('form[data-form=quick]'); if (!f || !S.sheet || !S.sheet.tk) return;
   const fd = new FormData(f), t = S.sheet.tk;
   if (fd.has('title')) t.title = fd.get('title');
   t.due = fd.get('due') || ''; t.time = fd.get('ttime') || ''; t.remind = fd.has('tremind') ? true : (f.querySelector('[name=tremind]') ? false : t.remind);
-  if (fd.has('tev')) t.ev_key = fd.get('tev'); if (fd.has('tto')) t.assignee = fd.get('tto') || null; if (fd.has('tnotes')) t.notes = fd.get('tnotes');
+  if (fd.has('tev')) t.ev_key = fd.get('tev'); if (f.querySelector('[name=tto]')) { t.assignees = fd.getAll('tto'); t.assignee = t.assignees[0] || null; } if (fd.has('tnotes')) t.notes = fd.get('tnotes');
   const v = tkVals(t);
   for (const k of Object.keys(v)) { const el = $('#qv-' + k); if (el) el.textContent = v[k]; }
 }
 async function saveTask(t, isNew) {
   const title = (t.title || '').trim();
   const ev = t.ev_key ? getEv(t.ev_key) : null;
-  if (isNew && ev && !t.assignee && isMine(ev)) {
+  if (isNew && ev && !asgOf(t).length && isMine(ev)) {
     // tanpa titip → jadi persiapan acara
     const item = { text: title, done: false }; if (t.due && t.due < ev.date) item.before = diffDays(ev.date, t.due);
     await saveChecklist(ev, [...(ev.checklist || []), item]);
@@ -1824,16 +1916,16 @@ async function saveTask(t, isNew) {
   const b = ev ? baseOf(ev) : null;
   const row = { ...(t.id ? (S.data.tasks.find((x) => x.id === t.id) || {}) : {}), id: t.id || uid(), title, due: t.due || null, time: t.due ? t.time || null : null,
     remind: t.remind !== false, notes: (t.notes || '').trim() || null, event_id: b ? b.id : null, event_date: b && isRec(b) ? ev.date : null,
-    assignee: S.mode === 'cloud' ? t.assignee || null : null, done: !!t.done };
+    assignees: S.mode === 'cloud' && asgOf(t).length ? asgOf(t) : null, assignee: S.mode === 'cloud' ? asgOf(t)[0] || null : null, done: !!t.done };
   await save('tasks', row);
-  if (isNew) toast(row.assignee ? 'Dititipkan ke ' + userName(row.assignee) : 'Tugas ditambahkan');
+  if (isNew) toast(asgOf(row).length ? 'Dititipkan ke ' + asgNames(row) : 'Tugas ditambahkan');
 }
 async function toggleTask(x) {
   const now = !x.done;
   if (x.src === 'chk') {
     const e = getEv(x.e.id) || x.e;
     await saveChecklist(e, (e.checklist || []).map((y, i) => (i === x.i ? { ...y, done: now } : y)));
-  } else if (x.t.owner_id === myId()) {
+  } else if (x.t.owner_id === myId() && (S.mode !== 'cloud' || !asgOf(x.t).length)) {
     await save('tasks', { ...x.t, done: now, done_at: now ? new Date().toISOString() : null, done_by: now ? myId() : null });
   } else {
     const t = S.data.tasks.find((y) => y.id === x.t.id); if (t) { t.done = now; t.done_at = now ? new Date().toISOString() : null; t.done_by = now ? myId() : null; }
@@ -2068,7 +2160,8 @@ const SHEETS = {
         <label class="sr" for="tk-title">Judul tugas</label><input id="tk-title" class="qtitle" name="title" value="${h(t.title || '')}" placeholder="Apa yang perlu dikerjakan?" autocomplete="off" ${mine ? '' : 'readonly'}></div>
         ${mine ? '' : `<div class="ps-warn" style="background:var(--p-l);color:var(--tx)">${ic('people', 18)}<span>Dititipkan oleh <b>${h(userName(t.owner_id))}</b>. Kamu bisa mencentangnya kalau sudah beres.</span></div>`}
         ${taskFields(t, s, !mine)}
-        ${!s.isNew ? `<div class="tk-hist"><b>Riwayat</b><span>Dibuat ${h(fmtShort((t.created_at || '').slice(0, 10) || todayS()))}${t.assignee ? ' · dititipkan ke ' + h(userName(t.assignee)) : ''}${t.done && t.done_at ? ' · dicentang ' + h(userName(t.done_by || myId())) + ' ' + h(fmtShort(t.done_at.slice(0, 10))) : ''}</span></div>` : ''}
+        ${!s.isNew ? `<div class="tk-hist"><b>Riwayat</b><span>Dibuat ${h(fmtShort((t.created_at || '').slice(0, 10) || todayS()))}${asgOf(t).length ? ' · dititipkan ke ' + h(asgNames(t)) : ''}${t.done && t.done_at ? ' · dicentang ' + h(userName(t.done_by || myId())) + ' ' + h(fmtShort(t.done_at.slice(0, 10))) : ''}</span></div>` : ''}
+        ${!s.isNew && canChat(t) ? chatBox(t) : ''}
         <p class="err" id="tk-err" role="alert"></p>
         <div class="row2">${!s.isNew && mine ? `<button type="button" class="btn danger" data-act="tkDel">${ic('trash', 16)}Hapus</button>` : `<button type="button" class="btn" data-act="closeSheet">Tutup</button>`}${mine ? `<button type="submit" class="btn pri">Simpan</button>` : `<button type="button" class="btn pri" data-act="tkDone">${t.done ? 'Buka lagi' : 'Tandai beres'}</button>`}</div>
       </form></div>`;
@@ -2078,7 +2171,7 @@ const SHEETS = {
     return `<div class="sh-body"><div class="sh-top"><h2>Siapkan notifikasi server</h2><button type="button" class="icon-btn round" data-act="closeSheet" aria-label="Tutup">${ic('x', 18, 2.4)}</button></div>
       ${s.why === 'SERVER' ? `<div class="ps-warn">${ic('info', 18)}<span>Server notifikasi belum ditemukan. Ikuti langkah 2 dan 3 dulu.</span></div>` : s.why === 'SQL' ? `<div class="ps-warn">${ic('info', 18)}<span>Tabel notifikasi belum ada. Jalankan langkah 1 dulu.</span></div>` : '<p class="muted" style="margin:0">Cukup sekali. Setelah itu semua akun di Ingetin bisa memakainya.</p>'}
       <ol class="ps-list">
-        ${step(1, 'Jalankan SQL (2 file)', 'Supabase › SQL Editor › New query › tempel › Run. Lakukan untuk kedua file, berurutan. Sudah pernah menjalankan v3.1? Cukup v3.3.', `<div style="display:flex;gap:8px;flex-wrap:wrap"><button type="button" class="btn ghost ps-btn" data-act="copyFile" data-f="supabase-update-v3.1.sql">${ic('copy', 16)}SQL v3.1</button><button type="button" class="btn ghost ps-btn" data-act="copyFile" data-f="supabase-update-v3.3.sql">${ic('copy', 16)}SQL v3.3 (Tugas)</button></div>`)}
+        ${step(1, 'Jalankan SQL', 'Supabase › SQL Editor › New query › tempel › Run. Jalankan berurutan file yang belum pernah kamu jalankan (v3.1 → v3.3 → v3.7).', `<div style="display:flex;gap:8px;flex-wrap:wrap"><button type="button" class="btn ghost ps-btn" data-act="copyFile" data-f="supabase-update-v3.1.sql">${ic('copy', 16)}SQL v3.1</button><button type="button" class="btn ghost ps-btn" data-act="copyFile" data-f="supabase-update-v3.3.sql">${ic('copy', 16)}SQL v3.3 (Tugas)</button><button type="button" class="btn ghost ps-btn" data-act="copyFile" data-f="supabase-update-v3.7.sql">${ic('copy', 16)}SQL v3.7 (Obrolan)</button></div>`)}
         ${step(2, 'Buat / perbarui Edge Function "push"', 'Supabase › Edge Functions › Deploy a new function › Via Editor. Beri nama <b>push</b>, hapus contoh kodenya, tempel kode ini, lalu Deploy. Sudah ada? Buka fungsi push › Code, ganti seluruh isinya dengan kode terbaru, lalu Deploy.', `<button type="button" class="btn ghost ps-btn" data-act="copyFile" data-f="supabase/functions/push/index.ts">${ic('copy', 16)}Salin kode fungsi</button>`)}
         ${step(3, 'Matikan "Verify JWT"', 'Buka fungsi push › Details. Matikan <b>Enforce JWT Verification</b> (atau Verify JWT), lalu Save.')}
         ${step(4, 'Nyalakan di sini', 'Kembali ke Pengaturan › Notifikasi, nyalakan <b>Notifikasi walau aplikasi ditutup</b>.')}
@@ -2271,12 +2364,13 @@ function renderPicker() {
 /* ============ actions ============ */
 const A = {
   tFilter(d) { S.tFilter = d.f; render(); },
+  tkSend() { chatSend(); },
   tFold() { S.tDoneOpen = !S.tDoneOpen; render(); },
   tDone(d) { const x = findItem(d.k); if (x) toggleTask(x); },
   tOpen(d) {
     const x = findItem(d.k); if (!x) return;
     if (x.src === 'chk') { openSheet('event', { id: x.e.id }); return; }
-    const t = x.t; openSheet('task', { tk: { ...t, ev_key: x.ev ? x.ev.id : '' }, open: {} });
+    const t = x.t; openSheet('task', { tk: { ...t, ev_key: x.ev ? x.ev.id : '' }, open: {} }); chatMarkRead(t.id); const b = $('#tk-chat-list'); if (b) b.scrollTop = b.scrollHeight; render();
   },
   tkDate(d) { tkSync(); S.sheet.tk.due = d.d; if (!d.d) S.sheet.tk.time = ''; renderSheet(); const st = $('.dstrip .on'); if (st) centerX($('.dstrip'), st); },
   tkTime(d) { tkSync(); S.sheet.tk.time = d.t; if (d.t && !S.sheet.tk.due) S.sheet.tk.due = todayS(); renderSheet(); },
@@ -2703,6 +2797,7 @@ let qaTimer;
 document.addEventListener('input', (ev) => {
   if (ev.target.form && ev.target.form.dataset.form === 'quick' && ev.target.id !== 'qa-text') { qaSync(); tkSync(); }
   if (ev.target.form && ev.target.form.dataset.form === 'task') tkSync();
+  if (ev.target.id === 'tk-msg') { const t = ev.target; t.style.height = ''; t.style.height = Math.min(120, t.scrollHeight) + 'px'; }
   if (ev.target.id === 'srch' && S.sheet && S.sheet.kind === 'search') { S.sheet.q = ev.target.value; const r = $('#srch-res'); if (r) r.innerHTML = searchResults(S.sheet); }
   if (ev.target.id === 'pp-custom' || (ev.target.name === 'color' && ev.target.closest('[data-form=person]'))) {
     const f = ev.target.form; if (ev.target.id === 'pp-custom') { const r = $('#pp-custom-r'); if (r) r.checked = true; }
@@ -2719,6 +2814,7 @@ document.addEventListener('input', (ev) => {
   }
 });
 document.addEventListener('keydown', (ev) => {
+  if (ev.target && ev.target.id === 'tk-msg' && ev.key === 'Enter' && !ev.shiftKey && !ev.isComposing) { ev.preventDefault(); chatSend(); return; }
   if (S.sheet && S.sheet.kind === 'pin' && /^[0-9]$/.test(ev.key)) { A.pinKey({ k: ev.key }); return; }
   if (S.sheet && S.sheet.kind === 'pin' && ev.key === 'Backspace') { A.pinDel(); return; }
   if (ev.key === 'Escape') { if (PK) closePicker(); else if ($('#dlg').innerHTML) { const n = $('#dlg [data-no]'); n && n.click(); } else if (S.sheet) closeSheet(); }
@@ -2770,7 +2866,7 @@ async function migrateLocal() {
   if (!(await confirmBox(`Ada ${n} data yang tersimpan di perangkat ini. Pindahkan ke akunmu?`, 'Pindahkan'))) return;
   const me = myId();
   try {
-    for (const t of ['people', 'events', 'notes']) for (const r of loc[t]) await Cloud.put(t, { ...r, owner_id: me });
+    for (const t of ['people', 'events', 'notes', 'tasks']) for (const r of loc[t] || []) { if (t === 'tasks' && S.noTasks) continue; await Cloud.put(t, { ...r, owner_id: me }); }
     localStorage.removeItem(LKEY); toast('Data lokal sudah dipindahkan'); await loadData();
   } catch (err) { toast('Gagal memindahkan: ' + err.message); }
 }
@@ -2781,10 +2877,11 @@ async function onSession(session) {
     S.mode = 'cloud';
     try { await ensureProfile(); } catch (err) { toast('Gagal menyiapkan profil: ' + err.message + '. Sudah jalankan supabase-setup.sql?'); }
     await loadData();
+    rtStart();
     if (was !== 'cloud') await migrateLocal();
     const pending = lsGet(IKEY, null); if (pending) await acceptInvite(pending);
   } else {
-    S.mode = 'local'; S.me = null; S.data = Local.load(); render();
+    rtStop(); S.mode = 'local'; S.me = null; S.data = Local.load(); render();
   }
 }
 async function boot() {

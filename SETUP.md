@@ -64,3 +64,8 @@ Catatan:
 3. Buka Ingetin sekali supaya pengaturan Ringkasan pagi terkirim ke server.
 
 Panduan & tombol salin juga ada di aplikasi: Pengaturan › Notifikasi › Panduan menyiapkan server.
+
+## Update v3.7: obrolan per tugas & titip ke beberapa teman
+
+1. SQL Editor › New query › tempel isi `supabase-update-v3.7.sql` › Run (setelah v3.3).
+2. Edge Functions › `push` › Code › ganti seluruh isinya dengan `supabase/functions/push/index.ts` terbaru › Deploy.
