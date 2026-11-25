@@ -465,6 +465,8 @@ mark{background:var(--mark);color:inherit;border-radius:3px;padding:0 1px}
 .tk-chips{display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;padding:2px}
 .tk-chips::-webkit-scrollbar{display:none}
 .tk-chips .tchip2{flex-shrink:0}
+.tk-chips.fit{display:grid;grid-template-columns:repeat(var(--n),minmax(0,1fr));gap:6px;overflow:visible}
+.tk-chips.fit .tchip2{justify-content:center;padding:0 4px;font-size:13px;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .tk-cols{display:flex;flex-direction:column;gap:12px}
 @media (min-width:1000px){.tk-cols{display:grid;grid-template-columns:1fr 1fr;align-items:start}}
 .tk-col{display:flex;flex-direction:column;gap:12px}
@@ -657,7 +659,7 @@ mark{background:var(--mark);color:inherit;border-radius:3px;padding:0 1px}
 
 <script type="module">
 /* ============ helpers ============ */
-const APP_VERSION = '4.0.1 (26 Nov 2026)';
+const APP_VERSION = '4.0.2 (26 Nov 2026)';
 const $ = (s, r = document) => r.querySelector(s);
 const h = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const pad = (n) => String(n).padStart(2, '0');
@@ -1381,7 +1383,15 @@ function renderSheet() {
   const fn = SHEETS[S.sheet.kind]; const body = fn ? fn(S.sheet) : '';
   if (body === null) { closeSheet(); return; }
   const cur = $('#sh .sheet');
-  if (cur && cur.dataset.kind === S.sheet.kind) { const st = cur.scrollTop; cur.innerHTML = body; cur.scrollTop = st; return; }
+  if (cur && cur.dataset.kind === S.sheet.kind) {
+    // pertahankan isi & fokus kolom yang sedang diketik (mis. pesan obrolan) saat tampilan diperbarui
+    const ae = document.activeElement, aid = ae && cur.contains(ae) && ae.id ? ae.id : '', msg = $('#tk-msg') ? $('#tk-msg').value : null;
+    const sel = aid && ae.selectionStart != null ? [ae.selectionStart, ae.selectionEnd] : null;
+    const st = cur.scrollTop; cur.innerHTML = body; cur.scrollTop = st;
+    if (msg && $('#tk-msg')) $('#tk-msg').value = msg;
+    if (aid) { const n = document.getElementById(aid); if (n) { n.focus({ preventScroll: true }); if (sel && n.setSelectionRange) try { n.setSelectionRange(sel[0], sel[1]); } catch {} } }
+    return;
+  }
   $('#sh').innerHTML = `<div class="backdrop" data-act="closeSheet"></div><div class="sheet" role="dialog" aria-modal="true" aria-label="${h({ quick: 'Tambah cepat', event: 'Detail acara', editEvent: 'Ubah acara', note: 'Catatan', person: 'Teman', invite: 'Undang teman', link: 'Hubungkan teman', today: 'Hari ini', task: 'Tugas', pushSetup: 'Siapkan notifikasi server', pin: 'PIN', search: 'Cari', monthPick: 'Pilih bulan', notif: 'Notifikasi' }[S.sheet.kind] || '')}" tabindex="-1" data-kind="${S.sheet.kind}">${body}</div>`;
 }
 
@@ -1679,7 +1689,7 @@ function frTop() {
   const cloud = S.mode === 'cloud', all = S.data.people;
   const nL = all.filter((p) => p.linked_user_id).length, f = S.frFilter || 'all';
   const chip = (k, l, n) => `<button type="button" role="radio" aria-checked="${f === k}" class="tchip2 ${f === k ? 'on' : ''}" data-act="frFilter" data-f="${k}">${l} <span class="fc-n">${n}</span></button>`;
-  return `${cloud ? `<div class="tk-chips" role="radiogroup" aria-label="Saring teman">${chip('all', 'Semua', all.length)}${chip('linked', 'Terhubung', nL)}${chip('manual', 'Belum gabung', all.length - nL)}</div>` : ''}`;
+  return `${cloud ? `<div class="tk-chips fit" style="--n:3" role="radiogroup" aria-label="Saring teman">${chip('all', 'Semua', all.length)}${chip('linked', 'Terhubung', nL)}${chip('manual', 'Belum gabung', all.length - nL)}</div>` : ''}`;
 }
 function friendList() {
   const f = S.mode === 'cloud' ? S.frFilter || 'all' : 'all';
@@ -1831,7 +1841,7 @@ function chatList(tid) {
   if (!l.length) return `<p class="muted tk-chat-empty">Belum ada obrolan. Tanyakan detail tugasnya di sini.</p>`;
   let last = '';
   return l.map((c) => {
-    const day = (c.created_at || '').slice(0, 10), dh = day !== last ? `<div class="cm-day">${h(day === todayS() ? 'Hari ini' : fmtShort(day))}</div>` : ''; last = day;
+    const day = c.created_at ? ymd(new Date(c.created_at)) : '', dh = day !== last ? `<div class="cm-day">${h(day === todayS() ? 'Hari ini' : fmtShort(day))}</div>` : ''; last = day;
     const tm = c.created_at ? new Date(c.created_at).toTimeString().slice(0, 5).replace(':', '.') : '';
     if (c.kind === 'sys') return dh + `<div class="cm-sys">${h(c.text)} · ${tm}</div>`;
     const me = c.author === myId();
@@ -1948,7 +1958,7 @@ function tkSummary(done, total, g) {
   const titip = g.all.filter((x) => !x.done && (x.who === 'titip' || x.who === 'dari')).length;
   const cnt = (k, v, l, cls) => `<button type="button" class="tks-c ${cls} ${f === k ? 'on' : ''}" data-act="tFilter" data-f="${f === k ? 'semua' : k}" aria-pressed="${f === k}"><b>${v}</b><span>${l}</span></button>`;
   return `<div class="tks">
-    <svg class="tks-ring" width="76" height="76" viewBox="0 0 36 36" aria-hidden="true"><circle cx="18" cy="18" r="15.5" fill="none" stroke="var(--bd)" stroke-width="4"/><circle cx="18" cy="18" r="15.5" fill="none" stroke="var(--p)" stroke-width="4" stroke-linecap="round" stroke-dasharray="${(pct / 100) * C} ${C}" transform="rotate(-90 18 18)"/><text x="18" y="21" text-anchor="middle" font-size="9" font-weight="800" fill="currentColor">${pct}%</text></svg>
+    <svg class="tks-ring" width="76" height="76" viewBox="0 0 36 36" aria-hidden="true"><circle cx="18" cy="18" r="15.5" fill="none" stroke="var(--bd)" stroke-width="4"/>${pct ? `<circle cx="18" cy="18" r="15.5" fill="none" stroke="var(--p)" stroke-width="4" stroke-linecap="round" stroke-dasharray="${(pct / 100) * C} ${C}" transform="rotate(-90 18 18)"/>` : ''}<text x="18" y="21" text-anchor="middle" font-size="9" font-weight="800" fill="currentColor">${pct}%</text></svg>
     <div class="tks-r"><b>${total ? `Hari ini ${done} dari ${total} beres` : 'Hari ini bebas tugas 🎉'}</b>
       <div class="tks-cs">${cnt('late', g.late.length, 'Terlambat', 'bad')}${cnt('today', g.today.length, 'Hari ini', 'pri')}${cnt('titip', titip, 'Titipan', 'pur')}</div></div></div>`;
 }
@@ -1964,7 +1974,7 @@ function vTugas() {
   return `<div class="tk-page">
     <div class="tk-head"><h1>Tugas</h1><button type="button" class="icon-btn" data-act="search" aria-label="Cari acara, tugas, catatan, teman">${ic('search', 19, 2.2)}</button></div>
     ${tkSummary(doneN, todayAll.length, g0)}
-    <div class="tk-chips" role="radiogroup" aria-label="Saring tugas">${chips.map(([k, l]) => `<button type="button" role="radio" aria-checked="${f === k}" class="tchip2 ${f === k ? 'on' : ''}" data-act="tFilter" data-f="${k}">${l}</button>`).join('')}</div>
+    <div class="tk-chips fit" style="--n:${chips.length}" role="radiogroup" aria-label="Saring tugas">${chips.map(([k, l]) => `<button type="button" role="radio" aria-checked="${f === k}" class="tchip2 ${f === k ? 'on' : ''}" data-act="tFilter" data-f="${k}">${l}</button>`).join('')}</div>
     ${S.mode === 'cloud' && S.noTasks ? `<div class="ps-warn">${ic('info', 18)}<span>Tugas belum bisa tersimpan online. Jalankan <b>supabase-update-v3.3.sql</b> (Pengaturan › Notifikasi › Panduan).</span></div>` : ''}
     <div class="tk-cols">
       <div class="tk-col">${grp('late', 'Terlambat', g.late, 'late')}${grp('today', 'Hari ini', g.today)}</div>
@@ -2014,7 +2024,9 @@ function tkVals(t) {
 }
 function tkSync() {
   const f = $('form[data-form=task]') || $('form[data-form=quick]'); if (!f || !S.sheet || !S.sheet.tk) return;
-  const fd = new FormData(f), t = S.sheet.tk;
+  const t = S.sheet.tk;
+  if (t.owner_id && t.owner_id !== myId()) return; // tugas titipan dari teman: isinya tidak bisa diubah
+  const fd = new FormData(f);
   if (fd.has('title')) t.title = fd.get('title');
   t.due = fd.get('due') || ''; t.time = fd.get('ttime') || ''; t.remind = fd.has('tremind') ? true : (f.querySelector('[name=tremind]') ? false : t.remind);
   if (fd.has('tev')) t.ev_key = fd.get('tev'); if (f.querySelector('[name=tto]')) { const v = fd.getAll('tto'); t.assignees = v.filter((x) => x.startsWith('u:')).map((x) => x.slice(2)); t.people_ids = v.filter((x) => x.startsWith('p:')).map((x) => x.slice(2)); t.assignee = t.assignees[0] || null; } if (fd.has('tnotes')) t.notes = fd.get('tnotes');
@@ -2303,7 +2315,7 @@ const SHEETS = {
         <label class="sr" for="tk-title">Judul tugas</label><input id="tk-title" class="qtitle" name="title" value="${h(t.title || '')}" placeholder="Apa yang perlu dikerjakan?" autocomplete="off" ${mine ? '' : 'readonly'}></div>
         ${mine ? '' : `<div class="ps-warn" style="background:var(--p-l);color:var(--tx)">${ic('people', 18)}<span>Dititipkan oleh <b>${h(userName(t.owner_id))}</b>. Kamu bisa mencentangnya kalau sudah beres.</span></div>`}
         ${taskFields(t, s, !mine)}
-        ${!s.isNew ? `<div class="tk-hist"><b>Riwayat</b><span>Dibuat ${h(fmtShort((t.created_at || '').slice(0, 10) || todayS()))}${hasWho(t) ? ' · dititipkan ke ' + h(asgNames(t)) : ''}${t.done && t.done_at ? ' · dicentang ' + h(userName(t.done_by || myId())) + ' ' + h(fmtShort(t.done_at.slice(0, 10))) : ''}</span></div>` : ''}
+        ${!s.isNew ? `<div class="tk-hist"><b>Riwayat</b><span>Dibuat ${h(fmtShort(t.created_at ? ymd(new Date(t.created_at)) : todayS()))}${hasWho(t) ? ' · dititipkan ke ' + h(asgNames(t)) : ''}${t.done && t.done_at ? ' · dicentang ' + h(userName(t.done_by || myId())) + ' ' + h(fmtShort(ymd(new Date(t.done_at)))) : ''}</span></div>` : ''}
         ${!s.isNew && canChat(t) ? chatBox(t) : ''}
         <p class="err" id="tk-err" role="alert"></p>
         <div class="row2">${!s.isNew && mine ? `<button type="button" class="btn danger" data-act="tkDel">${ic('trash', 16)}Hapus</button>` : `<button type="button" class="btn" data-act="closeSheet">Tutup</button>`}${mine ? `<button type="submit" class="btn pri">Simpan</button>` : `<button type="button" class="btn pri" data-act="tkDone">${t.done ? 'Buka lagi' : 'Tandai beres'}</button>`}</div>
@@ -2942,7 +2954,7 @@ document.addEventListener('click', (ev) => {
   ev.preventDefault(); if (el.dataset.busy) return;
   fn(el.dataset, el);
 });
-document.addEventListener('change', (ev) => { const el = ev.target; if (el.dataset && el.dataset.chg && CHG[el.dataset.chg]) CHG[el.dataset.chg](el); if (el.form && el.form.dataset.form === 'quick' && !(el.dataset && (el.dataset.chg === 'qaType' || el.dataset.chg === 'repeatPick'))) { qaSync(); tkSync(); } if (el.form && el.form.dataset.form === 'task') tkSync(); });
+document.addEventListener('change', (ev) => { const el = ev.target; if (el.dataset && el.dataset.chg && CHG[el.dataset.chg]) CHG[el.dataset.chg](el); if (el.form && el.form.dataset.form === 'quick' && !(el.dataset && (el.dataset.chg === 'qaType' || el.dataset.chg === 'repeatPick'))) { qaSync(); tkSync(); } if (el.form && el.form.dataset.form === 'task' && el.id !== 'tk-msg') tkSync(); });
 document.addEventListener('submit', async (ev) => {
   const f = ev.target; const fn = FORMS[f.dataset.form]; if (!fn) return;
   ev.preventDefault(); if (f.dataset.busy) return;
@@ -2953,7 +2965,7 @@ document.addEventListener('submit', async (ev) => {
 let qaTimer;
 document.addEventListener('input', (ev) => {
   if (ev.target.form && ev.target.form.dataset.form === 'quick' && ev.target.id !== 'qa-text') { qaSync(); tkSync(); }
-  if (ev.target.form && ev.target.form.dataset.form === 'task') tkSync();
+  if (ev.target.form && ev.target.form.dataset.form === 'task' && ev.target.id !== 'tk-msg') tkSync();
   if (ev.target.id === 'tk-msg') { const t = ev.target; t.style.height = ''; t.style.height = Math.min(120, t.scrollHeight) + 'px'; }
   if (ev.target.id === 'srch' && S.sheet && S.sheet.kind === 'search') { S.sheet.q = ev.target.value; const r = $('#srch-res'); if (r) r.innerHTML = searchResults(S.sheet); }
   if (ev.target.id === 'pp-custom' || (ev.target.name === 'color' && ev.target.closest('[data-form=person]'))) {
