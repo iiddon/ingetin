@@ -564,6 +564,23 @@ mark{background:var(--mark);color:inherit;border-radius:3px;padding:0 1px}
 .frc-l{font-size:12.5px;color:var(--mu);font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .frc-bar{height:5px;border-radius:9px;background:var(--bd);overflow:hidden;display:block}.frc-bar i{display:block;height:100%;border-radius:9px}
 .frc-s{display:flex;gap:14px;flex-wrap:wrap;font-size:12px;font-weight:700;color:var(--mu)}.frc-s span{display:inline-flex;align-items:center;gap:4px}
+.gr-sec{display:flex;flex-direction:column;gap:8px}
+.gr-h{display:flex;align-items:center;justify-content:space-between;font-size:15px}
+.grc{display:flex;align-items:center;gap:12px;width:100%;padding:12px 14px;border-radius:18px;background:var(--card);border:1px solid var(--bd);border-left:5px solid var(--sc);text-align:left;font:inherit;color:var(--tx)}
+.grc.on{border-color:var(--p);box-shadow:0 0 0 1px var(--p)}
+.grc-i{width:38px;height:38px;border-radius:12px;background:var(--bg);display:grid;place-items:center;font-size:19px;flex-shrink:0}
+.grc-t{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}.grc-t b{font-size:15px}.grc-t span{font-size:12px;color:var(--mu);font-weight:600}
+.gr-top{display:flex;align-items:center;gap:14px}
+.gr-big{width:56px;height:56px;border-radius:18px;background:var(--sc);display:grid;place-items:center;font-size:28px;flex-shrink:0}
+.gr-sum{display:flex;flex-direction:column;gap:10px}
+.gr-who{display:flex;flex-direction:column;gap:8px}.gr-who>div{display:flex;flex-direction:column;font-size:13px}.gr-who span{color:var(--mu)}
+.gr-m{display:flex;align-items:center;gap:10px;font-size:14px;font-weight:600}
+.tk-claim{flex-shrink:0;min-height:34px;padding:0 14px;border-radius:999px;border:0;background:var(--p);color:#fff;font-weight:800;font-size:13px}
+.tk-claim:active{transform:scale(.95)}
+.tk-box.ro::before{background:var(--bg);border-style:dashed}
+.tk-grp-t{font-weight:700;color:var(--tx)}
+.share-grp{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.tk-chips.fit .tchip2{font-size:12.5px}
 .ps-list{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:14px}
 .ps-step{display:flex;gap:12px;align-items:flex-start}
 .ps-n{width:28px;height:28px;border-radius:50%;background:var(--p);color:#fff;display:grid;place-items:center;font-weight:800;font-size:14px;flex-shrink:0}
@@ -659,7 +676,7 @@ mark{background:var(--mark);color:inherit;border-radius:3px;padding:0 1px}
 
 <script type="module">
 /* ============ helpers ============ */
-const APP_VERSION = '4.0.2 (26 Nov 2026)';
+const APP_VERSION = '4.1 (26 Nov 2026)';
 const $ = (s, r = document) => r.querySelector(s);
 const h = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const pad = (n) => String(n).padStart(2, '0');
@@ -750,7 +767,7 @@ const LKEY = 'ingetin:data', CKEY = 'ingetin:cfg', DKEY = 'ingetin:dismissed', N
 const S = {
   view: 'kalender', month: (() => { const d = todayD(); d.setDate(1); return d; })(), sel: todayS(),
   personId: null, q: '', authTab: 'masuk',
-  data: { people: [], events: [], notes: [], friends: [], tasks: [], comments: [] }, tFilter: 'semua',
+  data: { people: [], events: [], notes: [], friends: [], tasks: [], comments: [], groups: [] }, tFilter: 'semua',
   agTab: 'minggu', kalMode: (() => { try { return JSON.parse(localStorage.getItem('ingetin:kalMode')) === 'daftar' ? 'daftar' : 'bulan'; } catch { return 'bulan'; } })(),
   mode: 'local', sb: null, session: null, me: null, sheet: null, busy: false
 };
@@ -766,12 +783,13 @@ const COLS = {
   people: ['id', 'owner_id', 'name', 'color', 'linked_user_id', 'created_at'],
   events: ['id', 'owner_id', 'person_id', 'title', 'date', 'time', 'location', 'notes', 'shared', 'checklist', 'reminders', 'repeat', 'birth_year', 'occ', 'kind', 'share_with', 'created_at', 'updated_at'],
   notes: ['id', 'owner_id', 'person_id', 'text', 'kind', 'created_at'],
-  tasks: ['id', 'owner_id', 'title', 'due', 'time', 'notes', 'done', 'done_at', 'done_by', 'event_id', 'event_date', 'assignee', 'assignees', 'people_ids', 'remind', 'created_at', 'updated_at']
+  groups: ['id', 'owner_id', 'name', 'color', 'members', 'member_people', 'member_names', 'created_at', 'updated_at'],
+  tasks: ['id', 'owner_id', 'title', 'due', 'time', 'notes', 'done', 'done_at', 'done_by', 'event_id', 'event_date', 'assignee', 'assignees', 'people_ids', 'group_id', 'remind', 'created_at', 'updated_at']
 };
 const pick = (t, r) => { const o = {}; for (const c of COLS[t]) if (r[c] !== undefined) o[c] = r[c]; return o; };
 const Local = {
-  load() { const d = lsGet(LKEY, null) || { people: [], events: [], notes: [] }; return { people: d.people || [], events: d.events || [], notes: d.notes || [], tasks: d.tasks || [], comments: [], friends: [] }; },
-  persist() { const { people, events, notes, tasks } = S.data; lsSet(LKEY, { people, events, notes, tasks }); },
+  load() { const d = lsGet(LKEY, null) || { people: [], events: [], notes: [] }; return { people: d.people || [], events: d.events || [], notes: d.notes || [], tasks: d.tasks || [], groups: d.groups || [], comments: [], friends: [] }; },
+  persist() { const { people, events, notes, tasks, groups } = S.data; lsSet(LKEY, { people, events, notes, tasks, groups }); },
   async put() { this.persist(); }, async del() { this.persist(); }
 };
 const Cloud = {
@@ -790,7 +808,9 @@ const Cloud = {
     if (t.error) { S.noTasks = true; } else { S.noTasks = false; tasks = t.data; }
     let comments = [];
     if (!S.noTasks) { const c = await sb.from('task_comments').select('*').order('created_at').limit(1000); S.noChat = !!c.error; if (!c.error) comments = c.data; }
-    return { people: p.data, events: e.data, notes: n.data, friends, tasks, comments };
+    let groups = [];
+    { const g = await sb.from('groups').select('*'); S.noGroups = !!g.error; if (!g.error) groups = g.data; }
+    return { people: p.data, events: e.data, notes: n.data, friends, tasks, comments, groups };
   },
   async put(t, row) {
     let { error } = await S.sb.from(t).upsert(pick(t, row));
@@ -798,6 +818,10 @@ const Cloud = {
       // database belum diperbarui (kolom share_with belum ada): simpan tanpa kolom itu
       const r = pick(t, row); delete r.share_with; ({ error } = await S.sb.from(t).upsert(r));
       if (!error && !Cloud._warned) { Cloud._warned = 1; toast('Database perlu diperbarui supaya bisa memilih teman. Lihat Pengaturan › Akun'); }
+    }
+    if (error && t === 'tasks' && /group_id/.test(error.message || '')) {
+      const r = pick(t, row); delete r.group_id; ({ error } = await S.sb.from(t).upsert(r));
+      if (!error && !Cloud._warn41) { Cloud._warn41 = 1; toast('Jalankan supabase-update-v4.1.sql supaya tugas grup tersimpan online'); }
     }
     if (error && t === 'tasks' && /people_ids/.test(error.message || '')) {
       const r = pick(t, row); delete r.people_ids; ({ error } = await S.sb.from(t).upsert(r));
@@ -817,7 +841,8 @@ const store = () => (S.mode === 'cloud' ? Cloud : Local);
 async function save(t, row, quiet) {
   row.owner_id = row.owner_id || myId();
   row.created_at = row.created_at || new Date().toISOString();
-  if (t === 'events' || t === 'tasks') row.updated_at = new Date().toISOString();
+  if (t === 'events' || t === 'tasks' || t === 'groups') row.updated_at = new Date().toISOString();
+  if (t === 'groups' && S.mode === 'cloud' && S.noGroups) toast('Jalankan supabase-update-v4.1.sql supaya grup tersimpan online');
   if (t === 'tasks' && S.mode === 'cloud' && S.noTasks) { toast('Jalankan supabase-update-v3.3.sql dulu supaya Tugas tersimpan online (Pengaturan › Notifikasi › Panduan).'); }
   const arr = S.data[t]; const i = arr.findIndex((x) => x.id === row.id);
   if (i >= 0) arr[i] = row; else arr.push(row);
@@ -870,6 +895,9 @@ async function linkPerson(pid, fid, shareEv) {
   for (const t of S.data.tasks.filter((t) => t.owner_id === myId() && (t.people_ids || []).includes(pid))) {
     const ag = [...new Set([...asgOf(t), fid])];
     await save('tasks', { ...t, people_ids: (t.people_ids || []).filter((x) => x !== pid), assignees: ag, assignee: ag[0] }, true); nt++;
+  }
+  for (const g of (S.data.groups || []).filter((g) => (g.member_people || []).includes(pid) && (g.owner_id === myId() || !g.owner_id))) {
+    await save('groups', { ...g, member_people: g.member_people.filter((x) => x !== pid), members: [...new Set([...(g.members || []), fid])], member_names: { ...(g.member_names || {}), [fid]: p.name } }, true);
   }
   let ne = 0;
   if (shareEv) for (const e of S.data.events.filter((e) => e.person_id === pid && isMine(e) && e.date >= ymd(addDays(todayD(), -1)) || (e.person_id === pid && isMine(e) && isRec(e)))) {
@@ -1123,9 +1151,10 @@ async function fnCall(method, body) {
 }
 async function syncFriendRem() {
   if (!pushOn()) return;
-  const row = { user_id: myId(), friend_rem: lsGet(FKEY, {}), brief: briefCfg(), tz_min: -new Date().getTimezoneOffset(), updated_at: new Date().toISOString() };
+  const row = { user_id: myId(), friend_rem: lsGet(FKEY, {}), brief: briefCfg(), tz_min: -new Date().getTimezoneOffset(), muted_groups: lsGet(MUTEK, []), updated_at: new Date().toISOString() };
   try {
     let { error } = await S.sb.from('push_prefs').upsert(row, { onConflict: 'user_id' });
+    if (error) { delete row.muted_groups; ({ error } = await S.sb.from('push_prefs').upsert(row, { onConflict: 'user_id' })); }
     if (error) { delete row.brief; delete row.tz_min; ({ error } = await S.sb.from('push_prefs').upsert(row, { onConflict: 'user_id' })); }
   } catch {}
 }
@@ -1166,7 +1195,7 @@ async function claimKey(key) {
   if (!pushOn()) return true;
   try { const { error } = await S.sb.from('push_sent').insert({ user_id: myId(), key }); return !(error && (error.code === '23505' || /duplicate/i.test(error.message))); } catch { return true; }
 }
-function prefetchFiles() { for (const f of ['supabase-update-v3.1.sql', 'supabase-update-v3.3.sql', 'supabase-update-v3.7.sql', 'supabase-update-v3.8.sql', 'supabase/functions/push/index.ts']) if (!FILES[f]) fetch(f, { cache: 'no-cache' }).then((r) => (r.ok ? r.text() : null)).then((t) => { if (t) FILES[f] = t; }).catch(() => {}); }
+function prefetchFiles() { for (const f of ['supabase-update-v3.1.sql', 'supabase-update-v3.3.sql', 'supabase-update-v3.7.sql', 'supabase-update-v3.8.sql', 'supabase-update-v4.1.sql', 'supabase/functions/push/index.ts']) if (!FILES[f]) fetch(f, { cache: 'no-cache' }).then((r) => (r.ok ? r.text() : null)).then((t) => { if (t) FILES[f] = t; }).catch(() => {}); }
 async function pushToggle(on) {
   if (S.pushBusy) return;
   S.pushBusy = true; render();
@@ -1392,7 +1421,7 @@ function renderSheet() {
     if (aid) { const n = document.getElementById(aid); if (n) { n.focus({ preventScroll: true }); if (sel && n.setSelectionRange) try { n.setSelectionRange(sel[0], sel[1]); } catch {} } }
     return;
   }
-  $('#sh').innerHTML = `<div class="backdrop" data-act="closeSheet"></div><div class="sheet" role="dialog" aria-modal="true" aria-label="${h({ quick: 'Tambah cepat', event: 'Detail acara', editEvent: 'Ubah acara', note: 'Catatan', person: 'Teman', invite: 'Undang teman', link: 'Hubungkan teman', today: 'Hari ini', task: 'Tugas', pushSetup: 'Siapkan notifikasi server', pin: 'PIN', search: 'Cari', monthPick: 'Pilih bulan', notif: 'Notifikasi' }[S.sheet.kind] || '')}" tabindex="-1" data-kind="${S.sheet.kind}">${body}</div>`;
+  $('#sh').innerHTML = `<div class="backdrop" data-act="closeSheet"></div><div class="sheet" role="dialog" aria-modal="true" aria-label="${h({ quick: 'Tambah cepat', event: 'Detail acara', editEvent: 'Ubah acara', note: 'Catatan', person: 'Teman', invite: 'Undang teman', link: 'Hubungkan teman', group: 'Grup', today: 'Hari ini', task: 'Tugas', pushSetup: 'Siapkan notifikasi server', pin: 'PIN', search: 'Cari', monthPick: 'Pilih bulan', notif: 'Notifikasi' }[S.sheet.kind] || '')}" tabindex="-1" data-kind="${S.sheet.kind}">${body}</div>`;
 }
 
 const avatar = (p, size = 44) => `<span class="av" style="width:${size}px;height:${size}px;font-size:${Math.round(size * 0.38)}px;${cs(p.color)}">${h((p.name || '?')[0].toUpperCase())}</span>`;
@@ -1421,7 +1450,7 @@ function renderShell() {
   </nav>`;
   const tb = navItems().map(([k, l, i]) => `<button type="button" class="tab ${S.view === k ? 'on' : ''}" data-act="go" data-v="${k}" ${S.view === k ? 'aria-current="page"' : ''}>${ic(i, 22)}${l}</button>`);
   const tabs = `<nav class="tabbar" aria-label="Menu">${tb.join('')}</nav>
-  <button type="button" class="fab ${S.view === 'kalender' && S.kalMode !== 'daftar' ? 'kal' : ''}" data-act="quick" aria-label="${S.view === 'tugas' ? 'Tambah tugas' : S.view === 'teman' ? (S.personId && personById(S.personId) ? 'Tambah catatan' : 'Tambah teman') : 'Tambah acara'}">${ic('plus', 26, 2.4)}</button>`;
+  <button type="button" class="fab ${S.view === 'kalender' && S.kalMode !== 'daftar' ? 'kal' : ''}" data-act="quick" aria-label="${S.view === 'tugas' ? 'Tambah tugas' : S.view === 'teman' ? (S.groupId && groupById(S.groupId) ? 'Tambah tugas grup' : S.personId && personById(S.personId) ? 'Tambah catatan' : 'Tambah teman') : 'Tambah acara'}">${ic('plus', 26, 2.4)}</button>`;
   return side + `<main id="main" class="${S.view === 'kalender' && S.kalMode !== 'daftar' ? 'fit' : ''}">${topNotes()}${VIEWS[S.view]()}</main>` + tabs;
 }
 function todayCounts() { return { due: dueReminders(), pend: pendingItems(), brief: briefDue() && lsGet('ingetin:briefHide', '') !== todayS() }; }
@@ -1668,14 +1697,15 @@ function vTeman() {
       <div style="display:flex;gap:10px;flex-wrap:wrap;justify-content:center"><button type="button" class="btn pri" data-act="newPerson">+ Tambah teman</button><button type="button" class="btn out" data-act="invite">${ic('addUser', 18)}Undang</button></div></div></div>`;
   }
   const wide = window.matchMedia('(min-width:760px)').matches;
-  if (!S.personId || !personById(S.personId)) S.personId = wide ? people[0].id : null;
-  const showList = wide || !S.personId, showDetail = !!S.personId;
+  if (S.groupId && !groupById(S.groupId)) S.groupId = null;
+  if (!S.groupId && (!S.personId || !personById(S.personId))) S.personId = wide ? people[0].id : null;
+  const showList = wide || (!S.personId && !S.groupId), showDetail = !!(S.personId || S.groupId);
   return `<div class="page-h"><h1>Teman</h1><button type="button" class="icon-btn" data-act="search" aria-label="Cari acara, tugas, catatan, teman">${ic('search', 19, 2.2)}</button><button type="button" class="btn out" data-act="invite">${ic('addUser', 18)}Undang</button><button type="button" class="btn pri wide-only" data-act="newPerson">+ Teman</button></div>
   <div class="fr-layout" style="align-items:start">
-    ${showList ? `<div class="fr-list">${frTop()}
+    ${showList ? `<div class="fr-list">${groupCards()}<div class="gr-h" style="margin-top:6px"><b>Teman</b></div>${frTop()}
       <div class="stack" id="frlist" style="gap:10px">${friendList()}</div>
     </div>` : ''}
-    ${showDetail ? `<div class="fr-detail">${personDetail(personById(S.personId), wide)}</div>` : ''}
+    ${showDetail ? `<div class="fr-detail">${S.groupId ? (wide ? '' : `<button type="button" class="btn ghost" style="align-self:flex-start" data-act="backList">${ic('left', 18, 2.2)}Semua teman</button>`) + groupDetail(groupById(S.groupId)) : personDetail(personById(S.personId), wide)}</div>` : ''}
   </div>`;
 }
 // info ringkas tiap teman: ultah berikutnya, jumlah catatan / tugas aktif / acara
@@ -1826,6 +1856,55 @@ function vPengaturan() {
     ${group('Lainnya', [row('privasi', 'lock', '#EDE9FE', '#5B21B6', 'Privasi &amp; PIN', pinSet() ? (notesLocked() ? 'Terkunci' : 'Terbuka') : 'Mati'), row('data', 'db', 'var(--soft)', 'var(--mu2)', 'Data &amp; cadangan', ''), row('', 'info', 'var(--soft)', 'var(--mu2)', 'Tentang', 'Versi ' + APP_VERSION.split(' ')[0])])}
   </div>`;
 }
+/* ============ Grup ============ */
+const groupById = (id) => (S.data.groups || []).find((g) => g.id === id) || null;
+const MUTEK = 'ingetin:muteGroups';
+const isMuted = (gid) => lsGet(MUTEK, []).includes(gid);
+// anggota grup sebagai daftar {key, uid?, pid?, name, person}
+function groupMembers(g) {
+  const out = [];
+  if (g.owner_id && g.owner_id !== myId()) out.push({ key: 'u:' + g.owner_id, uid: g.owner_id, name: userName(g.owner_id) + ' (pembuat)', person: personOfUser(g.owner_id) });
+  for (const u of g.members || []) if (u !== myId()) out.push({ key: 'u:' + u, uid: u, name: userName(u), person: personOfUser(u) });
+  if (g.owner_id === myId() || !g.owner_id) for (const pid of g.member_people || []) { const p = personById(pid); if (p) out.push({ key: 'p:' + pid, pid, name: p.name, person: p, wait: true }); }
+  return out;
+}
+const groupSize = (g) => 1 + (g.members || []).filter((u) => u !== g.owner_id).length + (g.member_people || []).length;
+const groupTasks = (gid) => taskItems().filter((x) => x.src === 'task' && x.t.group_id === gid);
+function groupAvatars(g, n = 4) {
+  const ms = groupMembers(g); const ps = ms.map((m) => m.person || { name: m.name, color: 'gray' });
+  if (g.owner_id === myId() || !g.owner_id) ps.unshift(S.me ? { name: S.me.name || 'Kamu', color: 'blue' } : { name: 'Kamu', color: 'blue' });
+  return `<span class="tk-av">${ps.slice(0, n).map((p) => avatar(p, 26)).join('')}${ps.length > n ? `<span class="tk-more">+${ps.length - n}</span>` : ''}</span>`;
+}
+function groupCards() {
+  const gs = [...(S.data.groups || [])].sort((a, b) => a.name.localeCompare(b.name));
+  return `<div class="gr-sec"><div class="gr-h"><b>👥 Grup</b><button type="button" class="btn ghost" style="min-height:32px" data-act="newGroup">+ Grup</button></div>
+    ${gs.length ? gs.map((g) => { const ts = groupTasks(g.id), d = ts.filter((x) => x.done).length; return `<button type="button" class="grc ${S.groupId === g.id ? 'on' : ''}" data-act="openGroup" data-id="${h(g.id)}" style="--sc:${pair(g.color || 'blue')[2]}">
+      <span class="grc-i">👥</span><span class="grc-t"><b>${h(g.name)}</b><span>${groupSize(g)} anggota${ts.length ? ` · ${d} dari ${ts.length} tugas beres` : ''}${isMuted(g.id) ? ' · 🔕' : ''}</span></span>${groupAvatars(g, 3)}</button>`; }).join('')
+    : `<p class="muted" style="font-size:13px;margin:0">Kumpulkan teman jadi grup, mis. "Panitia Nikahan Budi". Tugas grup bisa dilihat semua anggota.</p>`}</div>`;
+}
+function groupDetail(g) {
+  const mine = g.owner_id === myId() || !g.owner_id, ts = groupTasks(g.id).sort((a, b) => a.done - b.done || byDue(a, b));
+  const done = ts.filter((x) => x.done).length, pct = ts.length ? Math.round((done / ts.length) * 100) : 0, col = pair(g.color || 'blue')[2];
+  const who = {}; for (const x of ts) if (!x.done) { const a = asgOf(x.t); const names = [...a.map(userName), ...pplOf(x.t).map((id) => (personById(id) || {}).name)].filter(Boolean); (names.length ? names : ['Belum ada yang ambil']).forEach((n) => { (who[n] = who[n] || []).push(x.title); }); }
+  return `<div class="stack" style="gap:14px">
+    <div class="gr-top" style="--sc:${col}"><span class="gr-big">👥</span><div style="flex:1;min-width:0"><h2 style="margin:0;font-size:22px">${h(g.name)}</h2><span class="muted" style="font-size:13px">${groupSize(g)} anggota${mine ? '' : ' · dibuat ' + h(userName(g.owner_id))}</span></div>
+      ${mine ? `<button type="button" class="icon-btn" data-act="editGroup" data-id="${h(g.id)}" aria-label="Ubah grup">${ic('edit', 18)}</button>` : ''}</div>
+    <section class="card gr-sum"><div style="display:flex;justify-content:space-between;align-items:baseline"><b>Progres tugas grup</b><span class="muted" style="font-size:13px;font-weight:700">${done} dari ${ts.length} beres</span></div>
+      <span class="frc-bar"><i style="width:${pct}%;background:${col}"></i></span>
+      ${Object.keys(who).length ? `<div class="gr-who">${Object.entries(who).map(([n, l]) => `<div><b>${h(n)}</b><span>${l.map(h).join(' · ')}</span></div>`).join('')}</div>` : ts.length ? '<span class="muted" style="font-size:13px">Semua tugas sudah beres 🎉</span>' : ''}</section>
+    <div class="row2"><button type="button" class="btn pri" data-act="groupTask" data-id="${h(g.id)}">${ic('tasks', 17)}+ Tugas grup</button><button type="button" class="btn out" data-act="muteGroup" data-id="${h(g.id)}">${isMuted(g.id) ? '🔔 Nyalakan kabar' : '🔕 Bisukan kabar'}</button></div>
+    <section class="stack" style="gap:8px"><div class="tk-gh"><h2 style="font-size:16px">Tugas grup</h2><span class="tk-n">${ts.length}</span></div>${ts.length ? ts.map(taskRow).join('') : '<p class="muted" style="font-size:13px;margin:0">Belum ada tugas. Tugas grup bisa dilihat semua anggota, tapi hanya yang dititipi yang mengerjakan.</p>'}</section>
+    <section class="card"><b>Anggota</b><div class="stack" style="gap:8px;margin-top:10px">
+      ${(mine ? [{ name: 'Kamu (pembuat)', person: { name: S.me ? S.me.name || 'Kamu' : 'Kamu', color: 'blue' } }] : []).concat(groupMembers(g)).map((m) => `<div class="gr-m">${m.person ? avatar(m.person, 32) : avatar({ name: m.name, color: 'gray' }, 32)}<span>${h(m.name)}</span>${m.wait ? '<em class="tk-wait">belum gabung</em>' : ''}</div>`).join('')}</div></section>
+  </div>`;
+}
+async function claimTask(x) {
+  const t = S.data.tasks.find((y) => y.id === x.t.id); if (!t) return;
+  t.assignees = [myId()]; t.assignee = myId(); render();
+  const { error } = await S.sb.rpc('claim_task', { p_id: t.id });
+  if (error) { t.assignees = null; t.assignee = null; render(); toast(/diambil/.test(error.message) ? 'Tugas ini sudah diambil orang lain' : 'Gagal: ' + error.message); return; }
+  toast('Tugas diambil · kamu yang mengerjakan');
+}
 /* ============ Tugas (to-do) ============ */
 const asgOf = (t) => (t && t.assignees && t.assignees.length ? t.assignees : t && t.assignee ? [t.assignee] : []);
 const pplOf = (t) => ((t && t.people_ids) || []).filter((id) => personById(id));
@@ -1835,7 +1914,7 @@ const chatOf = (tid) => (S.data.comments || []).filter((c) => c.task_id === tid)
 const READK = 'ingetin:tkRead';
 const chatUnread = (tid) => { const r = lsGet(READK, {})[tid] || ''; return chatOf(tid).filter((c) => c.kind !== 'sys' && c.author !== myId() && c.created_at > r).length; };
 const chatMarkRead = (tid) => { const m = lsGet(READK, {}); const l = chatOf(tid); m[tid] = l.length ? l[l.length - 1].created_at : new Date().toISOString(); lsSet(READK, m); };
-const canChat = (t) => S.mode === 'cloud' && !S.noChat && t && t.id && asgOf(t).length > 0 && S.data.tasks.some((x) => x.id === t.id);
+const canChat = (t) => S.mode === 'cloud' && !S.noChat && t && t.id && (asgOf(t).length > 0 || !!t.group_id) && S.data.tasks.some((x) => x.id === t.id);
 function chatList(tid) {
   const l = chatOf(tid);
   if (!l.length) return `<p class="muted tk-chat-empty">Belum ada obrolan. Tanyakan detail tugasnya di sini.</p>`;
@@ -1848,10 +1927,10 @@ function chatList(tid) {
     return dh + `<div class="cm ${me ? 'me' : ''} ${c._pending ? 'pending' : ''}">${me ? '' : `<b>${h(userName(c.author))}</b>`}<span>${h(c.text)}</span><small>${c._pending ? 'mengirim…' : tm}</small></div>`;
   }).join('');
 }
-function chatBox(t) {
-  return `<section class="tk-chatbox" aria-label="Obrolan tugas"><div class="tk-hist"><b>Obrolan</b></div>
+function chatBox(t, ro) {
+  return `<section class="tk-chatbox" aria-label="Obrolan tugas"><div class="tk-hist"><b>Obrolan</b>${ro ? '<span style="text-transform:none;letter-spacing:0;font-weight:600">Hanya bisa dibaca anggota grup</span>' : ''}</div>
     <div class="cm-list" id="tk-chat-list">${chatList(t.id)}</div>
-    <div class="cm-form"><label class="sr" for="tk-msg">Tulis pesan</label><textarea id="tk-msg" rows="1" placeholder="Tulis pesan…" enterkeyhint="send"></textarea><button type="button" class="tk-send" data-act="tkSend" aria-label="Kirim pesan">${ic('send', 17, 2.2)}</button></div></section>`;
+    ${ro ? '' : `<div class="cm-form"><label class="sr" for="tk-msg">Tulis pesan</label><textarea id="tk-msg" rows="1" placeholder="Tulis pesan…" enterkeyhint="send"></textarea><button type="button" class="tk-send" data-act="tkSend" aria-label="Kirim pesan">${ic('send', 17, 2.2)}</button></div>`}</section>`;
 }
 function chatRefresh(tid) {
   const box = $('#tk-chat-list'); if (!box || !S.sheet || !S.sheet.tk || S.sheet.tk.id !== tid) return false;
@@ -1885,12 +1964,16 @@ function rtStart() {
         const t = p.new; if (!t) return; const i = S.data.tasks.findIndex((x) => x.id === t.id);
         if (i >= 0) S.data.tasks[i] = t; else S.data.tasks.push(t); render();
       })
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'groups' }, (p) => {
+        if (p.eventType === 'DELETE') { S.data.groups = S.data.groups.filter((x) => x.id !== (p.old && p.old.id)); render(); return; }
+        const g = p.new; if (!g) return; const i = S.data.groups.findIndex((x) => x.id === g.id); if (i >= 0) S.data.groups[i] = g; else S.data.groups.push(g); render();
+      })
       .subscribe();
   } catch {}
 }
 const friendPeople = () => S.data.people.filter((p) => p.linked_user_id && S.data.friends.some((f) => f.id === p.linked_user_id));
 const personOfUser = (uidv) => S.data.people.find((p) => p.linked_user_id === uidv) || null;
-const userName = (uidv) => { if (uidv === myId()) return 'Kamu'; const p = personOfUser(uidv); if (p) return p.name; const f = S.data.friends.find((x) => x.id === uidv); return f ? f.name : 'Teman'; };
+const userName = (uidv) => { if (uidv === myId()) return 'Kamu'; const p = personOfUser(uidv); if (p) return p.name; const f = S.data.friends.find((x) => x.id === uidv); if (f) return f.name; for (const g of S.data.groups || []) if (g.member_names && g.member_names[uidv]) return g.member_names[uidv]; return 'Teman'; };
 const evEmoji = (e) => (e.kind === 'ultah' || (e.repeat === 'yearly' && /ultah|ulang tahun|birthday/i.test(e.title)) ? '🎂' : '📋');
 function taskEvent(t) {
   if (!t.event_id) return null;
@@ -1902,8 +1985,9 @@ function taskItems() {
   const me = myId(), T = todayS(), out = [];
   for (const t of S.data.tasks || []) {
     const ag = asgOf(t);
-    if (t.owner_id !== me && !ag.includes(me)) continue;
-    const who = t.owner_id === me ? (hasWho(t) ? 'titip' : 'mine') : 'dari';
+    const viewer = t.owner_id !== me && !ag.includes(me);
+    if (viewer && !(t.group_id && groupById(t.group_id))) continue;
+    const who = viewer ? 'grup' : t.owner_id === me ? (hasWho(t) ? 'titip' : 'mine') : 'dari';
     out.push({ k: 't:' + t.id, src: 'task', t, title: t.title, due: t.due || '', time: t.time || '', done: !!t.done, ev: taskEvent(t), who });
   }
   for (const e of expand(ymd(addDays(todayD(), -30)), ymd(addDays(todayD(), 90)))) {
@@ -1925,6 +2009,7 @@ function taskGroups(filter) {
   if (filter === 'punyaku') items = items.filter((x) => x.who === 'mine');
   else if (filter === 'titip') items = items.filter((x) => x.who === 'titip');
   else if (filter === 'dari') items = items.filter((x) => x.who === 'dari');
+  else if (filter === 'grup') items = items.filter((x) => x.src === 'task' && x.t.group_id);
   const open = items.filter((x) => !x.done).sort(byDue);
   return {
     late: open.filter((x) => x.due && x.due < T), today: open.filter((x) => x.due === T),
@@ -1940,17 +2025,20 @@ function taskRow(x) {
   else if (x.due && x.due !== T) { const dd = diffDays(x.due, T); meta.push(`<span>${h(dd > 0 && dd <= 6 ? rel(x.due) : fmtShort(x.due))}</span>`); }
   if (x.time) meta.push(`<span class="tk-m">${ic((x.t && x.t.remind === false) ? 'clock' : 'bell', 13, 2.2)}${fmtTime(x.time)}</span>`);
   if (x.ev) { const c = evInfo(x.ev).color; meta.push(`<span class="tk-ev" style="${cs(c)}">${evEmoji(x.ev)} ${h(x.ev.title)}</span>`); }
+  if (x.src === 'task' && x.t.group_id && groupById(x.t.group_id)) meta.push(`<span class="tk-grp-t">👥 ${h(groupById(x.t.group_id).name)}</span>`);
   if (x.who === 'dari') meta.push(`<span>dari ${h(userName(x.t.owner_id))}</span>`);
+  if (x.who === 'grup' && hasWho(x.t)) meta.push(`<span>dikerjakan ${h(asgNames(x.t))}</span>`);
   if (x.src === 'task' && x.done && x.t.done_by && x.t.done_by !== myId()) meta.push(`<span>dikerjakan ${h(userName(x.t.done_by))}</span>`);
-  const avs = x.who === 'titip' ? [...asgOf(x.t).map((u) => personOfUser(u) || { name: userName(u), color: 'gray' }), ...pplOf(x.t).map((id) => ({ ...(personById(id) || { name: '?', color: 'gray' }), _wait: true }))] : x.who === 'dari' ? [personOfUser(x.t.owner_id) || { name: userName(x.t.owner_id), color: 'gray' }] : [];
+  const canClaim = x.src === 'task' && !x.done && x.t.group_id && !hasWho(x.t) && x.t.owner_id !== myId() && S.mode === 'cloud';
+  const avs = x.who === 'grup' ? asgOf(x.t).map((u) => personOfUser(u) || { name: userName(u), color: 'gray' }) : x.who === 'titip' ? [...asgOf(x.t).map((u) => personOfUser(u) || { name: userName(u), color: 'gray' }), ...pplOf(x.t).map((id) => ({ ...(personById(id) || { name: '?', color: 'gray' }), _wait: true }))] : x.who === 'dari' ? [personOfUser(x.t.owner_id) || { name: userName(x.t.owner_id), color: 'gray' }] : [];
   const unread = x.src === 'task' ? chatUnread(x.t.id) : 0, nmsg = x.src === 'task' ? chatOf(x.t.id).filter((c) => c.kind !== 'sys').length : 0;
   if (nmsg) meta.push(`<span class="tk-chat ${unread ? 'on' : ''}">💬 ${unread || nmsg}${unread ? ' baru' : ''}</span>`);
   const isNew = x.who === 'dari' && !x.done && x.t.created_at && Date.now() - new Date(x.t.created_at).getTime() < 86400000;
   const stc = x.done ? 'st-done' : late ? 'st-late' : x.due === T ? 'st-today' : x.due ? 'st-later' : 'st-some';
   return `<div class="tk ${stc} ${x.done ? 'done' : ''} ${isNew ? 'new' : ''}">
-    <button type="button" class="tk-box" data-act="tDone" data-k="${h(x.k)}" role="checkbox" aria-checked="${x.done}" aria-label="${x.done ? 'Batal tandai beres' : 'Tandai beres'}: ${h(x.title)}">${x.done ? ic('check', 15, 3) : ''}</button>
+    <button type="button" class="tk-box ${x.who === 'grup' ? 'ro' : ''}" data-act="tDone" data-k="${h(x.k)}" role="checkbox" aria-checked="${x.done}" aria-label="${x.done ? 'Batal tandai beres' : 'Tandai beres'}: ${h(x.title)}">${x.done ? ic('check', 15, 3) : ''}</button>
     <button type="button" class="tk-body" data-act="tOpen" data-k="${h(x.k)}"><b>${h(x.title)}</b>${meta.length ? `<span class="tk-meta">${meta.join('')}</span>` : ''}</button>
-    ${isNew ? '<span class="tk-badge">Baru</span>' : ''}${avs.length ? `<span class="tk-av" title="${h(avs.map((p) => p.name).join(', '))}">${avs.slice(0, 3).map((p) => `<span class="tk-avw ${p._wait ? 'wait' : ''}" ${p._wait ? `title="${h(p.name)} belum gabung"` : ''}>${avatar(p, 26)}</span>`).join('')}${avs.length > 3 ? `<span class="tk-more">+${avs.length - 3}</span>` : ''}</span>` : ''}
+    ${canClaim ? `<button type="button" class="tk-claim" data-act="tClaim" data-k="${h(x.k)}">Ambil</button>` : ''}${isNew ? '<span class="tk-badge">Baru</span>' : ''}${avs.length ? `<span class="tk-av" title="${h(avs.map((p) => p.name).join(', '))}">${avs.slice(0, 3).map((p) => `<span class="tk-avw ${p._wait ? 'wait' : ''}" ${p._wait ? `title="${h(p.name)} belum gabung"` : ''}>${avatar(p, 26)}</span>`).join('')}${avs.length > 3 ? `<span class="tk-more">+${avs.length - 3}</span>` : ''}</span>` : ''}
   </div>`;
 }
 function tkSummary(done, total, g) {
@@ -1969,7 +2057,7 @@ function vTugas() {
   const doneN = todayAll.filter((x) => x.done).length;
   const grp = (k, t, list, cls = '') => (list.length ? `<section class="tk-grp ${cls}"><div class="tk-gh"><h2>${t}</h2><span class="tk-n">${list.length}</span></div><div class="stack" style="gap:8px">${list.map(taskRow).join('')}</div></section>` : '');
   const anyTitip = taskItems().some((x) => x.who === 'titip');
-  const chips = [['semua', 'Semua'], ['punyaku', 'Punyaku']].concat(anyTitip || (cloud && friendPeople().length) ? [['titip', 'Dititipkan']] : [], cloud && friendPeople().length ? [['dari', 'Dari teman']] : []);
+  const chips = [['semua', 'Semua'], ['punyaku', 'Punyaku']].concat(anyTitip || (cloud && friendPeople().length) ? [['titip', 'Dititipkan']] : [], cloud && friendPeople().length ? [['dari', 'Dari teman']] : [], (S.data.groups || []).length ? [['grup', 'Grup']] : []);
   const empty = !g.late.length && !g.today.length && !g.later.length && !g.someday.length;
   return `<div class="tk-page">
     <div class="tk-head"><h1>Tugas</h1><button type="button" class="icon-btn" data-act="search" aria-label="Cari acara, tugas, catatan, teman">${ic('search', 19, 2.2)}</button></div>
@@ -2000,7 +2088,12 @@ function taskFields(t, s, ro) {
   if (evSel && !evs.some((e) => e.id === evSel)) { const e = getEv(evSel); if (e) { const k = e._base || e.id; const i = evs.findIndex((x) => (x._base || x.id) === k); if (i >= 0) evs.splice(i, 1); evs.unshift(e); } }
   const evList = `<div class="tk-evl">${[`<label class="tk-evo"><input type="radio" name="tev" value="" ${!evSel ? 'checked' : ''}><span>Tidak terkait acara</span></label>`].concat(evs.map((e) => `<label class="tk-evo"><input type="radio" name="tev" value="${h(e.id)}" ${evSel === e.id ? 'checked' : ''}><span>${evEmoji(e)} ${h(e.title)} <small>· ${h(fmtShort(e.date))}${isRec(baseOf(e)) ? ' · ' + h(REPL[baseOf(e).repeat] ? REPL[baseOf(e).repeat].toLowerCase() : 'berulang') : ''}</small></span></label>`)).join('')}</div>
       <small class="muted" style="font-size:12px">Tanpa titip: tugas masuk ke daftar persiapan acaranya.</small>`;
-  const fr = friendPeople(), manual = S.data.people.filter((p) => !p.linked_user_id || !fr.includes(p)).sort((a, b) => a.name.localeCompare(b.name));
+  const G = t.group_id ? groupById(t.group_id) : null;
+  let fr = friendPeople(), manual = S.data.people.filter((p) => !p.linked_user_id || !fr.includes(p)).sort((a, b) => a.name.localeCompare(b.name));
+  if (G) { fr = fr.filter((p) => (G.members || []).includes(p.linked_user_id) || G.owner_id === p.linked_user_id); manual = manual.filter((p) => (G.member_people || []).includes(p.id)); }
+  const grps = S.data.groups || [];
+  const grBody = `<div class="tk-evl"><label class="tk-evo"><input type="radio" name="tgrp" value="" data-chg="tkGroup" ${!t.group_id ? 'checked' : ''} ${ro ? 'disabled' : ''}><span>Tanpa grup</span></label>${grps.map((g) => `<label class="tk-evo"><input type="radio" name="tgrp" value="${h(g.id)}" data-chg="tkGroup" ${t.group_id === g.id ? 'checked' : ''} ${ro ? 'disabled' : ''}><span>👥 ${h(g.name)} <small>· ${groupSize(g)} anggota</small></span></label>`).join('')}</div>
+      <small class="muted" style="font-size:12px">Semua anggota grup bisa <b>melihat</b> tugas ini. Yang mengerjakan tetap hanya yang dititipi. Kosongkan "Titip ke" supaya anggota bisa <b>Ambil</b> sendiri.</small>`;
   const tto = asgOf(t), tpp = pplOf(t);
   const chipP = (p, val, on, wait) => `<label class="pchip"><input type="checkbox" name="tto" value="${h(val)}" ${on ? 'checked' : ''} ${ro ? 'disabled' : ''}><span>${avatar(p, 24)}${h(p.name)}${wait ? '<em class="tk-wait">belum gabung</em>' : ''}</span></label>`;
   const toBody = `<div class="pchips">${fr.map((p) => chipP(p, 'u:' + p.linked_user_id, tto.includes(p.linked_user_id), false)).join('')}${manual.map((p) => chipP(p, 'p:' + p.id, tpp.includes(p.id), true)).join('')}</div>
@@ -2011,8 +2104,9 @@ function taskFields(t, s, ro) {
       ${row('tdue', 'cal', 'Tenggat', v.tdue, strip)}
       ${row('ttime', 'clock', 'Jam', v.ttime, times)}
       <label class="qrow-h qrow-sw"><span class="qrow-i">${ic('bell', 17, 2.2)}</span><b>Pengingat</b><span class="qrow-v" id="qv-trem">${h(v.trem)}</span><input type="checkbox" role="switch" name="tremind" ${t.remind !== false ? 'checked' : ''} ${ro ? 'disabled' : ''}></label>
+      ${grps.length ? row('tgrp', 'people', 'Grup', G ? '👥 ' + G.name : 'Tanpa grup', grBody) : ''}
       ${row('tev', 'flag', 'Bagian dari acara', v.tev, evList)}
-      ${fr.length || manual.length ? row('tto', 'people', 'Titip ke', v.tto, toBody) : ''}
+      ${fr.length || manual.length ? row('tto', 'addUser', 'Titip ke', v.tto, toBody) : ''}
       ${row('tnote', 'note', 'Catatan', v.tnote, `<textarea class="inp" name="tnotes" rows="2" placeholder="mis. yang 2 meter" ${ro ? 'readonly' : ''}>${h(t.notes || '')}</textarea>`)}
     </div>`;
 }
@@ -2020,7 +2114,7 @@ function tkVals(t) {
   const e = t.ev_key ? getEv(t.ev_key) : null;
   return { tdue: t.due ? qaDateLabel(t.due) : 'Tanpa tanggal', ttime: t.time ? fmtTime(t.time) : 'Tanpa jam',
     trem: t.remind === false ? 'Mati' : t.due ? (t.time ? 'Tepat waktu' : 'Pukul 07.00') : 'Perlu tenggat',
-    tev: e ? evEmoji(e) + ' ' + e.title : 'Tidak ada', tto: hasWho(t) ? asgNames(t) : 'Aku sendiri', tnote: (t.notes || '').trim() ? 'Ada' : 'Tambah' };
+    tev: e ? evEmoji(e) + ' ' + e.title : 'Tidak ada', tto: hasWho(t) ? asgNames(t) : t.group_id ? 'Siapa saja (bisa diambil)' : 'Aku sendiri', tnote: (t.notes || '').trim() ? 'Ada' : 'Tambah' };
 }
 function tkSync() {
   const f = $('form[data-form=task]') || $('form[data-form=quick]'); if (!f || !S.sheet || !S.sheet.tk) return;
@@ -2029,14 +2123,14 @@ function tkSync() {
   const fd = new FormData(f);
   if (fd.has('title')) t.title = fd.get('title');
   t.due = fd.get('due') || ''; t.time = fd.get('ttime') || ''; t.remind = fd.has('tremind') ? true : (f.querySelector('[name=tremind]') ? false : t.remind);
-  if (fd.has('tev')) t.ev_key = fd.get('tev'); if (f.querySelector('[name=tto]')) { const v = fd.getAll('tto'); t.assignees = v.filter((x) => x.startsWith('u:')).map((x) => x.slice(2)); t.people_ids = v.filter((x) => x.startsWith('p:')).map((x) => x.slice(2)); t.assignee = t.assignees[0] || null; } if (fd.has('tnotes')) t.notes = fd.get('tnotes');
+  if (fd.has('tev')) t.ev_key = fd.get('tev'); if (f.querySelector('[name=tgrp]')) t.group_id = fd.get('tgrp') || null; if (f.querySelector('[name=tto]')) { const v = fd.getAll('tto'); t.assignees = v.filter((x) => x.startsWith('u:')).map((x) => x.slice(2)); t.people_ids = v.filter((x) => x.startsWith('p:')).map((x) => x.slice(2)); t.assignee = t.assignees[0] || null; } if (fd.has('tnotes')) t.notes = fd.get('tnotes');
   const v = tkVals(t);
   for (const k of Object.keys(v)) { const el = $('#qv-' + k); if (el) el.textContent = v[k]; }
 }
 async function saveTask(t, isNew) {
   const title = (t.title || '').trim();
   const ev = t.ev_key ? getEv(t.ev_key) : null;
-  if (isNew && ev && !hasWho(t) && isMine(ev)) {
+  if (isNew && ev && !hasWho(t) && !t.group_id && isMine(ev)) {
     // tanpa titip → jadi persiapan acara
     const item = { text: title, done: false }; if (t.due && t.due < ev.date) item.before = diffDays(ev.date, t.due);
     await saveChecklist(ev, [...(ev.checklist || []), item]);
@@ -2046,11 +2140,12 @@ async function saveTask(t, isNew) {
   const b = ev ? baseOf(ev) : null;
   const row = { ...(t.id ? (S.data.tasks.find((x) => x.id === t.id) || {}) : {}), id: t.id || uid(), title, due: t.due || null, time: t.due ? t.time || null : null,
     remind: t.remind !== false, notes: (t.notes || '').trim() || null, event_id: b ? b.id : null, event_date: b && isRec(b) ? ev.date : null,
-    assignees: S.mode === 'cloud' && asgOf(t).length ? asgOf(t) : null, assignee: S.mode === 'cloud' ? asgOf(t)[0] || null : null, people_ids: pplOf(t).length ? pplOf(t) : null, done: !!t.done };
+    assignees: S.mode === 'cloud' && asgOf(t).length ? asgOf(t) : null, assignee: S.mode === 'cloud' ? asgOf(t)[0] || null : null, people_ids: pplOf(t).length ? pplOf(t) : null, group_id: t.group_id || null, done: !!t.done };
   await save('tasks', row);
-  if (isNew) toast(hasWho(row) ? 'Dititipkan ke ' + asgNames(row) : 'Tugas ditambahkan');
+  if (isNew) toast(hasWho(row) ? 'Dititipkan ke ' + asgNames(row) : row.group_id ? 'Tugas grup ditambahkan' : 'Tugas ditambahkan');
 }
 async function toggleTask(x) {
+  if (x.who === 'grup') { toast(hasWho(x.t) ? 'Hanya yang dititipi yang bisa mencentang' : 'Ambil tugasnya dulu untuk mengerjakan'); return; }
   const now = !x.done;
   if (x.src === 'chk') {
     const e = getEv(x.e.id) || x.e;
@@ -2129,6 +2224,7 @@ const shareBox = (ids) => {
   const sel = new Set(ids || []);
   return `<div class="share-box"><div class="sec-h"><span class="flabel">Bagikan ke <span class="muted" style="font-weight:600">(opsional)</span></span><button type="button" class="btn ghost" style="min-height:30px;padding:0" data-act="shareAll">${sel.size === fr.length ? 'Kosongkan' : 'Pilih semua'}</button></div>
     <div class="pchips">${fr.map((f) => { const p = S.data.people.find((x) => x.linked_user_id === f.id) || { color: 'gray' }; return `<label class="pchip multi"><input type="checkbox" name="shareTo" value="${h(f.id)}" data-chg="shareTo" ${sel.has(f.id) ? 'checked' : ''}><span><i style="${cs(p.color)}">${h((f.name || '?')[0].toUpperCase())}</i>${h(f.name)}</span></label>`; }).join('')}</div>
+    ${(S.data.groups || []).length ? `<div class="share-grp"><span class="muted" style="font-size:12px;font-weight:700">Grup:</span>${S.data.groups.map((g) => `<button type="button" class="chipbtn" data-act="shareGroup" data-id="${h(g.id)}">👥 ${h(g.name)}</button>`).join('')}</div>` : ''}
     <small class="muted share-hint">${sel.size ? 'Hanya teman yang dipilih yang bisa melihat acara ini.' : 'Tidak ada yang dipilih: acara ini hanya untukmu.'}</small></div>`;
 };
 const shareFromForm = (fd) => { const ids = fd.getAll('shareTo'); return { shared: ids.length > 0, share_with: ids }; };
@@ -2282,6 +2378,21 @@ const SHEETS = {
       <div id="srch-res">${searchResults(s)}</div></div>`;
   },
   today() { return todaySheetBody(); },
+  group(s) {
+    const g = s.id ? groupById(s.id) : { name: '', color: NORMAL[8], members: [], member_people: [] };
+    const fr = friendPeople(), manual = S.data.people.filter((p) => !fr.includes(p)).sort((a, b) => a.name.localeCompare(b.name));
+    const sel = new Set([...(g.members || []).map((u) => 'u:' + u), ...(g.member_people || []).map((p) => 'p:' + p)]);
+    return `<div class="sh-body"><div class="sh-top"><h2>${s.id ? 'Ubah grup' : 'Grup baru'}</h2><button type="button" class="icon-btn round" data-act="closeSheet" aria-label="Tutup">${ic('x', 18, 2.4)}</button></div>
+      <form class="stack" data-form="group" style="gap:14px" novalidate>
+        <label class="sr" for="gr-name">Nama grup</label><input id="gr-name" class="qtitle" name="name" value="${h(g.name)}" placeholder="Nama grup, mis. Panitia Nikahan Budi" autocomplete="off">
+        <div class="field"><span class="flabel" style="display:block">Warna</span><div class="swatches">${NORMAL.map((k, n) => `<label><input type="radio" name="color" value="${k}" ${(g.color || NORMAL[8]) === k ? 'checked' : ''} aria-label="Warna ${n + 1}"><span style="background:${k}"></span></label>`).join('')}</div></div>
+        <div class="field"><span class="flabel" style="display:block">Anggota</span>
+          ${fr.length + manual.length ? `<div class="pchips">${fr.map((p) => `<label class="pchip"><input type="checkbox" name="gm" value="u:${h(p.linked_user_id)}" ${sel.has('u:' + p.linked_user_id) ? 'checked' : ''}><span>${avatar(p, 24)}${h(p.name)}</span></label>`).join('')}${manual.map((p) => `<label class="pchip"><input type="checkbox" name="gm" value="p:${h(p.id)}" ${sel.has('p:' + p.id) ? 'checked' : ''}><span>${avatar(p, 24)}${h(p.name)}<em class="tk-wait">belum gabung</em></span></label>`).join('')}</div>` : '<p class="muted" style="margin:0;font-size:13px">Tambahkan teman dulu di menu Teman.</p>'}
+          <small class="muted" style="font-size:12px">Anggota yang sudah gabung bisa melihat semua tugas grup. Yang belum gabung otomatis ikut begitu kamu menghubungkannya.</small></div>
+        <p class="err" id="gr-err" role="alert"></p>
+        <div class="row2">${s.id ? `<button type="button" class="btn danger" data-act="delGroup" data-id="${h(s.id)}">${ic('trash', 16)}Hapus</button>` : `<button type="button" class="btn" data-act="closeSheet">Batal</button>`}<button type="submit" class="btn pri">Simpan grup</button></div>
+      </form></div>`;
+  },
   link(s) {
     const p = personById(s.pid); if (!p) return null;
     const fids = S.data.friends;
@@ -2308,17 +2419,17 @@ const SHEETS = {
       </form></div>`;
   },
   task(s) {
-    const t = s.tk, mine = !t.owner_id || t.owner_id === myId();
+    const t = s.tk, mine = !t.owner_id || t.owner_id === myId(), viewer = !mine && !asgOf(t).includes(myId());
     return `<div class="sh-body"><div class="sh-top"><h2>${s.isNew ? 'Tugas baru' : 'Detail tugas'}</h2><button type="button" class="icon-btn round" data-act="closeSheet" aria-label="Tutup">${ic('x', 18, 2.4)}</button></div>
       <form class="stack" data-form="task" style="gap:14px" novalidate>
-        <div class="tk-title"><button type="button" class="tk-box ${t.done ? 'on' : ''}" data-act="tkDone" role="checkbox" aria-checked="${!!t.done}" aria-label="Tandai beres">${t.done ? ic('check', 15, 3) : ''}</button>
+        <div class="tk-title"><button type="button" class="tk-box ${t.done ? 'on' : ''} ${viewer ? 'ro' : ''}" data-act="${viewer ? 'noop' : 'tkDone'}" role="checkbox" aria-checked="${!!t.done}" aria-label="Tandai beres">${t.done ? ic('check', 15, 3) : ''}</button>
         <label class="sr" for="tk-title">Judul tugas</label><input id="tk-title" class="qtitle" name="title" value="${h(t.title || '')}" placeholder="Apa yang perlu dikerjakan?" autocomplete="off" ${mine ? '' : 'readonly'}></div>
-        ${mine ? '' : `<div class="ps-warn" style="background:var(--p-l);color:var(--tx)">${ic('people', 18)}<span>Dititipkan oleh <b>${h(userName(t.owner_id))}</b>. Kamu bisa mencentangnya kalau sudah beres.</span></div>`}
+        ${mine ? '' : viewer ? `<div class="ps-warn" style="background:var(--p-l);color:var(--tx)">${ic('people', 18)}<span>Tugas grup <b>${h((groupById(t.group_id) || {}).name || '')}</b> dari ${h(userName(t.owner_id))}. ${hasWho(t) ? 'Kamu hanya bisa melihat; yang mengerjakan: <b>' + h(asgNames(t)) + '</b>.' : 'Belum ada yang mengambil — ketuk <b>Ambil tugas</b> untuk mengerjakan.'}</span></div>` : `<div class="ps-warn" style="background:var(--p-l);color:var(--tx)">${ic('people', 18)}<span>Dititipkan oleh <b>${h(userName(t.owner_id))}</b>. Kamu bisa mencentangnya kalau sudah beres.</span></div>`}
         ${taskFields(t, s, !mine)}
         ${!s.isNew ? `<div class="tk-hist"><b>Riwayat</b><span>Dibuat ${h(fmtShort(t.created_at ? ymd(new Date(t.created_at)) : todayS()))}${hasWho(t) ? ' · dititipkan ke ' + h(asgNames(t)) : ''}${t.done && t.done_at ? ' · dicentang ' + h(userName(t.done_by || myId())) + ' ' + h(fmtShort(ymd(new Date(t.done_at)))) : ''}</span></div>` : ''}
-        ${!s.isNew && canChat(t) ? chatBox(t) : ''}
+        ${!s.isNew && canChat(t) ? (viewer ? (chatOf(t.id).some((c) => c.kind !== 'sys') ? chatBox(t, true) : '') : chatBox(t)) : ''}
         <p class="err" id="tk-err" role="alert"></p>
-        <div class="row2">${!s.isNew && mine ? `<button type="button" class="btn danger" data-act="tkDel">${ic('trash', 16)}Hapus</button>` : `<button type="button" class="btn" data-act="closeSheet">Tutup</button>`}${mine ? `<button type="submit" class="btn pri">Simpan</button>` : `<button type="button" class="btn pri" data-act="tkDone">${t.done ? 'Buka lagi' : 'Tandai beres'}</button>`}</div>
+        <div class="row2">${!s.isNew && mine ? `<button type="button" class="btn danger" data-act="tkDel">${ic('trash', 16)}Hapus</button>` : `<button type="button" class="btn" data-act="closeSheet">Tutup</button>`}${mine ? `<button type="submit" class="btn pri">Simpan</button>` : viewer ? (!hasWho(t) && !t.done ? `<button type="button" class="btn pri" data-act="tClaim" data-k="t:${h(t.id)}">Ambil tugas</button>` : '') : `<button type="button" class="btn pri" data-act="tkDone">${t.done ? 'Buka lagi' : 'Tandai beres'}</button>`}</div>
       </form></div>`;
   },
   pushSetup(s) {
@@ -2326,7 +2437,7 @@ const SHEETS = {
     return `<div class="sh-body"><div class="sh-top"><h2>Siapkan notifikasi server</h2><button type="button" class="icon-btn round" data-act="closeSheet" aria-label="Tutup">${ic('x', 18, 2.4)}</button></div>
       ${s.why === 'SERVER' ? `<div class="ps-warn">${ic('info', 18)}<span>Server notifikasi belum ditemukan. Ikuti langkah 2 dan 3 dulu.</span></div>` : s.why === 'SQL' ? `<div class="ps-warn">${ic('info', 18)}<span>Tabel notifikasi belum ada. Jalankan langkah 1 dulu.</span></div>` : '<p class="muted" style="margin:0">Cukup sekali. Setelah itu semua akun di Ingetin bisa memakainya.</p>'}
       <ol class="ps-list">
-        ${step(1, 'Jalankan SQL', 'Supabase › SQL Editor › New query › tempel › Run. Jalankan berurutan file yang belum pernah kamu jalankan (v3.1 → v3.3 → v3.7 → v3.8).', `<div style="display:flex;gap:8px;flex-wrap:wrap"><button type="button" class="btn ghost ps-btn" data-act="copyFile" data-f="supabase-update-v3.1.sql">${ic('copy', 16)}SQL v3.1</button><button type="button" class="btn ghost ps-btn" data-act="copyFile" data-f="supabase-update-v3.3.sql">${ic('copy', 16)}SQL v3.3 (Tugas)</button><button type="button" class="btn ghost ps-btn" data-act="copyFile" data-f="supabase-update-v3.7.sql">${ic('copy', 16)}SQL v3.7 (Obrolan)</button><button type="button" class="btn ghost ps-btn" data-act="copyFile" data-f="supabase-update-v3.8.sql">${ic('copy', 16)}SQL v3.8 (Teman manual)</button></div>`)}
+        ${step(1, 'Jalankan SQL', 'Supabase › SQL Editor › New query › tempel › Run. Jalankan berurutan file yang belum pernah kamu jalankan (v3.1 → v3.3 → v3.7 → v3.8 → v4.1).', `<div style="display:flex;gap:8px;flex-wrap:wrap"><button type="button" class="btn ghost ps-btn" data-act="copyFile" data-f="supabase-update-v3.1.sql">${ic('copy', 16)}SQL v3.1</button><button type="button" class="btn ghost ps-btn" data-act="copyFile" data-f="supabase-update-v3.3.sql">${ic('copy', 16)}SQL v3.3 (Tugas)</button><button type="button" class="btn ghost ps-btn" data-act="copyFile" data-f="supabase-update-v3.7.sql">${ic('copy', 16)}SQL v3.7 (Obrolan)</button><button type="button" class="btn ghost ps-btn" data-act="copyFile" data-f="supabase-update-v3.8.sql">${ic('copy', 16)}SQL v3.8 (Teman manual)</button><button type="button" class="btn ghost ps-btn" data-act="copyFile" data-f="supabase-update-v4.1.sql">${ic('copy', 16)}SQL v4.1 (Grup)</button></div>`)}
         ${step(2, 'Buat / perbarui Edge Function "push"', 'Supabase › Edge Functions › Deploy a new function › Via Editor. Beri nama <b>push</b>, hapus contoh kodenya, tempel kode ini, lalu Deploy. Sudah ada? Buka fungsi push › Code, ganti seluruh isinya dengan kode terbaru, lalu Deploy.', `<button type="button" class="btn ghost ps-btn" data-act="copyFile" data-f="supabase/functions/push/index.ts">${ic('copy', 16)}Salin kode fungsi</button>`)}
         ${step(3, 'Matikan "Verify JWT"', 'Buka fungsi push › Details. Matikan <b>Enforce JWT Verification</b> (atau Verify JWT), lalu Save.')}
         ${step(4, 'Nyalakan di sini', 'Kembali ke Pengaturan › Notifikasi, nyalakan <b>Notifikasi walau aplikasi ditutup</b>.')}
@@ -2520,6 +2631,23 @@ function renderPicker() {
 
 /* ============ actions ============ */
 const A = {
+  newGroup() { openSheet('group', {}); },
+  editGroup(d) { openSheet('group', { id: d.id }); },
+  openGroup(d) { if (!matchMedia('(min-width:760px)').matches) navPush(); S.groupId = d.id; S.personId = null; render(); const m = $('#main'); if (m) m.scrollTop = 0; },
+  groupTask(d) { openSheet('quick', { text: '', parsed: null, forceType: 'task', tk: { title: '', due: '', time: '', remind: true, group_id: d.id }, open: { tto: true } }); },
+  async delGroup(d) {
+    const g = groupById(d.id); if (!g || !(await confirmBox('Hapus grup ' + g.name + '?', 'Tugas grup tetap ada, hanya tidak lagi terlihat oleh anggota lain.', 'Hapus'))) return;
+    closeSheet(); S.groupId = null; await remove('groups', g.id); render(); toast('Grup dihapus');
+  },
+  muteGroup(d) { const l = lsGet(MUTEK, []); const i = l.indexOf(d.id); if (i >= 0) l.splice(i, 1); else l.push(d.id); lsSet(MUTEK, l); syncFriendRem(); render(); toast(i >= 0 ? 'Kabar grup dinyalakan' : 'Kabar grup dibisukan'); },
+  tClaim(d) { const x = findItem(d.k); if (!x) return; if (S.sheet && S.sheet.kind === 'task') closeSheet(); claimTask(x); },
+  noop() {},
+  shareGroup(d, el) {
+    const g = groupById(d.id), f = el.closest('form'); if (!g || !f) return;
+    const ids = new Set([...(g.members || []), g.owner_id].filter((u) => u && u !== myId()));
+    const boxes = [...f.querySelectorAll('input[name=shareTo]')]; boxes.forEach((b) => { if (ids.has(b.value)) b.checked = true; }); if (boxes[0]) CHG.shareTo(boxes[0]);
+    toast('Dibagikan ke anggota ' + g.name);
+  },
   frFilter(d) { S.frFilter = d.f; render(); },
   linkOpen(d) { openSheet('link', { pid: d.id }); },
   async linkSkip() {
@@ -2641,6 +2769,7 @@ const A = {
     if (!window.matchMedia('(min-width:1100px)').matches) scrollWithin($('#main'), $('.aside'), 12);
   },
   quick() {
+    if (S.view === 'teman' && S.groupId && groupById(S.groupId)) { A.groupTask({ id: S.groupId }); return; }
     if (S.view === 'teman') { const p = S.personId && personById(S.personId); if (p) openSheet('note', { person: p.id }); else openSheet('person', {}); return; }
     if (S.view === 'tugas') { openSheet('quick', { text: '', parsed: null, forceType: 'task', tk: { title: '', due: '', time: '', remind: true } }); return; }
     openSheet('quick', { text: '', parsed: null });
@@ -2687,8 +2816,8 @@ const A = {
     await saveChecklist(e, list);
     toast('Item dihapus', { label: 'Batalkan', fn: () => { const cur = getEv(e.id); const l2 = [...(cur.checklist || [])]; l2.splice(+d.i, 0, old); saveChecklist(cur, l2); } });
   },
-  openPerson(d) { if (!d.id) return; if (S.view !== 'teman' || !matchMedia('(min-width:760px)').matches) navPush(); S.personId = d.id; S.view = 'teman'; closeSheet(); render(); $('#main').scrollTop = 0; },
-  backList() { if (NAV.length && NAV[NAV.length - 1].view === 'teman' && !NAV[NAV.length - 1].personId) { history.back(); return; } S.personId = null; render(); },
+  openPerson(d) { if (!d.id) return; if (S.view !== 'teman' || !matchMedia('(min-width:760px)').matches) navPush(); S.groupId = null; S.personId = d.id; S.view = 'teman'; closeSheet(); render(); $('#main').scrollTop = 0; },
+  backList() { if (NAV.length && NAV[NAV.length - 1].view === 'teman' && !NAV[NAV.length - 1].personId && !NAV[NAV.length - 1].groupId) { history.back(); return; } S.personId = null; S.groupId = null; render(); },
   newPerson() { openSheet('person', {}); },
   editPerson(d) { openSheet('person', { id: d.id }); },
   async delPerson(d) {
@@ -2801,6 +2930,7 @@ const CHG = {
     if (list.length && list.every((x) => x.done)) toast('Semua persiapan beres!');
   },
   pushSw(el) { pushToggle(el.checked); },
+  tkGroup(el) { tkSync(); S.sheet.tk.group_id = el.value || null; if (S.sheet.tk.group_id) { const g = groupById(S.sheet.tk.group_id); const ok = new Set([...(g.members || []), g.owner_id]); S.sheet.tk.assignees = asgOf(S.sheet.tk).filter((u) => ok.has(u)); S.sheet.tk.people_ids = pplOf(S.sheet.tk).filter((p) => (g.member_people || []).includes(p)); } (S.sheet.open || (S.sheet.open = {})).tto = true; renderSheet(); },
   async remEv(el) {
     const inst = getEv(S.sheet.id); if (!inst) return;
     const sec = el.closest('section');
@@ -2826,6 +2956,16 @@ const CHG = {
   }
 };
 const FORMS = {
+  async group(f) {
+    const fd = new FormData(f), name = (fd.get('name') || '').trim();
+    if (!name) { $('#gr-err').textContent = 'Beri nama grupnya dulu.'; flagField('#gr-name'); return; }
+    const v = fd.getAll('gm'), members = v.filter((x) => x.startsWith('u:')).map((x) => x.slice(2)), member_people = v.filter((x) => x.startsWith('p:')).map((x) => x.slice(2));
+    if (!members.length && !member_people.length) { $('#gr-err').textContent = 'Pilih minimal satu anggota.'; return; }
+    const names = {}; for (const u of members) names[u] = userName(u); if (S.me) names[myId()] = S.me.name || 'Kamu';
+    const old = S.sheet.id ? groupById(S.sheet.id) : null;
+    const row = { ...(old || {}), id: old ? old.id : uid(), name, color: fd.get('color') || NORMAL[8], members, member_people, member_names: names };
+    closeSheet(); await save('groups', row); S.groupId = row.id; S.personId = null; S.view = 'teman'; render(); toast(old ? 'Grup disimpan' : 'Grup dibuat');
+  },
   async link(f) {
     const fd = new FormData(f), fid = fd.get('fid'), pid = S.sheet.pid;
     if (!fid) { $('#link-err').textContent = 'Pilih akun temannya dulu.'; return; }
@@ -3035,7 +3175,7 @@ async function migrateLocal() {
   if (!(await confirmBox(`Ada ${n} data yang tersimpan di perangkat ini. Pindahkan ke akunmu?`, 'Pindahkan'))) return;
   const me = myId();
   try {
-    for (const t of ['people', 'events', 'notes', 'tasks']) for (const r of loc[t] || []) { if (t === 'tasks' && S.noTasks) continue; await Cloud.put(t, { ...r, owner_id: me }); }
+    for (const t of ['people', 'events', 'notes', 'tasks', 'groups']) for (const r of loc[t] || []) { if (t === 'groups' && S.noGroups) continue; if (t === 'tasks' && S.noTasks) continue; await Cloud.put(t, { ...r, owner_id: me }); }
     localStorage.removeItem(LKEY); toast('Data lokal sudah dipindahkan'); await loadData();
   } catch (err) { toast('Gagal memindahkan: ' + err.message); }
 }
@@ -3081,10 +3221,10 @@ async function boot() {
 // Chrome Android melewati entri riwayat yang dibuat tanpa ketukan pengguna,
 // jadi entri selalu dibuat di dalam handler ketukan (click).
 const NAV = [];
-function navPush() { NAV.push({ view: S.view, kalMode: S.kalMode, personId: S.personId, agTab: S.agTab, setPage: S.setPage || null, scroll: $('#main') ? $('#main').scrollTop : 0 }); if (NAV.length > 40) NAV.shift(); pushEntry(); }
+function navPush() { NAV.push({ view: S.view, kalMode: S.kalMode, personId: S.personId, groupId: S.groupId, agTab: S.agTab, setPage: S.setPage || null, scroll: $('#main') ? $('#main').scrollTop : 0 }); if (NAV.length > 40) NAV.shift(); pushEntry(); }
 function navBack() {
   const p = NAV.pop(); if (!p) return false;
-  S.view = p.view; S.personId = p.personId; S.setPage = p.setPage || null; if (p.agTab) S.agTab = p.agTab; if (p.kalMode) S.kalMode = p.kalMode; render();
+  S.view = p.view; S.personId = p.personId; S.groupId = p.groupId || null; S.setPage = p.setPage || null; if (p.agTab) S.agTab = p.agTab; if (p.kalMode) S.kalMode = p.kalMode; render();
   const m = $('#main'); if (m) m.scrollTop = p.scroll || 0; return true;
 }
 const hDepth = () => (history.state && history.state.ingetin) || 0;

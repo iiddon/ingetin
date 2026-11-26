@@ -99,7 +99,7 @@ export function dueFor(uid: string, events: Ev[], friendRem: Record<string, stri
 }
 
 /* ---------- tugas & ringkasan pagi ---------- */
-export type Task = { id: string; owner_id: string; title: string; due?: string | null; time?: string | null; done?: boolean; remind?: boolean | null; assignee?: string | null; assignees?: string[] | null; notified?: string[] | null; done_by?: string | null; event_id?: string | null; assign_notified?: boolean; done_notified?: boolean };
+export type Task = { id: string; owner_id: string; title: string; due?: string | null; time?: string | null; done?: boolean; remind?: boolean | null; assignee?: string | null; assignees?: string[] | null; notified?: string[] | null; done_by?: string | null; event_id?: string | null; group_id?: string | null; group_notified?: boolean; assign_notified?: boolean; done_notified?: boolean };
 export const asgOf = (t: Task) => (t.assignees && t.assignees.length ? t.assignees : t.assignee ? [t.assignee] : []);
 export function dueTasks(uid: string, tasks: Task[], tz: number, now: number): Note[] {
   const from = now - WINDOW_MIN * 60000, out: Note[] = [];
@@ -142,8 +142,16 @@ async function send(s: Sub, payload: Record<string, unknown>) {
 }
 
 // kabar titipan: ke teman saat dititipi, ke semua anggota saat ada yang mengerjakan, dan pesan obrolan baru
+type Group = { id: string; name: string; owner_id: string; members: string[] | null };
 async function taskNews(tasks: Task[], byUser: Map<string, Sub[]>) {
   let sent = 0;
+  // grup & siapa yang membisukan kabar grup
+  const gids = [...new Set(tasks.map((t) => t.group_id).filter(Boolean))] as string[];
+  const groups = new Map<string, Group>();
+  if (gids.length) { const { data } = await sb.from('groups').select('id, name, owner_id, members').in('id', gids); for (const g of (data || []) as Group[]) groups.set(g.id, g); }
+  const muted = new Map<string, string[]>();
+  { const r = await sb.from('push_prefs').select('user_id, muted_groups').in('user_id', [...byUser.keys()]); if (!r.error) for (const x of r.data || []) muted.set(x.user_id, x.muted_groups || []); }
+  const grpPeople = (g: Group | undefined, skip: string[]) => (g ? [g.owner_id, ...(g.members || [])].filter((u, i, a) => a.indexOf(u) === i && !skip.includes(u) && !(muted.get(u) || []).includes(g.id)) : []);
   const names = new Map<string, string>();
   const nameOf = async (id: string) => { if (!names.has(id)) { const { data } = await sb.from('profiles').select('name').eq('id', id).maybeSingle(); names.set(id, (data && data.name) || 'Temanmu'); } return names.get(id)!; };
   const push = async (to: string[], payload: Record<string, unknown>) => { for (const u of to) for (const s of byUser.get(u) || []) { await send(s, payload).catch(() => 0); sent++; } };
@@ -159,10 +167,17 @@ async function taskNews(tasks: Task[], byUser: Map<string, Sub[]>) {
         await push(fresh, { title: (await nameOf(t.owner_id)) + ' menitipkan tugas', body: t.title + (t.due ? ' · tenggat ' + fmtLong(t.due) : '') + others, tag: 'assign-' + t.id, view: 'tugas' });
       }
     }
-    // sudah dikerjakan (cukup salah satu): kabari pemilik & penerima lain
-    if (ag.length && t.done && t.done_notified === false && t.done_by) {
+    // tugas grup baru: kabari anggota grup (selain pemilik & yang dititipi)
+    const g = t.group_id ? groups.get(t.group_id) : undefined;
+    if (g && t.group_notified === false && !t.done) {
+      await sb.from('tasks').update({ group_notified: true }).eq('id', t.id);
+      const to = grpPeople(g, [t.owner_id, ...ag]);
+      await push(to, { title: 'Tugas baru di ' + g.name, body: t.title + (ag.length ? ' · dikerjakan ' + (await Promise.all(ag.map(nameOf))).join(', ') : ' · belum ada yang ambil, ketuk untuk mengambil'), tag: 'grp-' + t.id, view: 'tugas' });
+    }
+    // sudah dikerjakan (cukup salah satu): kabari pemilik, penerima lain & anggota grup
+    if ((ag.length || g) && t.done && t.done_notified === false && t.done_by) {
       await sb.from('tasks').update({ done_notified: true }).eq('id', t.id);
-      const to = [t.owner_id, ...ag].filter((u, i, a) => u !== t.done_by && a.indexOf(u) === i);
+      const to = [t.owner_id, ...ag, ...grpPeople(g, [])].filter((u, i, a) => u !== t.done_by && a.indexOf(u) === i);
       await push(to, { title: (await nameOf(t.done_by)) + ' sudah mengerjakan', body: '✓ ' + t.title, tag: 'done-' + t.id, view: 'tugas' });
     }
   }
@@ -192,8 +207,15 @@ async function run() {
   let allTasks: Task[] | null = null;
   {
     const r = await sb.from('tasks').select('*').or(`owner_id.in.(${uids.join(',')}),assignee.in.(${uids.join(',')}),assignees.ov.{${uids.join(',')}}`);
-    if (!r.error) allTasks = r.data as Task[];
-    else { const r2 = await sb.from('tasks').select('*').or(`owner_id.in.(${uids.join(',')}),assignee.in.(${uids.join(',')})`); if (!r2.error) allTasks = r2.data as Task[]; }
+    if (!r.error) {
+      allTasks = r.data as Task[];
+      // tugas dari grup yang anggotanya punya notifikasi
+      const gr = await sb.from('groups').select('id').or(`owner_id.in.(${uids.join(',')}),members.ov.{${uids.join(',')}}`);
+      if (!gr.error && gr.data && gr.data.length) {
+        const r3 = await sb.from('tasks').select('*').in('group_id', gr.data.map((x) => x.id));
+        if (!r3.error) for (const t of (r3.data || []) as Task[]) if (!allTasks.some((x) => x.id === t.id)) allTasks.push(t);
+      }
+    } else { const r2 = await sb.from('tasks').select('*').or(`owner_id.in.(${uids.join(',')}),assignee.in.(${uids.join(',')})`); if (!r2.error) allTasks = r2.data as Task[]; }
   }
   if (allTasks) sent += await taskNews(allTasks, byUser);
   for (const [uid, list] of byUser) {
