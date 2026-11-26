@@ -160,11 +160,11 @@ async function taskNews(tasks: Task[], byUser: Map<string, Sub[]>) {
     const ag = asgOf(t);
     // dititipi
     if (ag.length && !t.done) {
-      const fresh = multi ? ag.filter((u) => !(t.notified || []).includes(u)) : (t.assign_notified === false ? ag : []);
+      const fresh = (multi ? ag.filter((u) => !(t.notified || []).includes(u)) : (t.assign_notified === false ? ag : [])).filter((u) => u !== t.owner_id);
       if (fresh.length) {
         await sb.from('tasks').update(multi ? { notified: ag, assign_notified: true } : { assign_notified: true }).eq('id', t.id);
-        const others = ag.length > 1 ? ` (bersama ${ag.length - 1} teman lain · cukup salah satu)` : '';
-        await push(fresh, { title: (await nameOf(t.owner_id)) + ' menitipkan tugas', body: t.title + (t.due ? ' · tenggat ' + fmtLong(t.due) : '') + others, tag: 'assign-' + t.id, view: 'tugas' });
+        const extra = ag.length > 1 ? ` (bersama ${ag.length - 1} orang lain · cukup salah satu)` : '';
+        await push(fresh, { title: (await nameOf(t.owner_id)) + ' menitipkan tugas', body: t.title + (t.due ? ' · tenggat ' + fmtLong(t.due) : '') + extra, tag: 'assign-' + t.id, view: 'tugas' });
       }
     }
     // tugas grup baru: kabari anggota grup (selain pemilik & yang dititipi)

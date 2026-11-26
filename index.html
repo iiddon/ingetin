@@ -576,6 +576,7 @@ mark{background:var(--mark);color:inherit;border-radius:3px;padding:0 1px}
 .gr-who{display:flex;flex-direction:column;gap:8px}.gr-who>div{display:flex;flex-direction:column;font-size:13px}.gr-who span{color:var(--mu)}
 .gr-m{display:flex;align-items:center;gap:10px;font-size:14px;font-weight:600}
 .tk-note-ro{padding:10px 12px;border-radius:12px;background:var(--card);border:1px solid var(--bd);font-size:14px;line-height:1.5;white-space:normal;word-break:break-word}
+.tk-hist .tk-who{font-size:inherit;text-transform:none;letter-spacing:0;color:var(--tx)}
 .tk-claim{flex-shrink:0;min-height:34px;padding:0 14px;border-radius:999px;border:0;background:var(--p);color:#fff;font-weight:800;font-size:13px}
 .tk-claim:active{transform:scale(.95)}
 .tk-box.ro::before{background:var(--bg);border-style:dashed}
@@ -677,7 +678,7 @@ mark{background:var(--mark);color:inherit;border-radius:3px;padding:0 1px}
 
 <script type="module">
 /* ============ helpers ============ */
-const APP_VERSION = '4.1.1 (26 Nov 2026)';
+const APP_VERSION = '4.2 (26 Nov 2026)';
 const $ = (s, r = document) => r.querySelector(s);
 const h = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const pad = (n) => String(n).padStart(2, '0');
@@ -1196,7 +1197,7 @@ async function claimKey(key) {
   if (!pushOn()) return true;
   try { const { error } = await S.sb.from('push_sent').insert({ user_id: myId(), key }); return !(error && (error.code === '23505' || /duplicate/i.test(error.message))); } catch { return true; }
 }
-function prefetchFiles() { for (const f of ['supabase-update-v3.1.sql', 'supabase-update-v3.3.sql', 'supabase-update-v3.7.sql', 'supabase-update-v3.8.sql', 'supabase-update-v4.1.sql', 'supabase/functions/push/index.ts']) if (!FILES[f]) fetch(f, { cache: 'no-cache' }).then((r) => (r.ok ? r.text() : null)).then((t) => { if (t) FILES[f] = t; }).catch(() => {}); }
+function prefetchFiles() { for (const f of ['supabase-update-v3.1.sql', 'supabase-update-v3.3.sql', 'supabase-update-v3.7.sql', 'supabase-update-v3.8.sql', 'supabase-update-v4.1.sql', 'supabase-update-v4.2.sql', 'supabase/functions/push/index.ts']) if (!FILES[f]) fetch(f, { cache: 'no-cache' }).then((r) => (r.ok ? r.text() : null)).then((t) => { if (t) FILES[f] = t; }).catch(() => {}); }
 async function pushToggle(on) {
   if (S.pushBusy) return;
   S.pushBusy = true; render();
@@ -1911,11 +1912,13 @@ const asgOf = (t) => (t && t.assignees && t.assignees.length ? t.assignees : t &
 const pplOf = (t) => ((t && t.people_ids) || []).filter((id) => personById(id));
 const asgNames = (t) => [...asgOf(t).map(userName), ...pplOf(t).map((id) => (personById(id) || { name: 'Teman' }).name)].join(', ');
 const hasWho = (t) => asgOf(t).length + pplOf(t).length > 0;
+const hasOthers = (t) => asgOf(t).some((u) => u !== myId()) || pplOf(t).length > 0; // dititipkan ke orang lain (bukan diri sendiri)
+const fullName = (u) => (u === myId() ? (S.me && S.me.name ? S.me.name + ' (kamu)' : 'Kamu') : userName(u));
 const chatOf = (tid) => (S.data.comments || []).filter((c) => c.task_id === tid);
 const READK = 'ingetin:tkRead';
 const chatUnread = (tid) => { const r = lsGet(READK, {})[tid] || ''; return chatOf(tid).filter((c) => c.kind !== 'sys' && c.author !== myId() && c.created_at > r).length; };
 const chatMarkRead = (tid) => { const m = lsGet(READK, {}); const l = chatOf(tid); m[tid] = l.length ? l[l.length - 1].created_at : new Date().toISOString(); lsSet(READK, m); };
-const canChat = (t) => S.mode === 'cloud' && !S.noChat && t && t.id && (asgOf(t).length > 0 || !!t.group_id) && S.data.tasks.some((x) => x.id === t.id);
+const canChat = (t) => S.mode === 'cloud' && !S.noChat && t && t.id && (new Set([t.owner_id, ...asgOf(t)]).size > 1 || !!t.group_id) && S.data.tasks.some((x) => x.id === t.id);
 function chatList(tid) {
   const l = chatOf(tid);
   if (!l.length) return `<p class="muted tk-chat-empty">Belum ada obrolan. Tanyakan detail tugasnya di sini.</p>`;
@@ -1988,7 +1991,7 @@ function taskItems() {
     const ag = asgOf(t);
     const viewer = t.owner_id !== me && !ag.includes(me);
     if (viewer && !(t.group_id && groupById(t.group_id))) continue;
-    const who = viewer ? 'grup' : t.owner_id === me ? (hasWho(t) ? 'titip' : 'mine') : 'dari';
+    const who = viewer ? 'grup' : t.owner_id === me ? (hasOthers(t) ? 'titip' : 'mine') : 'dari';
     out.push({ k: 't:' + t.id, src: 'task', t, title: t.title, due: t.due || '', time: t.time || '', done: !!t.done, ev: taskEvent(t), who });
   }
   for (const e of expand(ymd(addDays(todayD(), -30)), ymd(addDays(todayD(), 90)))) {
@@ -2097,7 +2100,8 @@ function taskFields(t, s, ro) {
       <small class="muted" style="font-size:12px">Semua anggota grup bisa <b>melihat</b> tugas ini. Yang mengerjakan tetap hanya yang dititipi. Kosongkan "Titip ke" supaya anggota bisa <b>Ambil</b> sendiri.</small>`;
   const tto = asgOf(t), tpp = pplOf(t);
   const chipP = (p, val, on, wait) => `<label class="pchip"><input type="checkbox" name="tto" value="${h(val)}" ${on ? 'checked' : ''} ${ro ? 'disabled' : ''}><span>${avatar(p, 24)}${h(p.name)}${wait ? '<em class="tk-wait">belum gabung</em>' : ''}</span></label>`;
-  const toBody = `<div class="pchips">${fr.map((p) => chipP(p, 'u:' + p.linked_user_id, tto.includes(p.linked_user_id), false)).join('')}${manual.map((p) => chipP(p, 'p:' + p.id, tpp.includes(p.id), true)).join('')}</div>
+  const meChip = S.mode === 'cloud' ? `<label class="pchip"><input type="checkbox" name="tto" value="u:${h(myId())}" ${tto.includes(myId()) ? 'checked' : ''} ${ro ? 'disabled' : ''}><span>${avatar({ name: (S.me && S.me.name) || 'Aku', color: 'blue' }, 24)}Aku sendiri</span></label>` : '';
+  const toBody = `<div class="pchips">${meChip}${fr.map((p) => chipP(p, 'u:' + p.linked_user_id, tto.includes(p.linked_user_id), false)).join('')}${manual.map((p) => chipP(p, 'p:' + p.id, tpp.includes(p.id), true)).join('')}</div>
       <small class="muted" style="font-size:12px">Bisa pilih lebih dari satu. <b>Cukup salah satu</b> yang mengerjakan. Teman yang <b>belum gabung</b> belum dapat notifikasi — tugasnya otomatis terkirim begitu kamu menghubungkannya ke akun mereka.</small>`;
   const v = tkVals(t);
   return `<input type="hidden" id="tk-due" name="due" value="${h(t.due || '')}"><input type="hidden" id="tk-time" name="ttime" value="${h(t.time || '')}">
@@ -2107,7 +2111,7 @@ function taskFields(t, s, ro) {
       <label class="qrow-h qrow-sw"><span class="qrow-i">${ic('bell', 17, 2.2)}</span><b>Pengingat</b><span class="qrow-v" id="qv-trem">${h(v.trem)}</span><input type="checkbox" role="switch" name="tremind" ${t.remind !== false ? 'checked' : ''} ${ro ? 'disabled' : ''}></label>
       ${grps.length ? row('tgrp', 'people', 'Grup', G ? '👥 ' + G.name : 'Tanpa grup', grBody) : ''}
       ${row('tev', 'flag', 'Bagian dari acara', v.tev, evList)}
-      ${fr.length || manual.length ? row('tto', 'addUser', 'Titip ke', v.tto, toBody) : ''}
+      ${fr.length || manual.length || S.mode === 'cloud' ? row('tto', 'addUser', 'Titip ke', v.tto, toBody) : ''}
       ${ro ? (t.notes || '').trim() ? row('tnote', 'note', 'Catatan', 'Lihat', `<div class="tk-note-ro">${h(t.notes).replace(/\n/g, '<br>')}</div>`, false, true) : row('tnote', 'note', 'Catatan', 'Tidak ada', '') : row('tnote', 'note', 'Catatan', v.tnote, `<textarea class="inp" name="tnotes" rows="2" placeholder="mis. yang 2 meter">${h(t.notes || '')}</textarea>`)}
     </div>`;
 }
@@ -2115,7 +2119,7 @@ function tkVals(t) {
   const e = t.ev_key ? getEv(t.ev_key) : null;
   return { tdue: t.due ? qaDateLabel(t.due) : 'Tanpa tanggal', ttime: t.time ? fmtTime(t.time) : 'Tanpa jam',
     trem: t.remind === false ? 'Mati' : t.due ? (t.time ? 'Tepat waktu' : 'Pukul 07.00') : 'Perlu tenggat',
-    tev: e ? evEmoji(e) + ' ' + e.title : 'Tidak ada', tto: hasWho(t) ? asgNames(t) : t.group_id ? 'Siapa saja (bisa diambil)' : 'Aku sendiri', tnote: (t.notes || '').trim() ? 'Ada' : 'Tambah' };
+    tev: e ? evEmoji(e) + ' ' + e.title : 'Tidak ada', tto: hasWho(t) ? asgNames(t).replace(/^Kamu$/, 'Aku sendiri') : t.group_id ? 'Siapa saja (bisa diambil)' : 'Belum dititipkan', tnote: (t.notes || '').trim() ? 'Ada' : 'Tambah' };
 }
 function tkSync() {
   const f = $('form[data-form=task]') || $('form[data-form=quick]'); if (!f || !S.sheet || !S.sheet.tk) return;
@@ -2124,7 +2128,7 @@ function tkSync() {
   const fd = new FormData(f);
   if (fd.has('title')) t.title = fd.get('title');
   t.due = fd.get('due') || ''; t.time = fd.get('ttime') || ''; t.remind = fd.has('tremind') ? true : (f.querySelector('[name=tremind]') ? false : t.remind);
-  if (fd.has('tev')) t.ev_key = fd.get('tev'); if (f.querySelector('[name=tgrp]')) t.group_id = fd.get('tgrp') || null; if (f.querySelector('[name=tto]')) { const v = fd.getAll('tto'); t.assignees = v.filter((x) => x.startsWith('u:')).map((x) => x.slice(2)); t.people_ids = v.filter((x) => x.startsWith('p:')).map((x) => x.slice(2)); t.assignee = t.assignees[0] || null; } if (fd.has('tnotes')) t.notes = fd.get('tnotes');
+  if (fd.has('tev')) t.ev_key = fd.get('tev'); if (f.querySelector('[name=tgrp]')) t.group_id = fd.get('tgrp') || null; if (f.querySelector('[name=tto]')) { const v = fd.getAll('tto'); t.assignees = v.filter((x) => x.startsWith('u:')).map((x) => x.slice(2)); t.people_ids = v.filter((x) => x.startsWith('p:')).map((x) => x.slice(2)); t.assignee = t.assignees.find((u) => u !== myId()) || null; } if (fd.has('tnotes')) t.notes = fd.get('tnotes');
   const v = tkVals(t);
   for (const k of Object.keys(v)) { const el = $('#qv-' + k); if (el) el.textContent = v[k]; }
 }
@@ -2141,9 +2145,9 @@ async function saveTask(t, isNew) {
   const b = ev ? baseOf(ev) : null;
   const row = { ...(t.id ? (S.data.tasks.find((x) => x.id === t.id) || {}) : {}), id: t.id || uid(), title, due: t.due || null, time: t.due ? t.time || null : null,
     remind: t.remind !== false, notes: (t.notes || '').trim() || null, event_id: b ? b.id : null, event_date: b && isRec(b) ? ev.date : null,
-    assignees: S.mode === 'cloud' && asgOf(t).length ? asgOf(t) : null, assignee: S.mode === 'cloud' ? asgOf(t)[0] || null : null, people_ids: pplOf(t).length ? pplOf(t) : null, group_id: t.group_id || null, done: !!t.done };
+    assignees: S.mode === 'cloud' && asgOf(t).length ? asgOf(t) : null, assignee: S.mode === 'cloud' ? asgOf(t).find((u) => u !== myId()) || null : null, people_ids: pplOf(t).length ? pplOf(t) : null, group_id: t.group_id || null, done: !!t.done };
   await save('tasks', row);
-  if (isNew) toast(hasWho(row) ? 'Dititipkan ke ' + asgNames(row) : row.group_id ? 'Tugas grup ditambahkan' : 'Tugas ditambahkan');
+  if (isNew) toast(hasOthers(row) ? 'Dititipkan ke ' + asgNames(row) : row.group_id ? 'Tugas grup ditambahkan' : 'Tugas ditambahkan');
 }
 async function toggleTask(x) {
   if (x.who === 'grup') { toast(hasWho(x.t) ? 'Hanya yang dititipi yang bisa mencentang' : 'Ambil tugasnya dulu untuk mengerjakan'); return; }
@@ -2427,7 +2431,7 @@ const SHEETS = {
         <label class="sr" for="tk-title">Judul tugas</label><input id="tk-title" class="qtitle" name="title" value="${h(t.title || '')}" placeholder="Apa yang perlu dikerjakan?" autocomplete="off" ${mine ? '' : 'readonly'}></div>
         ${mine ? '' : viewer ? `<div class="ps-warn" style="background:var(--p-l);color:var(--tx)">${ic('people', 18)}<span>Tugas grup <b>${h((groupById(t.group_id) || {}).name || '')}</b> dari ${h(userName(t.owner_id))}. ${hasWho(t) ? 'Kamu hanya bisa melihat; yang mengerjakan: <b>' + h(asgNames(t)) + '</b>.' : 'Belum ada yang mengambil — ketuk <b>Ambil tugas</b> untuk mengerjakan.'}</span></div>` : `<div class="ps-warn" style="background:var(--p-l);color:var(--tx)">${ic('people', 18)}<span>Dititipkan oleh <b>${h(userName(t.owner_id))}</b>. Kamu bisa mencentangnya kalau sudah beres.</span></div>`}
         ${taskFields(t, s, !mine)}
-        ${!s.isNew ? `<div class="tk-hist"><b>Riwayat</b><span>Dibuat ${h(fmtShort(t.created_at ? ymd(new Date(t.created_at)) : todayS()))}${hasWho(t) ? ' · dititipkan ke ' + h(asgNames(t)) : ''}${t.done && t.done_at ? ' · dicentang ' + h(userName(t.done_by || myId())) + ' ' + h(fmtShort(ymd(new Date(t.done_at)))) : ''}</span></div>` : ''}
+        ${!s.isNew ? `<div class="tk-hist"><b>Riwayat</b><span>Dibuat ${h(fmtShort(t.created_at ? ymd(new Date(t.created_at)) : todayS()))} oleh <b class="tk-who">${h(fullName(t.owner_id || myId()))}</b>${hasWho(t) ? ' · dititipkan ke ' + h(asgNames(t)) : ''}${t.done && t.done_at ? ' · dicentang ' + h(userName(t.done_by || myId())) + ' ' + h(fmtShort(ymd(new Date(t.done_at)))) : ''}</span></div>` : ''}
         ${!s.isNew && canChat(t) ? (viewer ? (chatOf(t.id).some((c) => c.kind !== 'sys') ? chatBox(t, true) : '') : chatBox(t)) : ''}
         <p class="err" id="tk-err" role="alert"></p>
         <div class="row2">${!s.isNew && mine ? `<button type="button" class="btn danger" data-act="tkDel">${ic('trash', 16)}Hapus</button>` : `<button type="button" class="btn" data-act="closeSheet">Tutup</button>`}${mine ? `<button type="submit" class="btn pri">Simpan</button>` : viewer ? (!hasWho(t) && !t.done ? `<button type="button" class="btn pri" data-act="tClaim" data-k="t:${h(t.id)}">Ambil tugas</button>` : '') : `<button type="button" class="btn pri" data-act="tkDone">${t.done ? 'Buka lagi' : 'Tandai beres'}</button>`}</div>
@@ -2438,7 +2442,7 @@ const SHEETS = {
     return `<div class="sh-body"><div class="sh-top"><h2>Siapkan notifikasi server</h2><button type="button" class="icon-btn round" data-act="closeSheet" aria-label="Tutup">${ic('x', 18, 2.4)}</button></div>
       ${s.why === 'SERVER' ? `<div class="ps-warn">${ic('info', 18)}<span>Server notifikasi belum ditemukan. Ikuti langkah 2 dan 3 dulu.</span></div>` : s.why === 'SQL' ? `<div class="ps-warn">${ic('info', 18)}<span>Tabel notifikasi belum ada. Jalankan langkah 1 dulu.</span></div>` : '<p class="muted" style="margin:0">Cukup sekali. Setelah itu semua akun di Ingetin bisa memakainya.</p>'}
       <ol class="ps-list">
-        ${step(1, 'Jalankan SQL', 'Supabase › SQL Editor › New query › tempel › Run. Jalankan berurutan file yang belum pernah kamu jalankan (v3.1 → v3.3 → v3.7 → v3.8 → v4.1).', `<div style="display:flex;gap:8px;flex-wrap:wrap"><button type="button" class="btn ghost ps-btn" data-act="copyFile" data-f="supabase-update-v3.1.sql">${ic('copy', 16)}SQL v3.1</button><button type="button" class="btn ghost ps-btn" data-act="copyFile" data-f="supabase-update-v3.3.sql">${ic('copy', 16)}SQL v3.3 (Tugas)</button><button type="button" class="btn ghost ps-btn" data-act="copyFile" data-f="supabase-update-v3.7.sql">${ic('copy', 16)}SQL v3.7 (Obrolan)</button><button type="button" class="btn ghost ps-btn" data-act="copyFile" data-f="supabase-update-v3.8.sql">${ic('copy', 16)}SQL v3.8 (Teman manual)</button><button type="button" class="btn ghost ps-btn" data-act="copyFile" data-f="supabase-update-v4.1.sql">${ic('copy', 16)}SQL v4.1 (Grup)</button></div>`)}
+        ${step(1, 'Jalankan SQL', 'Supabase › SQL Editor › New query › tempel › Run. Jalankan berurutan file yang belum pernah kamu jalankan (v3.1 → v3.3 → v3.7 → v3.8 → v4.1 → v4.2).', `<div style="display:flex;gap:8px;flex-wrap:wrap"><button type="button" class="btn ghost ps-btn" data-act="copyFile" data-f="supabase-update-v3.1.sql">${ic('copy', 16)}SQL v3.1</button><button type="button" class="btn ghost ps-btn" data-act="copyFile" data-f="supabase-update-v3.3.sql">${ic('copy', 16)}SQL v3.3 (Tugas)</button><button type="button" class="btn ghost ps-btn" data-act="copyFile" data-f="supabase-update-v3.7.sql">${ic('copy', 16)}SQL v3.7 (Obrolan)</button><button type="button" class="btn ghost ps-btn" data-act="copyFile" data-f="supabase-update-v3.8.sql">${ic('copy', 16)}SQL v3.8 (Teman manual)</button><button type="button" class="btn ghost ps-btn" data-act="copyFile" data-f="supabase-update-v4.1.sql">${ic('copy', 16)}SQL v4.1 (Grup)</button><button type="button" class="btn ghost ps-btn" data-act="copyFile" data-f="supabase-update-v4.2.sql">${ic('copy', 16)}SQL v4.2</button></div>`)}
         ${step(2, 'Buat / perbarui Edge Function "push"', 'Supabase › Edge Functions › Deploy a new function › Via Editor. Beri nama <b>push</b>, hapus contoh kodenya, tempel kode ini, lalu Deploy. Sudah ada? Buka fungsi push › Code, ganti seluruh isinya dengan kode terbaru, lalu Deploy.', `<button type="button" class="btn ghost ps-btn" data-act="copyFile" data-f="supabase/functions/push/index.ts">${ic('copy', 16)}Salin kode fungsi</button>`)}
         ${step(3, 'Matikan "Verify JWT"', 'Buka fungsi push › Details. Matikan <b>Enforce JWT Verification</b> (atau Verify JWT), lalu Save.')}
         ${step(4, 'Nyalakan di sini', 'Kembali ke Pengaturan › Notifikasi, nyalakan <b>Notifikasi walau aplikasi ditutup</b>.')}

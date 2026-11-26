@@ -78,3 +78,7 @@ SQL Editor › New query › tempel isi `supabase-update-v3.8.sql` › Run. (Fun
 
 1. SQL Editor › New query › tempel isi `supabase-update-v4.1.sql` › Run (setelah v3.8).
 2. Edge Functions › `push` › Code › ganti seluruh isinya dengan `supabase/functions/push/index.ts` terbaru › Deploy.
+
+## Update v4.2: titip ke diri sendiri
+
+SQL Editor › New query › tempel isi `supabase-update-v4.2.sql` › Run, lalu perbarui kode fungsi `push` (Code › ganti › Deploy).
