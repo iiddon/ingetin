@@ -575,6 +575,7 @@ mark{background:var(--mark);color:inherit;border-radius:3px;padding:0 1px}
 .gr-sum{display:flex;flex-direction:column;gap:10px}
 .gr-who{display:flex;flex-direction:column;gap:8px}.gr-who>div{display:flex;flex-direction:column;font-size:13px}.gr-who span{color:var(--mu)}
 .gr-m{display:flex;align-items:center;gap:10px;font-size:14px;font-weight:600}
+.tk-note-ro{padding:10px 12px;border-radius:12px;background:var(--card);border:1px solid var(--bd);font-size:14px;line-height:1.5;white-space:normal;word-break:break-word}
 .tk-claim{flex-shrink:0;min-height:34px;padding:0 14px;border-radius:999px;border:0;background:var(--p);color:#fff;font-weight:800;font-size:13px}
 .tk-claim:active{transform:scale(.95)}
 .tk-box.ro::before{background:var(--bg);border-style:dashed}
@@ -676,7 +677,7 @@ mark{background:var(--mark);color:inherit;border-radius:3px;padding:0 1px}
 
 <script type="module">
 /* ============ helpers ============ */
-const APP_VERSION = '4.1 (26 Nov 2026)';
+const APP_VERSION = '4.1.1 (26 Nov 2026)';
 const $ = (s, r = document) => r.querySelector(s);
 const h = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const pad = (n) => String(n).padStart(2, '0');
@@ -2075,9 +2076,9 @@ function vTugas() {
 // baris-baris formulir tugas (dipakai Tambah cepat jenis Tugas & detail tugas)
 function taskFields(t, s, ro) {
   const open = s.open || (s.open = {});
-  const row = (k, icon, label, val, body, warn) => `<div class="qrow ${open[k] ? 'open' : ''}" data-row="${k}">
-      <button type="button" class="qrow-h" data-act="qaRow" data-r="${k}" aria-expanded="${!!open[k]}" ${ro ? 'disabled' : ''}><span class="qrow-i">${ic(icon, 17, 2.2)}</span><b>${label}</b><span class="qrow-v ${warn ? 'warn' : ''}" id="qv-${k}">${h(val)}</span>${ro ? '' : ic('right', 18, 2.2)}</button>
-      <div class="qrow-b" ${open[k] ? '' : 'hidden'}>${body}</div></div>`;
+  const row = (k, icon, label, val, body, warn, roOpen) => { const lock = ro && !roOpen; return `<div class="qrow ${open[k] ? 'open' : ''}" data-row="${k}">
+      <button type="button" class="qrow-h" data-act="qaRow" data-r="${k}" aria-expanded="${!!open[k]}" ${lock ? 'disabled' : ''}><span class="qrow-i">${ic(icon, 17, 2.2)}</span><b>${label}</b><span class="qrow-v ${warn ? 'warn' : ''}" id="qv-${k}">${h(val)}</span>${lock ? '' : ic('right', 18, 2.2)}</button>
+      <div class="qrow-b" ${open[k] ? '' : 'hidden'}>${body}</div></div>`; };
   const base = todayD(), days = []; for (let i = 0; i < 21; i++) days.push(ymd(addDays(base, i)));
   if (t.due && !days.includes(t.due)) days.unshift(t.due);
   const strip = `<div class="dstrip" role="radiogroup" aria-label="Pilih tenggat"><button type="button" class="dchip ${!t.due ? 'on' : ''}" data-act="tkDate" data-d=""><small>Tanpa</small><b>–</b><small>tanggal</small></button>${days.map((k) => { const d = pd(k); return `<button type="button" role="radio" aria-checked="${k === t.due}" class="dchip ${k === t.due ? 'on' : ''} ${d.getDay() === 0 ? 'red' : ''}" data-act="tkDate" data-d="${k}" aria-label="${h(fmtLong(k))}"><small>${k === todayS() ? 'Hari ini' : HARI3[d.getDay()]}</small><b>${d.getDate()}</b><small>${BUL3[d.getMonth()]}</small></button>`; }).join('')}</div>
@@ -2107,7 +2108,7 @@ function taskFields(t, s, ro) {
       ${grps.length ? row('tgrp', 'people', 'Grup', G ? '👥 ' + G.name : 'Tanpa grup', grBody) : ''}
       ${row('tev', 'flag', 'Bagian dari acara', v.tev, evList)}
       ${fr.length || manual.length ? row('tto', 'addUser', 'Titip ke', v.tto, toBody) : ''}
-      ${row('tnote', 'note', 'Catatan', v.tnote, `<textarea class="inp" name="tnotes" rows="2" placeholder="mis. yang 2 meter" ${ro ? 'readonly' : ''}>${h(t.notes || '')}</textarea>`)}
+      ${ro ? (t.notes || '').trim() ? row('tnote', 'note', 'Catatan', 'Lihat', `<div class="tk-note-ro">${h(t.notes).replace(/\n/g, '<br>')}</div>`, false, true) : row('tnote', 'note', 'Catatan', 'Tidak ada', '') : row('tnote', 'note', 'Catatan', v.tnote, `<textarea class="inp" name="tnotes" rows="2" placeholder="mis. yang 2 meter">${h(t.notes || '')}</textarea>`)}
     </div>`;
 }
 function tkVals(t) {
