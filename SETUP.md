@@ -82,3 +82,7 @@ SQL Editor › New query › tempel isi `supabase-update-v3.8.sql` › Run. (Fun
 ## Update v4.2: titip ke diri sendiri
 
 SQL Editor › New query › tempel isi `supabase-update-v4.2.sql` › Run, lalu perbarui kode fungsi `push` (Code › ganti › Deploy).
+
+## Update v4.3: checklist tugas & persiapan bisa dicentang teman
+
+SQL Editor › New query › tempel isi `supabase-update-v4.3.sql` › Run. Fungsi `push` tidak perlu diubah.

@@ -269,6 +269,18 @@ main{overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;overscro
 .chk input{width:22px;height:22px;accent-color:var(--p);flex-shrink:0}
 .chk label{flex:1;font-size:15px;font-weight:600;cursor:pointer;padding:10px 0;word-break:break-word}
 .chk.done label{text-decoration:line-through;color:var(--mu)}
+.chk-by{display:inline-block;margin-left:6px;font-size:11.5px;font-weight:700;color:var(--ok,#15803D);text-decoration:none;background:rgba(22,163,74,.1);padding:1px 7px;border-radius:999px;vertical-align:1px}
+.chk.done label .chk-by{text-decoration:none}
+.tk-cl{display:flex;flex-direction:column;gap:8px;padding:12px;border-radius:16px;background:var(--card,#fff);border:1px solid var(--bd,#E5E7EB)}
+.tk-cl-h{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.tk-cl-h b{display:flex;align-items:center;gap:8px;font-size:15px}
+.tk-cl-h small{font-size:12.5px;font-weight:700;color:var(--mu)}
+.tk-cl .bar{margin:0}
+.tk-cl .chk{min-height:44px}
+.tk-cl-add{display:flex;gap:8px}
+.tk-cl-add .inp{flex:1;min-width:0}
+.tk-cl-ro{font-size:12px;color:var(--mu)}
+.tk-meta>span.tk-cl-ok{color:#15803D}
 .sw{display:flex;align-items:center;gap:12px;min-height:50px}
 .sw span{flex:1;display:flex;flex-direction:column}
 .sw b{font-size:15px}
@@ -678,7 +690,7 @@ mark{background:var(--mark);color:inherit;border-radius:3px;padding:0 1px}
 
 <script type="module">
 /* ============ helpers ============ */
-const APP_VERSION = '4.2 (26 Nov 2026)';
+const APP_VERSION = '4.3 (28 Nov 2026)';
 const $ = (s, r = document) => r.querySelector(s);
 const h = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const pad = (n) => String(n).padStart(2, '0');
@@ -786,7 +798,7 @@ const COLS = {
   events: ['id', 'owner_id', 'person_id', 'title', 'date', 'time', 'location', 'notes', 'shared', 'checklist', 'reminders', 'repeat', 'birth_year', 'occ', 'kind', 'share_with', 'created_at', 'updated_at'],
   notes: ['id', 'owner_id', 'person_id', 'text', 'kind', 'created_at'],
   groups: ['id', 'owner_id', 'name', 'color', 'members', 'member_people', 'member_names', 'created_at', 'updated_at'],
-  tasks: ['id', 'owner_id', 'title', 'due', 'time', 'notes', 'done', 'done_at', 'done_by', 'event_id', 'event_date', 'assignee', 'assignees', 'people_ids', 'group_id', 'remind', 'created_at', 'updated_at']
+  tasks: ['id', 'owner_id', 'title', 'due', 'time', 'notes', 'done', 'done_at', 'done_by', 'event_id', 'event_date', 'assignee', 'assignees', 'people_ids', 'group_id', 'remind', 'checklist', 'created_at', 'updated_at']
 };
 const pick = (t, r) => { const o = {}; for (const c of COLS[t]) if (r[c] !== undefined) o[c] = r[c]; return o; };
 const Local = {
@@ -824,6 +836,10 @@ const Cloud = {
     if (error && t === 'tasks' && /group_id/.test(error.message || '')) {
       const r = pick(t, row); delete r.group_id; ({ error } = await S.sb.from(t).upsert(r));
       if (!error && !Cloud._warn41) { Cloud._warn41 = 1; toast('Jalankan supabase-update-v4.1.sql supaya tugas grup tersimpan online'); }
+    }
+    if (error && t === 'tasks' && /checklist/.test(error.message || '')) {
+      const r = pick(t, row); delete r.checklist; ({ error } = await S.sb.from(t).upsert(r));
+      if (!error && !Cloud._warn43) { Cloud._warn43 = 1; toast('Jalankan supabase-update-v4.3.sql supaya checklist tugas tersimpan online'); }
     }
     if (error && t === 'tasks' && /people_ids/.test(error.message || '')) {
       const r = pick(t, row); delete r.people_ids; ({ error } = await S.sb.from(t).upsert(r));
@@ -961,6 +977,14 @@ function nextBday(pid) { const b = bdayEvent(pid); if (!b) return null; const l 
 const baseOf = (e) => (e && e._base ? S.data.events.find((x) => x.id === e._base) : S.data.events.find((x) => x.id === (e && e.id)));
 async function saveChecklist(inst, list) {
   const b = baseOf(inst); if (!b) return;
+  if (S.mode === 'cloud' && !isMine(b)) {
+    // acara milik teman yang dibagikan ke aku: hanya boleh mencentang
+    const nb = isRec(b) ? { ...b, occ: { ...(b.occ || {}), [inst.date]: { ...((b.occ || {})[inst.date] || {}), checklist: list } } } : { ...b, checklist: list };
+    S.data.events = S.data.events.map((x) => (x.id === b.id ? nb : x)); render();
+    const { error } = await S.sb.rpc('set_event_check', { p_id: b.id, p_date: inst.date, p_list: list });
+    if (error) { S.data.events = S.data.events.map((x) => (x.id === b.id ? b : x)); render(); toast(/function|schema|exist/i.test(error.message || '') ? 'Gagal: pemilik Ingetin perlu menjalankan SQL v4.3 dulu' : 'Gagal: ' + error.message); }
+    return nb;
+  }
   if (!isRec(b)) return save('events', { ...b, checklist: list });
   const occ = { ...(b.occ || {}) }; occ[inst.date] = { ...(occ[inst.date] || {}), checklist: list };
   return save('events', { ...b, occ });
@@ -1673,7 +1697,7 @@ function vMinggu() {
     else if (f === 'prep') {
       list = prepEvs.map((e) => { const i = evInfo(e), mine = isMine(e); return `<section class="card prep">
         <button type="button" class="prep-h" data-act="openEvent" data-id="${h(e.id)}"><span class="dblock" style="${cs(i.color)}"><small>${HARI3[pd(e.date).getDay()]}</small><b>${pd(e.date).getDate()}</b></span><span class="ev-t"><b>${h(e.title)}</b><span>${h(rel(e.date))} · ${e.checklist.filter((c) => !c.done).length} belum beres</span></span>${ic('right', 18, 2.2)}</button>
-        ${e.checklist.map((c, k) => c.done ? '' : `<div class="chk"><input type="checkbox" id="pc-${h(e.id)}-${k}" data-chg="prepCheck" data-id="${h(e.id)}" data-i="${k}" ${mine ? '' : 'disabled'}><label for="pc-${h(e.id)}-${k}">${h(c.text)}</label></div>`).join('')}
+        ${e.checklist.map((c, k) => c.done ? '' : `<div class="chk"><input type="checkbox" id="pc-${h(e.id)}-${k}" data-chg="prepCheck" data-id="${h(e.id)}" data-i="${k}"><label for="pc-${h(e.id)}-${k}">${h(c.text)}</label></div>`).join('')}
       </section>`; }).join('') || emptyBox('Semua persiapan sudah beres 🎉', `Tidak ada checklist yang tertunda di ${BULAN[mo]}.`);
     } else if (f === 'people') {
       const arr = [...pmap.values()].sort((p, q) => q.n - p.n || p.name.localeCompare(q.name));
@@ -1977,6 +2001,25 @@ function rtStart() {
 }
 const friendPeople = () => S.data.people.filter((p) => p.linked_user_id && S.data.friends.some((f) => f.id === p.linked_user_id));
 const personOfUser = (uidv) => S.data.people.find((p) => p.linked_user_id === uidv) || null;
+const chkBy = (x) => (x.done && x.by && x.by !== myId() && S.mode === 'cloud' ? ` <small class="chk-by">✓ ${h(userName(x.by))}</small>` : '');
+function tkChecklist(t, mine, canCheck) {
+  const list = t.checklist || [], done = list.filter((x) => x.done).length;
+  if (!mine && !list.length) return '';
+  return `<section class="tk-cl" id="tk-cl" aria-label="Checklist tugas"><div class="tk-cl-h"><b>${ic('list', 17, 2.2)}Checklist</b><small>${list.length ? done + ' dari ' + list.length + ' beres' : 'Pecah jadi langkah kecil'}</small></div>
+    ${list.length ? `<div class="bar"><i style="width:${Math.round((done / list.length) * 100)}%;background:${done === list.length ? '#16A34A' : 'var(--p)'}"></i></div>` : ''}
+    ${list.map((x, k) => `<div class="chk ${x.done ? 'done' : ''}"><input type="checkbox" id="tc-${k}" data-chg="tkCheck" data-i="${k}" ${x.done ? 'checked' : ''} ${canCheck ? '' : 'disabled'}><label for="tc-${k}">${h(x.text)}${chkBy(x)}</label>${mine ? `<button type="button" class="mini" data-act="tkCheckDel" data-i="${k}" aria-label="Hapus langkah ${h(x.text)}">${ic('x', 16)}</button>` : ''}</div>`).join('')}
+    ${mine ? `<div class="tk-cl-add"><label for="tc-new" class="sr">Langkah baru</label><input id="tc-new" class="inp" placeholder="Tambah langkah, mis. Kirim draf" autocomplete="off" enterkeyhint="done"><button type="button" class="btn" data-act="tkCheckAdd" aria-label="Tambah langkah">${ic('plus', 18, 2.4)}</button></div>`
+      : canCheck ? '<small class="tk-cl-ro">Centang langkah yang sudah kamu kerjakan. Pemilik tugas akan melihatnya.</small>' : ''}
+  </section>`;
+}
+async function saveTaskChecklist(t) {
+  const cur = S.data.tasks.find((x) => x.id === t.id); if (!cur) return;
+  const list = (t.checklist || []).map((x) => ({ ...x }));
+  if (S.mode !== 'cloud' || cur.owner_id === myId()) return save('tasks', { ...cur, checklist: list });
+  const old = cur.checklist; cur.checklist = list; render();
+  const { error } = await S.sb.rpc('set_task_check', { p_id: cur.id, p_list: list });
+  if (error) { cur.checklist = old; render(); toast(/function|schema|exist/i.test(error.message || '') ? 'Gagal: pemilik Ingetin perlu menjalankan SQL v4.3 dulu' : 'Gagal: ' + error.message); }
+}
 const userName = (uidv) => { if (uidv === myId()) return 'Kamu'; const p = personOfUser(uidv); if (p) return p.name; const f = S.data.friends.find((x) => x.id === uidv); if (f) return f.name; for (const g of S.data.groups || []) if (g.member_names && g.member_names[uidv]) return g.member_names[uidv]; return 'Teman'; };
 const evEmoji = (e) => (e.kind === 'ultah' || (e.repeat === 'yearly' && /ultah|ulang tahun|birthday/i.test(e.title)) ? '🎂' : '📋');
 function taskEvent(t) {
@@ -2036,6 +2079,8 @@ function taskRow(x) {
   const canClaim = x.src === 'task' && !x.done && x.t.group_id && !hasWho(x.t) && x.t.owner_id !== myId() && S.mode === 'cloud';
   const avs = x.who === 'grup' ? asgOf(x.t).map((u) => personOfUser(u) || { name: userName(u), color: 'gray' }) : x.who === 'titip' ? [...asgOf(x.t).map((u) => personOfUser(u) || { name: userName(u), color: 'gray' }), ...pplOf(x.t).map((id) => ({ ...(personById(id) || { name: '?', color: 'gray' }), _wait: true }))] : x.who === 'dari' ? [personOfUser(x.t.owner_id) || { name: userName(x.t.owner_id), color: 'gray' }] : [];
   const unread = x.src === 'task' ? chatUnread(x.t.id) : 0, nmsg = x.src === 'task' ? chatOf(x.t.id).filter((c) => c.kind !== 'sys').length : 0;
+  const cl = x.src === 'task' ? x.t.checklist || [] : [];
+  if (cl.length) { const cd = cl.filter((y) => y.done).length; meta.push(`<span class="tk-m ${cd === cl.length ? 'tk-cl-ok' : ''}">${ic('list', 13, 2.2)}${cd}/${cl.length}</span>`); }
   if (nmsg) meta.push(`<span class="tk-chat ${unread ? 'on' : ''}">💬 ${unread || nmsg}${unread ? ' baru' : ''}</span>`);
   const isNew = x.who === 'dari' && !x.done && x.t.created_at && Date.now() - new Date(x.t.created_at).getTime() < 86400000;
   const stc = x.done ? 'st-done' : late ? 'st-late' : x.due === T ? 'st-today' : x.due ? 'st-later' : 'st-some';
@@ -2145,7 +2190,8 @@ async function saveTask(t, isNew) {
   const b = ev ? baseOf(ev) : null;
   const row = { ...(t.id ? (S.data.tasks.find((x) => x.id === t.id) || {}) : {}), id: t.id || uid(), title, due: t.due || null, time: t.due ? t.time || null : null,
     remind: t.remind !== false, notes: (t.notes || '').trim() || null, event_id: b ? b.id : null, event_date: b && isRec(b) ? ev.date : null,
-    assignees: S.mode === 'cloud' && asgOf(t).length ? asgOf(t) : null, assignee: S.mode === 'cloud' ? asgOf(t).find((u) => u !== myId()) || null : null, people_ids: pplOf(t).length ? pplOf(t) : null, group_id: t.group_id || null, done: !!t.done };
+    assignees: S.mode === 'cloud' && asgOf(t).length ? asgOf(t) : null, assignee: S.mode === 'cloud' ? asgOf(t).find((u) => u !== myId()) || null : null, people_ids: pplOf(t).length ? pplOf(t) : null, group_id: t.group_id || null, done: !!t.done, checklist: (t.checklist || []).length ? t.checklist : (t.id ? undefined : []) };
+  if (row.checklist === undefined) row.checklist = (S.data.tasks.find((x) => x.id === t.id) || {}).checklist || [];
   await save('tasks', row);
   if (isNew) toast(hasOthers(row) ? 'Dititipkan ke ' + asgNames(row) : row.group_id ? 'Tugas grup ditambahkan' : 'Tugas ditambahkan');
 }
@@ -2267,7 +2313,7 @@ const SHEETS = {
               <button type="button" class="chipbtn" data-act="qaEx" data-t="Rina alergi udang">Rina alergi udang</button></div>
           </div>
         </div>
-        ${kind === 'task' ? taskFields(s.tk, s) + `<p class="err" id="qa-err" role="alert"></p><div class="row2"><button type="button" class="btn" data-act="closeSheet">Batal</button><button type="submit" class="btn pri">Simpan tugas</button></div></form></div>` : `
+         ${kind === 'task' ? taskFields(s.tk, s) + tkChecklist(s.tk, true, true) + `<p class="err" id="qa-err" role="alert"></p><div class="row2"><button type="button" class="btn" data-act="closeSheet">Batal</button><button type="submit" class="btn pri">Simpan tugas</button></div></form></div>` : `
         <input type="hidden" id="qa-date" name="date" value="${h(r.date || '')}"><input type="hidden" id="qa-time" name="time" value="${h(isBday ? '' : r.time || '')}">
         ${isBday ? '<input type="hidden" name="repeat" value="yearly">' : ''}
         <div class="qrows">
@@ -2276,7 +2322,7 @@ const SHEETS = {
           ${row('date', 'cal', 'Tanggal', v.date, strip, !r.date)}
           ${isBday ? '' : row('time', 'clock', 'Jam', v.time, times)}
           ${isBday ? '' : row('repeat', 'repeat', 'Ulangi', v.repeat, repeatField('qa-rep', r.repeat, r.birthYear))}
-          ${row('rem', 'bell', 'Pengingat', v.rem, remPicker(S.sheet.rem || defaultRem(isBday ? 'yearly' : r.repeat), isBday ? 'yearly' : r.repeat))}
+          ${r.date && r.date < todayS() && !isBday && !REPEAT[r.repeat] ? '' : row('rem', 'bell', 'Pengingat', v.rem, remPicker(S.sheet.rem || defaultRem(isBday ? 'yearly' : r.repeat), isBday ? 'yearly' : r.repeat))}
           ${row('loc', 'pin', 'Lokasi & catatan', v.loc, `<div class="field"><label for="qa-loc">Lokasi</label><input id="qa-loc" class="inp" name="location" value="${h(r.location || '')}" autocomplete="off"></div>
             <div class="field"><label for="qa-notes">Catatan acara</label><textarea id="qa-notes" class="inp" name="notes" rows="2" placeholder="mis. Dress code batik">${h(r.notes || '')}</textarea></div>`)}`}
         </div>
@@ -2303,10 +2349,11 @@ const SHEETS = {
       <section class="card">
         <div class="sec-h"><h3>Checklist persiapan</h3><small>${list.length ? done + ' dari ' + list.length + ' selesai' : ''}</small></div>
         ${list.length ? `<div class="bar"><i style="width:${Math.round((done / list.length) * 100)}%;background:${c[1]}"></i></div>` : ''}
-        ${list.map((x, k) => { const due = x.before != null ? ymd(addDays(pd(e.date), -x.before)) : e.date; const late = !x.done && !x.skip && due < todayS(); const dl = x.before == null ? (late ? 'Tertunda' : 'Tenggat') : (x.before === 0 ? 'Hari H' : 'H-' + x.before); return `<div class="chk ${x.done ? 'done' : ''}"><input type="checkbox" id="ck-${k}" data-chg="check" data-i="${k}" ${x.done ? 'checked' : ''} ${mine ? '' : 'disabled'}><label for="ck-${k}">${h(x.text)}${x.skip ? ' <small class="muted">(diabaikan)</small>' : ''}</label>${mine ? `<button type="button" class="chk-due ${late ? 'late' : x.before != null ? 'set' : ''}" data-act="itemDue" data-i="${k}" aria-label="Atur tenggat ${h(x.text)}${late ? ', sudah lewat' : ''}">${dl}</button><button type="button" class="mini" data-act="delCheck" data-i="${k}" aria-label="Hapus item ${h(x.text)}">${ic('x', 16)}</button>` : ''}</div>`; }).join('')}
+        ${list.map((x, k) => { const due = x.before != null ? ymd(addDays(pd(e.date), -x.before)) : e.date; const late = !x.done && !x.skip && due < todayS(); const dl = x.before == null ? (late ? 'Tertunda' : 'Tenggat') : (x.before === 0 ? 'Hari H' : 'H-' + x.before); return `<div class="chk ${x.done ? 'done' : ''}"><input type="checkbox" id="ck-${k}" data-chg="check" data-i="${k}" ${x.done ? 'checked' : ''}><label for="ck-${k}">${h(x.text)}${x.skip ? ' <small class="muted">(diabaikan)</small>' : ''}${chkBy(x)}</label>${mine ? `<button type="button" class="chk-due ${late ? 'late' : x.before != null ? 'set' : ''}" data-act="itemDue" data-i="${k}" aria-label="Atur tenggat ${h(x.text)}${late ? ', sudah lewat' : ''}">${dl}</button><button type="button" class="mini" data-act="delCheck" data-i="${k}" aria-label="Hapus item ${h(x.text)}">${ic('x', 16)}</button>` : ''}</div>`; }).join('')}
+        ${!mine && list.length ? `<small class="muted" style="font-size:12px">Kamu bisa ikut mencentang persiapan yang sudah beres. ${h(i.from)} akan melihat siapa yang mencentang.</small>` : ''}
         ${mine ? `<form data-form="addCheck" style="display:flex;gap:8px"><label for="ck-new" class="sr">Item persiapan baru</label><input id="ck-new" class="inp" name="t" placeholder="mis. Beli kado, siapkan baju…" autocomplete="off"><button type="submit" class="btn" aria-label="Tambah item">${ic('plus', 18, 2.4)}</button></form>` : (list.length ? '' : '<p class="muted" style="margin:0;font-size:14px">Belum ada checklist.</p>')}
       </section>
-      ${(() => { const rl = remindersOf(e), off = remOff(rl); return `<section class="card"><div class="sec-h"><h3>Pengingat</h3>${mine ? '' : '<small>Hanya untukmu</small>'}</div>
+      ${e.date < todayS() ? '' : (() => { const rl = remindersOf(e), off = remOff(rl); return `<section class="card"><div class="sec-h"><h3>Pengingat</h3>${mine ? '' : '<small>Hanya untukmu</small>'}</div>
         ${REM.filter((r) => !(e.repeat === 'daily' && r.days > 0)).map((r) => `<label class="sw">${ic('bell', 20)}<span><b>${r.label}</b><small>${h(remLabel(e, r.k))}</small></span><input type="checkbox" role="switch" data-chg="remEv" value="${r.k}" ${rl.includes(r.k) ? 'checked' : ''}></label>`).join('')}
         ${e.time ? '' : '<small class="muted" style="font-size:12px">Acara tanpa jam: pengingat hari H pukul 07.00.</small>'}
         ${mine ? '' : `<small class="muted" style="font-size:12px">Acara milik ${h(i.from)}. Pengingat ini tersimpan di perangkat ini dan tidak mengubah acara temanmu.</small>`}
@@ -2329,7 +2376,7 @@ const SHEETS = {
         ${personPicker('ee-person', e.person_id || '')}
         <div class="field"><label for="ee-loc">Lokasi (opsional)</label><input id="ee-loc" class="inp" name="location" value="${h(e.location || '')}"></div>
         <div class="field"><label for="ee-notes">Catatan (opsional)</label><textarea id="ee-notes" class="inp" name="notes" rows="2" placeholder="mis. Dress code batik">${h(e.notes || '')}</textarea></div>
-        <div><div class="flabel">Pengingat</div>${remChecks(e.reminders || defaultRem(e.repeat), e.repeat)}</div>
+        <div id="ee-rem" ${e.date < todayS() && (s.single || !isRec(e)) ? 'hidden' : ''}><div class="flabel">Pengingat</div>${remChecks(e.reminders || defaultRem(e.repeat), e.repeat)}</div>
         ${s.single ? '' : shareBox(sharedWith(e))}
         <div class="row2"><button type="button" class="btn" data-act="${s.id || s.single ? 'backToEvent' : 'closeSheet'}">Batal</button><button type="submit" class="btn pri">Simpan</button></div>
       </form></div>`;
@@ -2431,6 +2478,7 @@ const SHEETS = {
         <label class="sr" for="tk-title">Judul tugas</label><input id="tk-title" class="qtitle" name="title" value="${h(t.title || '')}" placeholder="Apa yang perlu dikerjakan?" autocomplete="off" ${mine ? '' : 'readonly'}></div>
         ${mine ? '' : viewer ? `<div class="ps-warn" style="background:var(--p-l);color:var(--tx)">${ic('people', 18)}<span>Tugas grup <b>${h((groupById(t.group_id) || {}).name || '')}</b> dari ${h(userName(t.owner_id))}. ${hasWho(t) ? 'Kamu hanya bisa melihat; yang mengerjakan: <b>' + h(asgNames(t)) + '</b>.' : 'Belum ada yang mengambil — ketuk <b>Ambil tugas</b> untuk mengerjakan.'}</span></div>` : `<div class="ps-warn" style="background:var(--p-l);color:var(--tx)">${ic('people', 18)}<span>Dititipkan oleh <b>${h(userName(t.owner_id))}</b>. Kamu bisa mencentangnya kalau sudah beres.</span></div>`}
         ${taskFields(t, s, !mine)}
+        ${tkChecklist(t, mine, mine || asgOf(t).includes(myId()))}
         ${!s.isNew ? `<div class="tk-hist"><b>Riwayat</b><span>Dibuat ${h(fmtShort(t.created_at ? ymd(new Date(t.created_at)) : todayS()))} oleh <b class="tk-who">${h(fullName(t.owner_id || myId()))}</b>${hasWho(t) ? ' · dititipkan ke ' + h(asgNames(t)) : ''}${t.done && t.done_at ? ' · dicentang ' + h(userName(t.done_by || myId())) + ' ' + h(fmtShort(ymd(new Date(t.done_at)))) : ''}</span></div>` : ''}
         ${!s.isNew && canChat(t) ? (viewer ? (chatOf(t.id).some((c) => c.kind !== 'sys') ? chatBox(t, true) : '') : chatBox(t)) : ''}
         <p class="err" id="tk-err" role="alert"></p>
@@ -2442,7 +2490,7 @@ const SHEETS = {
     return `<div class="sh-body"><div class="sh-top"><h2>Siapkan notifikasi server</h2><button type="button" class="icon-btn round" data-act="closeSheet" aria-label="Tutup">${ic('x', 18, 2.4)}</button></div>
       ${s.why === 'SERVER' ? `<div class="ps-warn">${ic('info', 18)}<span>Server notifikasi belum ditemukan. Ikuti langkah 2 dan 3 dulu.</span></div>` : s.why === 'SQL' ? `<div class="ps-warn">${ic('info', 18)}<span>Tabel notifikasi belum ada. Jalankan langkah 1 dulu.</span></div>` : '<p class="muted" style="margin:0">Cukup sekali. Setelah itu semua akun di Ingetin bisa memakainya.</p>'}
       <ol class="ps-list">
-        ${step(1, 'Jalankan SQL', 'Supabase › SQL Editor › New query › tempel › Run. Jalankan berurutan file yang belum pernah kamu jalankan (v3.1 → v3.3 → v3.7 → v3.8 → v4.1 → v4.2).', `<div style="display:flex;gap:8px;flex-wrap:wrap"><button type="button" class="btn ghost ps-btn" data-act="copyFile" data-f="supabase-update-v3.1.sql">${ic('copy', 16)}SQL v3.1</button><button type="button" class="btn ghost ps-btn" data-act="copyFile" data-f="supabase-update-v3.3.sql">${ic('copy', 16)}SQL v3.3 (Tugas)</button><button type="button" class="btn ghost ps-btn" data-act="copyFile" data-f="supabase-update-v3.7.sql">${ic('copy', 16)}SQL v3.7 (Obrolan)</button><button type="button" class="btn ghost ps-btn" data-act="copyFile" data-f="supabase-update-v3.8.sql">${ic('copy', 16)}SQL v3.8 (Teman manual)</button><button type="button" class="btn ghost ps-btn" data-act="copyFile" data-f="supabase-update-v4.1.sql">${ic('copy', 16)}SQL v4.1 (Grup)</button><button type="button" class="btn ghost ps-btn" data-act="copyFile" data-f="supabase-update-v4.2.sql">${ic('copy', 16)}SQL v4.2</button></div>`)}
+        ${step(1, 'Jalankan SQL', 'Supabase › SQL Editor › New query › tempel › Run. Jalankan berurutan file yang belum pernah kamu jalankan (v3.1 → v3.3 → v3.7 → v3.8 → v4.1 → v4.2 → v4.3).', `<div style="display:flex;gap:8px;flex-wrap:wrap"><button type="button" class="btn ghost ps-btn" data-act="copyFile" data-f="supabase-update-v3.1.sql">${ic('copy', 16)}SQL v3.1</button><button type="button" class="btn ghost ps-btn" data-act="copyFile" data-f="supabase-update-v3.3.sql">${ic('copy', 16)}SQL v3.3 (Tugas)</button><button type="button" class="btn ghost ps-btn" data-act="copyFile" data-f="supabase-update-v3.7.sql">${ic('copy', 16)}SQL v3.7 (Obrolan)</button><button type="button" class="btn ghost ps-btn" data-act="copyFile" data-f="supabase-update-v3.8.sql">${ic('copy', 16)}SQL v3.8 (Teman manual)</button><button type="button" class="btn ghost ps-btn" data-act="copyFile" data-f="supabase-update-v4.1.sql">${ic('copy', 16)}SQL v4.1 (Grup)</button><button type="button" class="btn ghost ps-btn" data-act="copyFile" data-f="supabase-update-v4.2.sql">${ic('copy', 16)}SQL v4.2</button><button type="button" class="btn ghost ps-btn" data-act="copyFile" data-f="supabase-update-v4.3.sql">${ic('copy', 16)}SQL v4.3 (Checklist)</button></div>`)}
         ${step(2, 'Buat / perbarui Edge Function "push"', 'Supabase › Edge Functions › Deploy a new function › Via Editor. Beri nama <b>push</b>, hapus contoh kodenya, tempel kode ini, lalu Deploy. Sudah ada? Buka fungsi push › Code, ganti seluruh isinya dengan kode terbaru, lalu Deploy.', `<button type="button" class="btn ghost ps-btn" data-act="copyFile" data-f="supabase/functions/push/index.ts">${ic('copy', 16)}Salin kode fungsi</button>`)}
         ${step(3, 'Matikan "Verify JWT"', 'Buka fungsi push › Details. Matikan <b>Enforce JWT Verification</b> (atau Verify JWT), lalu Save.')}
         ${step(4, 'Nyalakan di sini', 'Kembali ke Pengaturan › Notifikasi, nyalakan <b>Notifikasi walau aplikasi ditutup</b>.')}
@@ -2672,6 +2720,18 @@ const A = {
   tkDate(d) { tkSync(); S.sheet.tk.due = d.d; if (!d.d) S.sheet.tk.time = ''; renderSheet(); const st = $('.dstrip .on'); if (st) centerX($('.dstrip'), st); },
   tkTime(d) { tkSync(); S.sheet.tk.time = d.t; if (d.t && !S.sheet.tk.due) S.sheet.tk.due = todayS(); renderSheet(); },
   async tkDone() { const t = S.sheet.tk; const x = findItem('t:' + t.id); if (!x) return; closeSheet(); await toggleTask(x); },
+  async tkCheckAdd() {
+    tkSync(); const inp = $('#tc-new'), text = inp ? inp.value.trim() : ''; if (!text) { inp && inp.focus(); return; }
+    const t = S.sheet.tk; t.checklist = [...(t.checklist || []), { text, done: false }];
+    if (t.id && !S.sheet.isNew) saveTaskChecklist(t);
+    renderSheet(); const n = $('#tc-new'); if (n) { n.value = ''; n.focus(); }
+  },
+  tkCheckDel(d) {
+    tkSync(); const t = S.sheet.tk, list = [...(t.checklist || [])]; const [old] = list.splice(+d.i, 1); t.checklist = list;
+    if (t.id && !S.sheet.isNew) saveTaskChecklist(t);
+    renderSheet();
+    toast('Langkah dihapus', { label: 'Batalkan', fn: () => { if (!S.sheet || S.sheet.tk !== t) return; const l2 = [...(t.checklist || [])]; l2.splice(+d.i, 0, old); t.checklist = l2; if (t.id && !S.sheet.isNew) saveTaskChecklist(t); renderSheet(); } });
+  },
   async tkDel() {
     const t = S.sheet.tk; if (!(await confirmBox('Hapus tugas ini?', '“' + t.title + '” akan dihapus.', 'Hapus'))) return;
     closeSheet(); const old = await remove('tasks', t.id); if (old) toast('Tugas dihapus', { label: 'Batalkan', fn: () => save('tasks', old) });
@@ -2876,8 +2936,10 @@ const A = {
     const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'ingetin-cadangan-' + todayS() + '.json'; document.body.appendChild(a); a.click(); a.remove();
   }
 };
+function eeRemSync() { const box = $('#ee-rem'), d = $('#ee-date'); if (!box || !d) return; const rep = $('form[data-form=editEvent] input[name=repeat]:checked'); box.hidden = !!d.value && d.value < todayS() && !(rep && REPEAT[rep.value]); }
 function fieldSet(id) {
   const inp = $('#' + id); if (!inp) return; const v = inp.value;
+  if (id === 'ee-date') eeRemSync();
   if (id === 'resch-date' && S.resch && v) {
     const r = S.resch; S.resch = null;
     save('events', { id: uid(), title: r.text + ' · ' + r.title, date: v, time: null, person_id: r.person || null, location: null, notes: 'Dijadwalkan ulang dari persiapan “' + r.title + '”', shared: false, checklist: [], reminders: ['hari-h', 'off-60'], repeat: null, occ: {}, kind: 'tugas' }).then(() => {
@@ -2895,6 +2957,16 @@ function fieldSet(id) {
   if (S.sheet && S.sheet.tk && (id === 'tk-due' || id === 'tk-time')) { tkSync(); if (id === 'tk-time' && v && !S.sheet.tk.due) S.sheet.tk.due = todayS(); renderSheet(); }
 }
 const CHG = {
+  tkCheck(el) {
+    tkSync(); const t = S.sheet && S.sheet.tk; if (!t) return; const k = +el.dataset.i;
+    t.checklist = (t.checklist || []).map((x, i) => (i === k ? { ...x, done: el.checked, by: el.checked ? myId() : null } : x));
+    if (t.id && !S.sheet.isNew) saveTaskChecklist(t);
+    renderSheet();
+    if (el.checked && 'vibrate' in navigator) navigator.vibrate(10);
+    const all = t.checklist.length && t.checklist.every((x) => x.done);
+    if (all && !t.done && t.id && !S.sheet.isNew && (t.owner_id === myId() || asgOf(t).includes(myId()))) toast('Semua langkah beres!', { label: 'Tandai tugas beres', fn: () => A.tkDone() });
+    else if (all) toast('Semua langkah beres!');
+  },
   remOff(el) { if (S.sheet && S.sheet.kind === 'event') return CHG.remEv(el); },
   shareTo(el) {
     const f = el.form; const ids = [...f.querySelectorAll('input[name=shareTo]:checked')].map((x) => x.value);
@@ -2907,14 +2979,14 @@ const CHG = {
   pinToggle(el) { if (el.checked) { el.checked = false; openSheet('pin', { mode: 'set', buf: '' }); } else { el.checked = true; openSheet('pin', { mode: 'verify', buf: '', next: 'off' }); } },
   mode(el) { lsSet('ingetin:mode', el.value); applyTheme(); render(); },
   repeatPick(el) {
-    const f = el.form; const by = f && f.querySelector('.by-field'); if (by) by.hidden = el.value !== 'yearly';
+    const f = el.form; const by = f && f.querySelector('.by-field'); if (by) by.hidden = el.value !== 'yearly'; eeRemSync();
     if (S.sheet && S.sheet.kind === 'quick') { qaSync(); S.sheet.parsed.repeat = el.value; S.sheet.rem = null; const q = $('#qa-text'); S.sheet.text = q ? q.value : S.sheet.text; renderSheet(); }
   },
   theme(el) { if (el.value === 'custom') { const c = $('#th-custom'); el.value = 'custom:' + (c ? c.value : '#2F5BEA'); } lsSet('ingetin:theme', el.value); applyTheme(el.value); render(); toast('Tema ' + themeOf(el.value).n + ' dipakai'); },
   holToggle(el) { lsSet('ingetin:showHol', el.checked); render(); },
   async prepCheck(el) {
     const e = getEv(el.dataset.id); if (!e) return;
-    const k = +el.dataset.i, list = (e.checklist || []).map((x, i) => (i === k ? { ...x, done: true } : x));
+    const k = +el.dataset.i, list = (e.checklist || []).map((x, i) => (i === k ? { ...x, done: true, by: myId() } : x));
     const row = el.closest('.chk'); if (row) row.classList.add('done');
     await new Promise((r) => setTimeout(r, 350));
     await saveChecklist(e, list);
@@ -2930,7 +3002,7 @@ const CHG = {
   qaType(el) { qaSync(); tkSync(); const p = S.sheet.parsed; if (el.value === 'task') { S.sheet.forceType = 'task'; S.sheet.tk = { title: (S.sheet.tk && S.sheet.tk.title) || p.title || p.noteText || '', due: p.date || '', time: p.time || '', remind: true }; S.sheet.open = {}; renderSheet(); return; } if (S.sheet.forceType === 'task' && S.sheet.tk) { p.title = S.sheet.tk.title; p.date = S.sheet.tk.due; p.time = S.sheet.tk.time; } S.sheet.forceType = el.value; p.type = el.value === 'note' ? 'note' : 'event'; if (el.value === 'bday') { p.repeat = 'yearly'; } else if (p.repeat === 'yearly' && el.value === 'event') p.repeat = ''; if (el.value === 'note' && !p.noteText) p.noteText = p.title || ''; if (el.value !== 'note' && !p.title && p.noteText) p.title = p.noteText; S.sheet.rem = null; renderSheet(); },
   async check(el) {
     const e = getEv(S.sheet.id); if (!e) return;
-    const list = (e.checklist || []).map((x, i) => (i === +el.dataset.i ? { ...x, done: el.checked } : x));
+    const list = (e.checklist || []).map((x, i) => (i === +el.dataset.i ? { ...x, done: el.checked, by: el.checked ? myId() : null } : x));
     await saveChecklist(e, list);
     if (list.length && list.every((x) => x.done)) toast('Semua persiapan beres!');
   },
@@ -3128,6 +3200,7 @@ document.addEventListener('input', (ev) => {
   }
 });
 document.addEventListener('keydown', (ev) => {
+  if (ev.target && ev.target.id === 'tc-new' && ev.key === 'Enter' && !ev.isComposing) { ev.preventDefault(); A.tkCheckAdd(); return; }
   if (ev.target && ev.target.id === 'tk-msg' && ev.key === 'Enter' && !ev.shiftKey && !ev.isComposing) { ev.preventDefault(); chatSend(); return; }
   if (S.sheet && S.sheet.kind === 'pin' && /^[0-9]$/.test(ev.key)) { A.pinKey({ k: ev.key }); return; }
   if (S.sheet && S.sheet.kind === 'pin' && ev.key === 'Backspace') { A.pinDel(); return; }
